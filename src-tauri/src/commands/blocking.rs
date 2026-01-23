@@ -233,9 +233,21 @@ fn apply_blocking_with_pkexec() -> std::io::Result<()> {
         domains.extend(config.blocked_domains.clone());
     }
 
-    // Remove allowed domains
-    for allowed in &config.allowed_domains {
-        domains.remove(allowed);
+    // Remove allowed domains (including subdomains)
+    let domains_to_remove: Vec<String> = domains
+        .iter()
+        .filter(|domain| {
+            for allowed in &config.allowed_domains {
+                if *domain == allowed || domain.ends_with(&format!(".{}", allowed)) {
+                    return true;
+                }
+            }
+            false
+        })
+        .cloned()
+        .collect();
+    for domain in domains_to_remove {
+        domains.remove(&domain);
     }
 
     if domains.is_empty() {

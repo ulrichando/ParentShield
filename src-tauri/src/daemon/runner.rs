@@ -331,8 +331,21 @@ fn apply_blocking_now() -> Result<(), Box<dyn std::error::Error>> {
             domains_to_block.extend(config.blocked_domains.clone());
         }
 
-        for allowed in &config.allowed_domains {
-            domains_to_block.remove(allowed);
+        // Remove allowed domains (including subdomains)
+        let domains_to_remove: Vec<String> = domains_to_block
+            .iter()
+            .filter(|domain| {
+                for allowed in &config.allowed_domains {
+                    if *domain == allowed || domain.ends_with(&format!(".{}", allowed)) {
+                        return true;
+                    }
+                }
+                false
+            })
+            .cloned()
+            .collect();
+        for domain in domains_to_remove {
+            domains_to_block.remove(&domain);
         }
 
         info!("Domains to block: {} total", domains_to_block.len());
