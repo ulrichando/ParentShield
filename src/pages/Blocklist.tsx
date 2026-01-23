@@ -21,12 +21,15 @@ interface BlocklistCategory {
   items: BlocklistItem[];
 }
 
+type FilterMode = "all" | "blocked" | "allowed";
+
 export function Blocklist({ onBack }: BlocklistPageProps) {
   const [categories, setCategories] = useState<BlocklistCategory[]>([]);
   const [activeTab, setActiveTab] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [newItem, setNewItem] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [filterMode, setFilterMode] = useState<FilterMode>("all");
 
   const fetchBlocklists = async () => {
     try {
@@ -45,9 +48,17 @@ export function Blocklist({ onBack }: BlocklistPageProps) {
   }, []);
 
   const currentCategory = categories[activeTab];
-  const filteredItems = currentCategory?.items.filter((item) =>
-    item.value.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredItems = currentCategory?.items.filter((item) => {
+    const matchesSearch = item.value.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesFilter =
+      filterMode === "all" ||
+      (filterMode === "allowed" && item.is_allowed) ||
+      (filterMode === "blocked" && !item.is_allowed);
+    return matchesSearch && matchesFilter;
+  });
+
+  const allowedCount = currentCategory?.items.filter((item) => item.is_allowed).length ?? 0;
+  const blockedCount = currentCategory?.items.filter((item) => !item.is_allowed).length ?? 0;
 
   const handleAddItem = async () => {
     if (!newItem.trim()) return;
@@ -101,8 +112,8 @@ export function Blocklist({ onBack }: BlocklistPageProps) {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-xl font-semibold">Blocklist</h1>
-            <p className="text-sm text-muted-foreground">Manage blocked items</p>
+            <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Blocklist</h1>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Manage blocked items</p>
           </div>
         </div>
       </header>
@@ -117,7 +128,7 @@ export function Blocklist({ onBack }: BlocklistPageProps) {
               className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === index
                   ? "border-blue-600 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700"
+                  : "border-transparent text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white"
               }`}
             >
               {category.name}
@@ -152,6 +163,42 @@ export function Blocklist({ onBack }: BlocklistPageProps) {
           </div>
         </div>
 
+        {/* Filter Buttons */}
+        <div className="flex gap-2">
+          <Button
+            variant={filterMode === "all" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setFilterMode("all")}
+          >
+            All
+            <Badge variant="secondary" className="ml-2">
+              {currentCategory?.items.length ?? 0}
+            </Badge>
+          </Button>
+          <Button
+            variant={filterMode === "blocked" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setFilterMode("blocked")}
+          >
+            <Shield className="h-4 w-4 mr-1 text-red-500" />
+            Blocked
+            <Badge variant="secondary" className="ml-2">
+              {blockedCount}
+            </Badge>
+          </Button>
+          <Button
+            variant={filterMode === "allowed" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setFilterMode("allowed")}
+          >
+            <ShieldOff className="h-4 w-4 mr-1 text-green-500" />
+            Allowed
+            <Badge variant="secondary" className="ml-2">
+              {allowedCount}
+            </Badge>
+          </Button>
+        </div>
+
         {/* Items List */}
         <Card>
           <CardContent className="pt-6">
@@ -174,7 +221,7 @@ export function Blocklist({ onBack }: BlocklistPageProps) {
                       ) : (
                         <Shield className="h-4 w-4 text-red-600" />
                       )}
-                      <span className="font-mono text-sm">{item.value}</span>
+                      <span className="font-mono text-sm text-gray-900 dark:text-white">{item.value}</span>
                       {item.is_default && (
                         <Badge variant="outline" className="text-xs">
                           Default
@@ -214,14 +261,20 @@ export function Blocklist({ onBack }: BlocklistPageProps) {
               </div>
             ) : (
               <div className="text-center py-8 text-muted-foreground">
-                {searchQuery ? "No items match your search" : "No items in this category"}
+                {searchQuery
+                  ? "No items match your search"
+                  : filterMode === "allowed"
+                  ? "No allowed items yet. Click the shield icon on any item to whitelist it."
+                  : filterMode === "blocked"
+                  ? "No blocked items"
+                  : "No items in this category"}
               </div>
             )}
           </CardContent>
         </Card>
 
         {/* Legend */}
-        <div className="flex gap-6 text-sm text-muted-foreground">
+        <div className="flex gap-6 text-sm text-gray-600 dark:text-gray-300">
           <div className="flex items-center gap-2">
             <Shield className="h-4 w-4 text-red-600" />
             <span>Blocked</span>

@@ -214,11 +214,25 @@ pub fn get_default_ai_domains() -> HashSet<String> {
         "claude.ai",
         "anthropic.com",
         "api.anthropic.com",
-        // Google AI
+        // Google AI / Gemini
         "gemini.google.com",
         "bard.google.com",
         "ai.google",
         "aistudio.google.com",
+        "generativelanguage.googleapis.com",
+        "aiplatform.googleapis.com",
+        "us-central1-aiplatform.googleapis.com",
+        "europe-west1-aiplatform.googleapis.com",
+        "asia-east1-aiplatform.googleapis.com",
+        "notebooklm.google.com",
+        "notebooklm.google",
+        // Gemini Code Assist / Duet AI (VSCode extension)
+        "cloudaicompanion.googleapis.com",
+        "cloudcode-pa.googleapis.com",
+        "codecompanion-pa.googleapis.com",
+        "us-cloudaicompanion.googleapis.com",
+        "europe-cloudaicompanion.googleapis.com",
+        "asia-cloudaicompanion.googleapis.com",
         // Microsoft Copilot
         "copilot.microsoft.com",
         "bing.com/chat",
@@ -247,12 +261,56 @@ pub fn get_default_ai_domains() -> HashSet<String> {
         "copy.ai",
         "writesonic.com",
         "quillbot.com",
-        // Code assistants
+        // Code assistants / AI coding extensions
         "replit.com",
         "cursor.com",
         "codeium.com",
+        "api.codeium.com",
+        "server.codeium.com",
         "tabnine.com",
+        "api.tabnine.com",
         "sourcegraph.com",
+        "cody.sourcegraph.com",
+        // Amazon CodeWhisperer / Amazon Q
+        "codewhisperer.amazonaws.com",
+        "q.us-east-1.amazonaws.com",
+        "q.amazonaws.com",
+        // JetBrains AI
+        "ai.jetbrains.com",
+        "grazie.ai",
+        "grazie.aws.intellij.net",
+        // Continue.dev
+        "continue.dev",
+        "api.continue.dev",
+        // Pieces
+        "pieces.app",
+        "api.pieces.app",
+        // Blackbox AI
+        "blackbox.ai",
+        "useblackbox.io",
+        "api.blackbox.ai",
+        // AskCodi
+        "askcodi.com",
+        "api.askcodi.com",
+        // Bito AI
+        "bito.ai",
+        "api.bito.ai",
+        // Codiga
+        "codiga.io",
+        "api.codiga.io",
+        // Stenography
+        "stenography.dev",
+        // Mintlify
+        "mintlify.com",
+        "api.mintlify.com",
+        // Supermaven
+        "supermaven.com",
+        "api.supermaven.com",
+        // Phind
+        "phind.com",
+        "api.phind.com",
+        // Kite (deprecated but some still use)
+        "kite.com",
         // Other AI services
         "huggingface.co",
         "replicate.com",
@@ -638,12 +696,24 @@ pub fn is_process_blocked(
     process_name: &str,
     blocked_processes: &HashSet<String>,
     allowed_processes: &HashSet<String>,
+    allowed_domains: &HashSet<String>,
 ) -> bool {
     let name_lower = process_name.to_lowercase();
 
     // Check whitelist first
     if allowed_processes.contains(&name_lower) {
         return false;
+    }
+
+    // Check if Claude Code should be allowed based on whitelisted domains
+    // If user whitelisted claude.ai or anthropic.com, also allow claude process (Claude Code CLI)
+    if name_lower.contains("claude") {
+        let claude_domains_allowed = allowed_domains.iter().any(|d| {
+            d.contains("claude.ai") || d.contains("anthropic.com")
+        });
+        if claude_domains_allowed {
+            return false;
+        }
     }
 
     // Check if explicitly blocked

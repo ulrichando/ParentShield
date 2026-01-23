@@ -230,6 +230,9 @@ fn apply_blocking_with_pkexec() -> std::io::Result<()> {
         domains.extend(blocking::get_default_ai_domains());
     }
     if config.dns_blocking_enabled {
+        // Custom Websites blocks all domains in the blocklist (defaults + user-added)
+        domains.extend(blocking::get_default_gaming_domains());
+        domains.extend(blocking::get_default_ai_domains());
         domains.extend(config.blocked_domains.clone());
     }
 

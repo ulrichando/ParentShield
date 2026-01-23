@@ -44,12 +44,13 @@ pub trait ProcessBlocker: Send + Sync {
         &self,
         blocked: &HashSet<String>,
         allowed: &HashSet<String>,
+        allowed_domains: &HashSet<String>,
     ) -> Result<Vec<ProcessInfo>, ProcessError> {
         let processes = self.list_processes()?;
         let mut blocked_processes = Vec::new();
 
         for process in processes {
-            if super::blocklists::is_process_blocked(&process.name, blocked, allowed) {
+            if super::blocklists::is_process_blocked(&process.name, blocked, allowed, allowed_domains) {
                 if let Err(e) = self.terminate_process(process.pid) {
                     tracing::warn!("Failed to terminate {}: {}", process.name, e);
                 } else {

@@ -284,7 +284,7 @@ fn run_blocking_check_now(state: &Arc<DaemonState>) -> Result<Vec<BlockedProcess
     }
     blocked_set.extend(config.blocked_processes.clone());
 
-    let blocked = blocker.block_processes(&blocked_set, &config.allowed_processes)?;
+    let blocked = blocker.block_processes(&blocked_set, &config.allowed_processes, &config.allowed_domains)?;
 
     // Update blocked count
     let count = blocked.len() as u32;
@@ -328,6 +328,9 @@ fn apply_blocking_now() -> Result<(), Box<dyn std::error::Error>> {
             domains_to_block.extend(blocking::get_default_gaming_domains());
         }
         if config.dns_blocking_enabled {
+            // Custom Websites blocks all domains in the blocklist (defaults + user-added)
+            domains_to_block.extend(blocking::get_default_gaming_domains());
+            domains_to_block.extend(blocking::get_default_ai_domains());
             domains_to_block.extend(config.blocked_domains.clone());
         }
 
