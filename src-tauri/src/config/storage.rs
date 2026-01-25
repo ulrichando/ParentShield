@@ -154,16 +154,16 @@ impl ConfigManager {
                 return Ok(config_dir);
             }
             // If we're not running as root, use the user's config dir
-            #[cfg(unix)]
+            #[cfg(target_os = "linux")]
             if !nix::unistd::geteuid().is_root() {
                 return Ok(config_dir);
             }
-            #[cfg(not(unix))]
+            #[cfg(not(target_os = "linux"))]
             return Ok(config_dir);
         }
 
         // Fallback: check common user config locations (for daemon running as root)
-        #[cfg(unix)]
+        #[cfg(target_os = "linux")]
         {
             // Try to find existing config in /home/*/config/parentshield/
             if let Ok(entries) = fs::read_dir("/home") {
