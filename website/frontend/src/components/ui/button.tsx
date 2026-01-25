@@ -18,6 +18,10 @@ const buttonVariants = cva(
         white: "bg-white text-surface-base hover:bg-gray-100",
         outline:
           "bg-transparent border-2 border-white/30 text-white hover:bg-white/10 hover:border-white/50",
+        destructive:
+          "bg-red-600 text-white hover:bg-red-700 shadow-lg shadow-red-500/25",
+        success:
+          "bg-green-600 text-white hover:bg-green-700 shadow-lg shadow-green-500/25",
       },
       size: {
         sm: "px-4 py-2 text-sm",

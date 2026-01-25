@@ -14,6 +14,10 @@ class DashboardStats(BaseModel):
     revenue_total: float
     new_customers_today: int
     new_customers_this_month: int
+    # Download & Installation stats
+    total_downloads: int = 0
+    total_installations: int = 0
+    active_installations: int = 0
 
 
 class CustomerWithSubscription(BaseModel):

@@ -5,6 +5,8 @@ These endpoints are used by:
 2. Desktop/Mobile app - to register installations and send heartbeats
 """
 import secrets
+import os
+from pathlib import Path
 from datetime import datetime
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Request, Query
@@ -15,6 +17,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.database import get_db
 from app.core.dependencies import CurrentUser, OptionalUser, DbSession
 from app.models import User, Download, Installation, Platform, DownloadSource, InstallationStatus
+
+# Base directory for downloads
+DOWNLOADS_DIR = Path(__file__).resolve().parent.parent.parent / "downloads"
 
 
 router = APIRouter(prefix="/device", tags=["Device & Installation"])
@@ -61,6 +66,111 @@ class HeartbeatRequest(BaseModel):
 class HeartbeatResponse(BaseModel):
     status: str
     server_time: str
+
+
+# ============================================================================
+# DOWNLOAD AVAILABILITY
+# ============================================================================
+
+@router.get("/downloads/available")
+async def get_available_downloads():
+    """Get list of available download files.
+
+    Checks the filesystem to see which builds are actually available.
+    Used by frontend to show/hide download options.
+    """
+    version = "0.1.0"
+
+    # Define all possible downloads
+    downloads = {
+        "windows": {
+            "exe-x64": {
+                "fileName": f"ParentShield_{version}_x64-setup.exe",
+                "label": "64-bit (x64)",
+                "description": "For most modern PCs",
+            },
+            "exe-x86": {
+                "fileName": f"ParentShield_{version}_x86-setup.exe",
+                "label": "32-bit (x86)",
+                "description": "For older 32-bit systems",
+            },
+            "exe-arm64": {
+                "fileName": f"ParentShield_{version}_arm64-setup.exe",
+                "label": "ARM64",
+                "description": "For Windows on ARM devices",
+            },
+        },
+        "macos": {
+            "dmg-universal": {
+                "fileName": f"ParentShield_{version}_universal.dmg",
+                "label": "Universal",
+                "description": "Works on Intel & Apple Silicon",
+            },
+            "dmg-intel": {
+                "fileName": f"ParentShield_{version}_x64.dmg",
+                "label": "Intel (x64)",
+                "description": "For Intel-based Macs",
+            },
+            "dmg-arm64": {
+                "fileName": f"ParentShield_{version}_aarch64.dmg",
+                "label": "Apple Silicon",
+                "description": "For M1/M2/M3 Macs",
+            },
+        },
+        "linux": {
+            "appimage": {
+                "fileName": f"ParentShield_{version}_amd64.AppImage",
+                "label": "AppImage",
+                "description": "Portable, works on most distros",
+            },
+            "deb": {
+                "fileName": f"ParentShield_{version}_amd64.deb",
+                "label": ".deb",
+                "description": "For Ubuntu, Debian, Linux Mint",
+            },
+            "rpm": {
+                "fileName": f"ParentShield-{version}-1.x86_64.rpm",
+                "label": ".rpm",
+                "description": "For Fedora, RHEL, openSUSE",
+            },
+        },
+    }
+
+    result = {}
+
+    for platform, formats in downloads.items():
+        platform_dir = DOWNLOADS_DIR / platform
+        result[platform] = {
+            "available": False,
+            "formats": {}
+        }
+
+        for format_id, format_info in formats.items():
+            file_path = platform_dir / format_info["fileName"]
+            exists = file_path.exists()
+
+            file_size = None
+            if exists:
+                size_bytes = file_path.stat().st_size
+                if size_bytes >= 1024 * 1024:
+                    file_size = f"{size_bytes / (1024 * 1024):.1f} MB"
+                else:
+                    file_size = f"{size_bytes / 1024:.1f} KB"
+                result[platform]["available"] = True
+
+            result[platform]["formats"][format_id] = {
+                "id": format_id,
+                "label": format_info["label"],
+                "description": format_info["description"],
+                "fileName": format_info["fileName"],
+                "available": exists,
+                "fileSize": file_size,
+            }
+
+    return {
+        "version": version,
+        "platforms": result,
+    }
 
 
 # ============================================================================
@@ -115,11 +225,12 @@ async def track_download(
     await db.commit()
 
     # Generate download URL based on platform
+    # File naming: ParentShield_{version}_amd64.{ext}
     download_urls = {
-        Platform.WINDOWS: f"/downloads/ParentShield-{data.app_version}-Setup.exe",
-        Platform.MACOS: f"/downloads/ParentShield-{data.app_version}.dmg",
-        Platform.LINUX: f"/downloads/ParentShield-{data.app_version}.AppImage",
-        Platform.ANDROID: f"/downloads/ParentShield-{data.app_version}.apk",
+        Platform.WINDOWS: f"/downloads/windows/ParentShield_{data.app_version}_x64-setup.exe",
+        Platform.MACOS: f"/downloads/macos/ParentShield_{data.app_version}_universal.dmg",
+        Platform.LINUX: f"/downloads/linux/ParentShield_{data.app_version}_amd64.AppImage",
+        Platform.ANDROID: f"/downloads/android/ParentShield_{data.app_version}.apk",
         Platform.IOS: "https://apps.apple.com/app/parentshield/id123456789",
     }
 
@@ -298,8 +409,36 @@ async def list_user_installations(
             "os_version": i.os_version,
             "app_version": i.app_version,
             "status": i.status.value,
+            "is_blocked": i.is_blocked,
+            "blocked_reason": i.blocked_reason,
             "last_seen": i.last_seen.isoformat(),
             "created_at": i.created_at.isoformat(),
         }
         for i in installations
     ]
+
+
+@router.get("/installation/status")
+async def get_installation_status(
+    device_id: str,
+    current_user: CurrentUser,
+    db: DbSession,
+):
+    """Check if this installation is blocked."""
+    result = await db.execute(
+        select(Installation).where(
+            Installation.device_id == device_id,
+            Installation.user_id == current_user.id,
+        )
+    )
+    installation = result.scalar_one_or_none()
+
+    if not installation:
+        return {"registered": False, "is_blocked": False, "blocked_reason": None}
+
+    return {
+        "registered": True,
+        "is_blocked": installation.is_blocked,
+        "blocked_reason": installation.blocked_reason,
+        "status": installation.status.value,
+    }

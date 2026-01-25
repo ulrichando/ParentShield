@@ -52,13 +52,14 @@ function SimpleBarChart({ data, label }: { data: ChartDataPoint[]; label: string
     );
   }
 
-  const maxValue = Math.max(...data.map((d) => d.value), 1);
+  const maxValue = Math.max(...data.map((d) => d.value ?? 0), 1);
 
   return (
     <div className="h-48">
       <div className="flex items-end justify-between h-full gap-1">
         {data.slice(-30).map((point, i) => {
-          const height = (point.value / maxValue) * 100;
+          const value = point.value ?? 0;
+          const height = (value / maxValue) * 100;
           return (
             <div
               key={i}
@@ -66,14 +67,14 @@ function SimpleBarChart({ data, label }: { data: ChartDataPoint[]; label: string
             >
               <div className="relative w-full">
                 <motion.div
-                  className="w-full bg-primary-500/80 rounded-t-sm min-h-[2px]"
+                  className="w-full bg-primary-500/80 rounded-t-sm min-h-0.5"
                   initial={{ height: 0 }}
                   animate={{ height: `${Math.max(height, 2)}%` }}
                   transition={{ delay: i * 0.02 }}
                   style={{ maxHeight: "100%" }}
                 />
                 <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-surface-elevated px-2 py-1 rounded text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
-                  {label === "Revenue" ? `$${point.value.toFixed(2)}` : point.value}
+                  {label === "Revenue" ? `$${value.toFixed(2)}` : value}
                   <br />
                   <span className="text-gray-400">{new Date(point.date).toLocaleDateString()}</span>
                 </div>
@@ -142,7 +143,7 @@ export default function AdminAnalyticsPage() {
     <div className="min-h-screen bg-surface-base">
       <AdminSidebar activePage="analytics" user={user} />
 
-      <main className="ml-64 p-8">
+      <main className="lg:ml-64 p-4 md:p-6 lg:p-8">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-2xl font-bold text-white mb-1">Analytics</h1>

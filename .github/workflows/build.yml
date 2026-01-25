@@ -1,0 +1,206 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+env:
+  APP_VERSION: "0.1.0"
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Tauri app
+        run: npm run tauri build
+
+      - name: Prepare artifacts
+        run: |
+          mkdir -p linux-builds
+          cp src-tauri/target/release/bundle/appimage/*.AppImage linux-builds/ || true
+          cp src-tauri/target/release/bundle/deb/*.deb linux-builds/ || true
+          cp src-tauri/target/release/bundle/rpm/*.rpm linux-builds/ || true
+          ls -la linux-builds/
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-builds
+          path: linux-builds/
+
+  build-windows-x64:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Tauri app
+        run: npm run tauri build
+
+      - name: Prepare artifacts
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path windows-builds
+          Get-ChildItem -Path "src-tauri/target/release/bundle/nsis/*.exe" | ForEach-Object {
+            $newName = "ParentShield_${{ env.APP_VERSION }}_x64-setup.exe"
+            Copy-Item $_.FullName -Destination "windows-builds/$newName"
+          }
+          Get-ChildItem windows-builds/
+
+      - name: Upload Windows x64 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-x64
+          path: windows-builds/
+
+  build-macos-universal:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-apple-darwin,aarch64-apple-darwin
+
+      - name: Cache Rust
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Universal Binary
+        run: npm run tauri build -- --target universal-apple-darwin
+
+      - name: Prepare artifacts
+        run: |
+          mkdir -p macos-builds
+          for file in src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg; do
+            cp "$file" "macos-builds/ParentShield_${{ env.APP_VERSION }}_universal.dmg"
+          done
+          ls -la macos-builds/
+
+      - name: Upload macOS Universal artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-universal
+          path: macos-builds/
+
+  deploy-to-website:
+    needs: [build-linux, build-windows-x64, build-macos-universal]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Display structure
+        run: ls -R artifacts
+
+      - name: Copy to website downloads
+        run: |
+          # Linux
+          mkdir -p website/downloads/linux
+          cp artifacts/linux-builds/*.AppImage website/downloads/linux/ || true
+          cp artifacts/linux-builds/*.deb website/downloads/linux/ || true
+          cp artifacts/linux-builds/*.rpm website/downloads/linux/ || true
+
+          # Windows
+          mkdir -p website/downloads/windows
+          cp artifacts/windows-x64/*.exe website/downloads/windows/ || true
+
+          # macOS
+          mkdir -p website/downloads/macos
+          cp artifacts/macos-universal/*.dmg website/downloads/macos/ || true
+
+          # Show what we have
+          echo "=== Linux ===" && ls -la website/downloads/linux/
+          echo "=== Windows ===" && ls -la website/downloads/windows/
+          echo "=== macOS ===" && ls -la website/downloads/macos/
+
+      - name: Commit and push downloads
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add website/downloads/
+          git commit -m "chore: update app builds v${{ env.APP_VERSION }}" || echo "No changes to commit"
+          git push
+
+  release:
+    needs: [build-linux, build-windows-x64, build-macos-universal]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            artifacts/**/*.AppImage
+            artifacts/**/*.deb
+            artifacts/**/*.rpm
+            artifacts/**/*.exe
+            artifacts/**/*.dmg
+          draft: true
+          generate_release_notes: true

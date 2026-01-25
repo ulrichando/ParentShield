@@ -11,6 +11,7 @@ import { Blocklist } from "@/pages/Blocklist";
 import { Settings } from "@/pages/Settings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { apiService } from "@/services/api";
 
 type Page = "dashboard" | "schedule" | "blocklist" | "settings";
 
@@ -35,6 +36,8 @@ function App() {
 
   useEffect(() => {
     checkAuthStatus();
+    // Initialize API service to register installation and start heartbeat
+    apiService.initialize().catch(console.error);
   }, []);
 
   // Listen for quit-requested event from tray menu

@@ -38,9 +38,9 @@ class Download(Base):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     download_token: Mapped[str] = mapped_column(String(64), unique=True, nullable=False, index=True)
-    platform: Mapped[Platform] = mapped_column(Enum(Platform), nullable=False)
+    platform: Mapped[Platform] = mapped_column(Enum(Platform, values_callable=lambda x: [e.value for e in x]), nullable=False)
     app_version: Mapped[str] = mapped_column(String(50), nullable=False)
-    source: Mapped[DownloadSource] = mapped_column(Enum(DownloadSource), default=DownloadSource.WEBSITE, nullable=False)
+    source: Mapped[DownloadSource] = mapped_column(Enum(DownloadSource, values_callable=lambda x: [e.value for e in x]), default=DownloadSource.WEBSITE, nullable=False)
     ip_address: Mapped[str | None] = mapped_column(String(45), nullable=True)  # IPv6 max length
     user_agent: Mapped[str | None] = mapped_column(Text, nullable=True)
     referrer: Mapped[str | None] = mapped_column(String(500), nullable=True)
@@ -60,10 +60,12 @@ class Installation(Base):
     download_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("downloads.id", ondelete="SET NULL"), nullable=True)
     device_id: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)  # Unique device identifier
     device_name: Mapped[str | None] = mapped_column(String(255), nullable=True)  # User-friendly device name
-    platform: Mapped[Platform] = mapped_column(Enum(Platform), nullable=False)
+    platform: Mapped[Platform] = mapped_column(Enum(Platform, values_callable=lambda x: [e.value for e in x]), nullable=False)
     os_version: Mapped[str | None] = mapped_column(String(100), nullable=True)
     app_version: Mapped[str] = mapped_column(String(50), nullable=False)
-    status: Mapped[InstallationStatus] = mapped_column(Enum(InstallationStatus), default=InstallationStatus.ACTIVE, nullable=False)
+    status: Mapped[InstallationStatus] = mapped_column(Enum(InstallationStatus, values_callable=lambda x: [e.value for e in x]), default=InstallationStatus.ACTIVE, nullable=False)
+    is_blocked: Mapped[bool] = mapped_column(default=False, nullable=False)  # Admin can block unpaid users
+    blocked_reason: Mapped[str | None] = mapped_column(String(255), nullable=True)
     last_seen: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)

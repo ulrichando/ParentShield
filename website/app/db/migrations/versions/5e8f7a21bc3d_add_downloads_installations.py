@@ -20,10 +20,28 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     """Upgrade schema."""
-    # Create enum types
-    op.execute("CREATE TYPE platform AS ENUM ('windows', 'macos', 'linux', 'android', 'ios')")
-    op.execute("CREATE TYPE downloadsource AS ENUM ('website', 'dashboard', 'email', 'referral', 'other')")
-    op.execute("CREATE TYPE installationstatus AS ENUM ('pending', 'active', 'inactive', 'uninstalled')")
+    # Create enum types (only if they don't exist)
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE platform AS ENUM ('windows', 'macos', 'linux', 'android', 'ios');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
+    """)
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE downloadsource AS ENUM ('website', 'dashboard', 'email', 'referral', 'other');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
+    """)
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE installationstatus AS ENUM ('pending', 'active', 'inactive', 'uninstalled');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
+    """)
 
     # Create downloads table
     op.create_table('downloads',

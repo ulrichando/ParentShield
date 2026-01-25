@@ -9,7 +9,7 @@ import io
 
 from app.db.database import get_db
 from app.core.dependencies import AdminUser, DbSession
-from app.models import User, UserRole, Subscription, Transaction
+from app.models import User, UserRole, Subscription, Transaction, Download, Installation, Platform, InstallationStatus
 from app.schemas.admin import DashboardStats, CustomerListResponse, CustomerWithSubscription
 from app.schemas.user import UserResponse
 from app.schemas.subscription import SubscriptionResponse
@@ -440,3 +440,253 @@ async def list_transactions(
         "per_page": per_page,
         "total_pages": total_pages,
     }
+
+
+# ============================================================================
+# DOWNLOADS & INSTALLATIONS API
+# ============================================================================
+
+@router.get("/api/downloads")
+async def list_downloads(
+    current_user: AdminUser,
+    db: DbSession,
+    page: int = Query(1, ge=1),
+    per_page: int = Query(20, ge=1, le=100),
+    platform: str | None = Query(None, description="Filter by platform"),
+):
+    """List all downloads (JSON API)."""
+    from sqlalchemy.orm import selectinload
+
+    query = select(Download).options(selectinload(Download.user))
+
+    if platform:
+        try:
+            platform_enum = Platform(platform.lower())
+            query = query.where(Download.platform == platform_enum)
+        except ValueError:
+            pass
+
+    count_query = select(func.count(Download.id))
+    if platform:
+        try:
+            platform_enum = Platform(platform.lower())
+            count_query = count_query.where(Download.platform == platform_enum)
+        except ValueError:
+            pass
+    total_result = await db.execute(count_query)
+    total = total_result.scalar() or 0
+
+    query = query.order_by(Download.created_at.desc()).offset((page - 1) * per_page).limit(per_page)
+    result = await db.execute(query)
+    downloads = result.scalars().all()
+
+    download_list = []
+    for d in downloads:
+        download_list.append({
+            "id": str(d.id),
+            "user_id": str(d.user_id) if d.user_id else None,
+            "user_email": d.user.email if d.user else None,
+            "download_token": d.download_token[:8] + "...",  # Truncate for security
+            "platform": d.platform.value,
+            "app_version": d.app_version,
+            "source": d.source.value,
+            "ip_address": d.ip_address,
+            "created_at": d.created_at.isoformat(),
+        })
+
+    total_pages = (total + per_page - 1) // per_page
+
+    return {
+        "downloads": download_list,
+        "total": total,
+        "page": page,
+        "per_page": per_page,
+        "total_pages": total_pages,
+    }
+
+
+@router.get("/api/installations")
+async def list_installations(
+    current_user: AdminUser,
+    db: DbSession,
+    page: int = Query(1, ge=1),
+    per_page: int = Query(20, ge=1, le=100),
+    status: str | None = Query(None, description="Filter by status"),
+    platform: str | None = Query(None, description="Filter by platform"),
+):
+    """List all installations (JSON API)."""
+    from sqlalchemy.orm import selectinload
+
+    query = select(Installation).options(selectinload(Installation.user))
+
+    if status:
+        try:
+            status_enum = InstallationStatus(status.lower())
+            query = query.where(Installation.status == status_enum)
+        except ValueError:
+            pass
+
+    if platform:
+        try:
+            platform_enum = Platform(platform.lower())
+            query = query.where(Installation.platform == platform_enum)
+        except ValueError:
+            pass
+
+    # Count total with filters
+    count_query = select(func.count(Installation.id))
+    if status:
+        try:
+            status_enum = InstallationStatus(status.lower())
+            count_query = count_query.where(Installation.status == status_enum)
+        except ValueError:
+            pass
+    if platform:
+        try:
+            platform_enum = Platform(platform.lower())
+            count_query = count_query.where(Installation.platform == platform_enum)
+        except ValueError:
+            pass
+    total_result = await db.execute(count_query)
+    total = total_result.scalar() or 0
+
+    query = query.order_by(Installation.last_seen.desc()).offset((page - 1) * per_page).limit(per_page)
+    result = await db.execute(query)
+    installations = result.scalars().all()
+
+    installation_list = []
+    for i in installations:
+        installation_list.append({
+            "id": str(i.id),
+            "user_id": str(i.user_id),
+            "user_email": i.user.email if i.user else None,
+            "user_name": f"{i.user.first_name or ''} {i.user.last_name or ''}".strip() if i.user else None,
+            "device_id": i.device_id[:12] + "..." if len(i.device_id) > 12 else i.device_id,
+            "device_name": i.device_name,
+            "platform": i.platform.value,
+            "os_version": i.os_version,
+            "app_version": i.app_version,
+            "status": i.status.value,
+            "is_blocked": i.is_blocked,
+            "blocked_reason": i.blocked_reason,
+            "last_seen": i.last_seen.isoformat(),
+            "created_at": i.created_at.isoformat(),
+        })
+
+    total_pages = (total + per_page - 1) // per_page
+
+    return {
+        "installations": installation_list,
+        "total": total,
+        "page": page,
+        "per_page": per_page,
+        "total_pages": total_pages,
+    }
+
+
+@router.get("/stats/downloads")
+async def get_download_stats(
+    current_user: AdminUser,
+    db: DbSession,
+):
+    """Get download and installation statistics."""
+    from datetime import datetime, timedelta
+
+    # Total downloads
+    total_downloads_result = await db.execute(select(func.count(Download.id)))
+    total_downloads = total_downloads_result.scalar() or 0
+
+    # Total installations
+    total_installations_result = await db.execute(select(func.count(Installation.id)))
+    total_installations = total_installations_result.scalar() or 0
+
+    # Active installations (seen in last 7 days)
+    week_ago = datetime.utcnow() - timedelta(days=7)
+    active_result = await db.execute(
+        select(func.count(Installation.id)).where(
+            Installation.status == "active",
+            Installation.last_seen >= week_ago
+        )
+    )
+    active_installations = active_result.scalar() or 0
+
+    # Downloads by platform
+    platform_query = select(
+        Download.platform,
+        func.count(Download.id).label("count")
+    ).group_by(Download.platform)
+    platform_result = await db.execute(platform_query)
+    downloads_by_platform = {row.platform.value: row.count for row in platform_result.all()}
+
+    # Installations by platform
+    inst_platform_query = select(
+        Installation.platform,
+        func.count(Installation.id).label("count")
+    ).group_by(Installation.platform)
+    inst_platform_result = await db.execute(inst_platform_query)
+    installations_by_platform = {row.platform.value: row.count for row in inst_platform_result.all()}
+
+    # Downloads last 30 days
+    thirty_days_ago = datetime.utcnow() - timedelta(days=30)
+    recent_downloads_result = await db.execute(
+        select(func.count(Download.id)).where(Download.created_at >= thirty_days_ago)
+    )
+    recent_downloads = recent_downloads_result.scalar() or 0
+
+    # Conversion rate (downloads to installations)
+    conversion_rate = (total_installations / total_downloads * 100) if total_downloads > 0 else 0
+
+    return {
+        "total_downloads": total_downloads,
+        "total_installations": total_installations,
+        "active_installations": active_installations,
+        "recent_downloads_30d": recent_downloads,
+        "conversion_rate": round(conversion_rate, 1),
+        "downloads_by_platform": downloads_by_platform,
+        "installations_by_platform": installations_by_platform,
+    }
+
+
+@router.put("/api/installations/{installation_id}/block")
+async def block_installation(
+    installation_id: UUID,
+    current_user: AdminUser,
+    db: DbSession,
+    reason: str = Query("Subscription expired or payment required"),
+):
+    """Block an installation (for unpaid users)."""
+    result = await db.execute(
+        select(Installation).where(Installation.id == installation_id)
+    )
+    installation = result.scalar_one_or_none()
+
+    if not installation:
+        raise HTTPException(status_code=404, detail="Installation not found")
+
+    installation.is_blocked = True
+    installation.blocked_reason = reason
+    await db.commit()
+
+    return {"message": "Installation blocked", "installation_id": str(installation_id)}
+
+
+@router.put("/api/installations/{installation_id}/unblock")
+async def unblock_installation(
+    installation_id: UUID,
+    current_user: AdminUser,
+    db: DbSession,
+):
+    """Unblock an installation."""
+    result = await db.execute(
+        select(Installation).where(Installation.id == installation_id)
+    )
+    installation = result.scalar_one_or_none()
+
+    if not installation:
+        raise HTTPException(status_code=404, detail="Installation not found")
+
+    installation.is_blocked = False
+    installation.blocked_reason = None
+    await db.commit()
+
+    return {"message": "Installation unblocked", "installation_id": str(installation_id)}

@@ -141,13 +141,12 @@ async def check_license(
             message="No active subscription found."
         )
 
-    # Get plan features
-    plan_config = PLAN_CONFIG.get(subscription.plan_type, {})
-    features = plan_config.get("features", {})
+    # Get plan features using the subscription's features property
+    features = subscription.features
 
     return LicenseCheckResponse(
         valid=True,
-        plan=subscription.plan_type.value,
+        plan=subscription.plan_name,
         expires_at=subscription.current_period_end,
         features=features,
         message=None
@@ -198,9 +197,8 @@ async def app_login(
     plan = "none"
     features = {}
     if subscription:
-        plan = subscription.plan_type.value
-        plan_config = PLAN_CONFIG.get(subscription.plan_type, {})
-        features = plan_config.get("features", {})
+        plan = subscription.plan_name
+        features = subscription.features
 
     # Create tokens
     access_token = create_access_token(
@@ -287,10 +285,9 @@ async def get_user_features(
             "message": "No active subscription"
         }
 
-    plan_config = PLAN_CONFIG.get(subscription.plan_type, {})
     return {
-        "plan": subscription.plan_type.value,
-        "features": plan_config.get("features", {}),
+        "plan": subscription.plan_name,
+        "features": subscription.features,
         "expires_at": subscription.current_period_end,
         "status": subscription.status.value
     }
@@ -310,12 +307,12 @@ async def sync_settings(
     Sync settings between the desktop app and cloud.
     Only available for Pro plan users.
     """
-    # Check if user has Pro plan
+    # Check if user has Pro plan or Premium plan (which includes Pro features)
     result = await db.execute(
         select(Subscription).where(
             Subscription.user_id == user.id,
             Subscription.status.in_([SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIALING]),
-            Subscription.plan_type == PlanType.PRO
+            Subscription.plan_name.in_(["Pro", "Premium Monthly", "Premium Yearly"])
         )
     )
     subscription = result.scalar_one_or_none()

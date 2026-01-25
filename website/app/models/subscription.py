@@ -94,6 +94,8 @@ class Subscription(Base):
             "Free Trial": PlanType.TRIAL,
             "Basic": PlanType.BASIC,
             "Pro": PlanType.PRO,
+            "Premium Monthly": PlanType.PRO,  # Premium plans get Pro features
+            "Premium Yearly": PlanType.PRO,
         }
         plan_type = plan_map.get(self.plan_name, PlanType.TRIAL)
         return PLAN_CONFIG.get(plan_type, {}).get("features", {})

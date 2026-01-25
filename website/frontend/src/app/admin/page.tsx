@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Users, CreditCard, Bell, DollarSign, UserPlus, Loader2 } from "lucide-react";
+import { Users, CreditCard, Bell, DollarSign, UserPlus, Loader2, Download, Monitor, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AdminSidebar } from "@/components/admin/sidebar";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
@@ -15,6 +15,9 @@ interface DashboardStats {
   revenue_total: number;
   new_customers_today: number;
   new_customers_this_month: number;
+  total_downloads: number;
+  total_installations: number;
+  active_installations: number;
 }
 
 interface StatCardProps {
@@ -85,7 +88,7 @@ export default function AdminDashboardPage() {
     <div className="min-h-screen bg-surface-base">
       <AdminSidebar activePage="dashboard" user={user} />
 
-      <main className="ml-64 p-8">
+      <main className="lg:ml-64 p-4 md:p-6 lg:p-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -133,6 +136,31 @@ export default function AdminDashboardPage() {
             value={stats?.new_customers_today.toLocaleString() || "0"}
             icon={UserPlus}
             color="bg-orange-500"
+            loading={statsLoading}
+          />
+        </div>
+
+        {/* Downloads & Installations Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <StatCard
+            title="Total Downloads"
+            value={stats?.total_downloads.toLocaleString() || "0"}
+            icon={Download}
+            color="bg-cyan-500"
+            loading={statsLoading}
+          />
+          <StatCard
+            title="Total Installations"
+            value={stats?.total_installations.toLocaleString() || "0"}
+            icon={Monitor}
+            color="bg-indigo-500"
+            loading={statsLoading}
+          />
+          <StatCard
+            title="Active Devices"
+            value={stats?.active_installations.toLocaleString() || "0"}
+            icon={Activity}
+            color="bg-emerald-500"
             loading={statsLoading}
           />
         </div>

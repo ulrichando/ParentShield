@@ -42,14 +42,14 @@ function ToggleSetting({ label, description, enabled, onChange }: {
   onChange: (value: boolean) => void;
 }) {
   return (
-    <div className="flex items-center justify-between py-4 border-b border-white/5 last:border-0">
-      <div>
+    <div className="flex items-start sm:items-center justify-between gap-4 py-4 border-b border-white/5 last:border-0">
+      <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-white">{label}</p>
-        <p className="text-xs text-gray-500">{description}</p>
+        <p className="text-xs text-gray-500 wrap-break-word">{description}</p>
       </div>
       <button
         onClick={() => onChange(!enabled)}
-        className={`w-12 h-6 rounded-full transition-colors relative ${
+        className={`w-12 h-6 rounded-full transition-colors relative shrink-0 ${
           enabled ? "bg-primary-500" : "bg-gray-600"
         }`}
       >
@@ -101,13 +101,13 @@ export default function AdminSettingsPage() {
     <div className="min-h-screen bg-surface-base">
       <AdminSidebar activePage="settings" user={user} />
 
-      <main className="ml-64 p-8">
-        <div className="flex items-center justify-between mb-8">
+      <main className="lg:ml-64 p-4 md:p-6 lg:p-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-white mb-1">Settings</h1>
-            <p className="text-gray-400">Configure platform settings</p>
+            <h1 className="text-xl md:text-2xl font-bold text-white mb-1">Settings</h1>
+            <p className="text-sm md:text-base text-gray-400">Configure platform settings</p>
           </div>
-          <Button onClick={handleSave}>
+          <Button onClick={handleSave} className="w-full sm:w-auto">
             <Save className="w-4 h-4" />
             {saved ? "Saved!" : "Save Changes"}
           </Button>

@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, and_
 
-from app.models import User, UserRole, Subscription, SubscriptionStatus, Transaction, TransactionStatus
+from app.models import User, UserRole, Subscription, SubscriptionStatus, Transaction, TransactionStatus, Download, Installation, InstallationStatus
 from app.schemas.admin import DashboardStats
 
 
@@ -81,6 +81,26 @@ class AnalyticsService:
         )
         new_customers_this_month = new_month_result.scalar() or 0
 
+        # Total downloads
+        total_downloads_result = await db.execute(select(func.count(Download.id)))
+        total_downloads = total_downloads_result.scalar() or 0
+
+        # Total installations
+        total_installations_result = await db.execute(select(func.count(Installation.id)))
+        total_installations = total_installations_result.scalar() or 0
+
+        # Active installations (seen in last 7 days)
+        week_ago = datetime.utcnow() - timedelta(days=7)
+        active_installations_result = await db.execute(
+            select(func.count(Installation.id)).where(
+                and_(
+                    Installation.status == "active",
+                    Installation.last_seen >= week_ago
+                )
+            )
+        )
+        active_installations = active_installations_result.scalar() or 0
+
         return DashboardStats(
             total_customers=total_customers,
             active_subscriptions=active_subscriptions,
@@ -89,6 +109,9 @@ class AnalyticsService:
             revenue_total=revenue_total,
             new_customers_today=new_customers_today,
             new_customers_this_month=new_customers_this_month,
+            total_downloads=total_downloads,
+            total_installations=total_installations,
+            active_installations=active_installations,
         )
 
     @staticmethod

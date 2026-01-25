@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Key, Eye, EyeOff, Copy, Check, Server, Play, Square, Trash2, Download } from "lucide-react";
+import { ArrowLeft, Key, Eye, EyeOff, Copy, Check, Server, Play, Square, Trash2, Download, Globe, LogIn, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { useAuthStore } from "@/stores/auth-store";
 import { useDaemonStore } from "@/stores/daemon-store";
 import { invoke } from "@tauri-apps/api/core";
+import { apiService } from "@/services/api";
 
 interface SettingsPageProps {
   onBack: () => void;
@@ -27,6 +28,14 @@ export function Settings({ onBack }: SettingsPageProps) {
   const [masterPassword, setMasterPassword] = useState("");
   const [copied, setCopied] = useState(false);
 
+  // Website account state
+  const [showWebsiteLogin, setShowWebsiteLogin] = useState(false);
+  const [websiteEmail, setWebsiteEmail] = useState("");
+  const [websitePassword, setWebsitePassword] = useState("");
+  const [websiteLoggedIn, setWebsiteLoggedIn] = useState(false);
+  const [websiteLoading, setWebsiteLoading] = useState(false);
+  const [websiteError, setWebsiteError] = useState("");
+
   const { changePassword, isLoading } = useAuthStore();
   const {
     status: daemonStatus,
@@ -41,7 +50,34 @@ export function Settings({ onBack }: SettingsPageProps) {
 
   useEffect(() => {
     fetchDaemonStatus();
+    // Check if already logged into website
+    setWebsiteLoggedIn(apiService.isLoggedIn());
   }, []);
+
+  const handleWebsiteLogin = async () => {
+    setWebsiteError("");
+    setWebsiteLoading(true);
+    try {
+      const success = await apiService.login(websiteEmail, websitePassword);
+      if (success) {
+        setWebsiteLoggedIn(true);
+        setShowWebsiteLogin(false);
+        setWebsiteEmail("");
+        setWebsitePassword("");
+      } else {
+        setWebsiteError("Invalid email or password");
+      }
+    } catch (err) {
+      setWebsiteError("Connection failed. Please try again.");
+    } finally {
+      setWebsiteLoading(false);
+    }
+  };
+
+  const handleWebsiteLogout = () => {
+    apiService.logout();
+    setWebsiteLoggedIn(false);
+  };
 
   const handleChangePassword = async () => {
     setError("");
@@ -174,6 +210,87 @@ export function Settings({ onBack }: SettingsPageProps) {
                       setOldPassword("");
                       setNewPassword("");
                       setConfirmPassword("");
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Website Account Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Globe className="h-5 w-5" />
+              ParentShield Account
+            </CardTitle>
+            <CardDescription>
+              Connect to your ParentShield subscription account
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {websiteLoggedIn ? (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-green-600 dark:text-green-400">Connected</p>
+                    <p className="text-sm text-muted-foreground">
+                      Device ID: {apiService.getDeviceId()}
+                    </p>
+                  </div>
+                  <Badge variant="default" className="bg-green-500">Active</Badge>
+                </div>
+                <Button variant="outline" onClick={handleWebsiteLogout}>
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Disconnect Account
+                </Button>
+              </div>
+            ) : !showWebsiteLogin ? (
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Connect your ParentShield account to sync settings and validate your subscription.
+                </p>
+                <Button variant="outline" onClick={() => setShowWebsiteLogin(true)}>
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Connect Account
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4 max-w-sm">
+                <div className="space-y-2">
+                  <Label>Email</Label>
+                  <Input
+                    type="email"
+                    placeholder="your@email.com"
+                    value={websiteEmail}
+                    onChange={(e) => setWebsiteEmail(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Password</Label>
+                  <Input
+                    type="password"
+                    placeholder="Your account password"
+                    value={websitePassword}
+                    onChange={(e) => setWebsitePassword(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleWebsiteLogin()}
+                  />
+                </div>
+                {websiteError && <p className="text-sm text-red-500">{websiteError}</p>}
+                <div className="flex gap-2">
+                  <Button onClick={handleWebsiteLogin} disabled={websiteLoading}>
+                    {websiteLoading ? "Connecting..." : "Connect"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setShowWebsiteLogin(false);
+                      setWebsiteEmail("");
+                      setWebsitePassword("");
+                      setWebsiteError("");
                     }}
                   >
                     Cancel

@@ -91,7 +91,7 @@ export default function AdminSubscriptionsPage() {
     <div className="min-h-screen bg-surface-base">
       <AdminSidebar activePage="subscriptions" user={user} />
 
-      <main className="ml-64 p-8">
+      <main className="lg:ml-64 p-4 md:p-6 lg:p-8">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-2xl font-bold text-white mb-1">Subscriptions</h1>
