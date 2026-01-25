@@ -119,6 +119,22 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Build daemon as universal binary
+        working-directory: src-tauri
+        run: |
+          # Build daemon for both architectures
+          cargo build --release --bin parentshield-daemon --target x86_64-apple-darwin
+          cargo build --release --bin parentshield-daemon --target aarch64-apple-darwin
+
+          # Create universal binary output directory
+          mkdir -p target/universal-apple-darwin/release
+
+          # Combine into universal binary using lipo
+          lipo -create \
+            target/x86_64-apple-darwin/release/parentshield-daemon \
+            target/aarch64-apple-darwin/release/parentshield-daemon \
+            -output target/universal-apple-darwin/release/parentshield-daemon
+
       - name: Build Universal Binary
         run: npm run tauri build -- --target universal-apple-darwin
 
