@@ -1,12 +1,13 @@
+from datetime import datetime
 from typing import Annotated
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Header
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.db.database import get_db
-from app.models import User, UserRole, Subscription, SubscriptionStatus
-from app.core.security import decode_token
+from app.models import User, UserRole, Subscription, SubscriptionStatus, APIKey
+from app.core.security import decode_token, hash_token
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="/auth/login", auto_error=False)
@@ -116,10 +117,65 @@ async def get_active_subscriber(
     return current_user
 
 
+async def get_api_key_user(
+    x_api_key: Annotated[str, Header(alias="X-API-Key")],
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> User:
+    """
+    Authenticate via API key (X-API-Key header).
+
+    This is an alternative to JWT authentication for programmatic API access.
+    """
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid API key",
+        headers={"WWW-Authenticate": "API-Key"},
+    )
+
+    # Hash the provided key to look up in database
+    key_hash = hash_token(x_api_key)
+
+    # Find the API key
+    result = await db.execute(
+        select(APIKey).where(
+            APIKey.key_hash == key_hash,
+            APIKey.is_revoked == False,
+        )
+    )
+    api_key = result.scalar_one_or_none()
+
+    if not api_key:
+        raise credentials_exception
+
+    # Check expiration
+    if api_key.expires_at and api_key.expires_at < datetime.utcnow():
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="API key has expired",
+        )
+
+    # Update last_used_at
+    api_key.last_used_at = datetime.utcnow()
+    await db.commit()
+
+    # Get the user
+    user_result = await db.execute(select(User).where(User.id == api_key.user_id))
+    user = user_result.scalar_one_or_none()
+
+    if not user or not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found or inactive",
+        )
+
+    return user
+
+
 # Type aliases for cleaner dependency injection
 CurrentUser = Annotated[User, Depends(get_current_user)]
 ActiveUser = Annotated[User, Depends(get_current_active_user)]
 AdminUser = Annotated[User, Depends(get_admin_user)]
 Subscriber = Annotated[User, Depends(get_active_subscriber)]
 OptionalUser = Annotated[User | None, Depends(get_optional_user)]
+ApiKeyUser = Annotated[User, Depends(get_api_key_user)]
 DbSession = Annotated[AsyncSession, Depends(get_db)]

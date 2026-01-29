@@ -10,7 +10,7 @@ from app.db.database import Base
 
 if TYPE_CHECKING:
     from app.models.user import User
-    from app.models.parental_controls import ScreenTimeConfig, BlockedApp, WebFilterConfig, Alert
+    from app.models.parental_controls import ScreenTimeConfig, BlockedApp, WebFilterConfig, Alert, SyncMetadata
 
 
 class Platform(str, PyEnum):
@@ -84,5 +84,6 @@ class Installation(Base):
     blocked_apps: Mapped[list["BlockedApp"]] = relationship("BlockedApp", back_populates="installation", cascade="all, delete-orphan")
     web_filter_config: Mapped["WebFilterConfig | None"] = relationship("WebFilterConfig", back_populates="installation", uselist=False)
     alerts: Mapped[list["Alert"]] = relationship("Alert", back_populates="installation", cascade="all, delete-orphan")
+    sync_metadata: Mapped["SyncMetadata | None"] = relationship("SyncMetadata", back_populates="installation", uselist=False)
 
 

@@ -21,24 +21,8 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     """Upgrade schema."""
-    # Create enum types for alerts
-    op.execute("""
-        DO $$ BEGIN
-            CREATE TYPE alerttype AS ENUM (
-                'blocked_site', 'blocked_app', 'screen_time_limit',
-                'tamper_attempt', 'device_offline', 'new_app_installed'
-            );
-        EXCEPTION
-            WHEN duplicate_object THEN null;
-        END $$;
-    """)
-    op.execute("""
-        DO $$ BEGIN
-            CREATE TYPE alertseverity AS ENUM ('info', 'warning', 'critical');
-        EXCEPTION
-            WHEN duplicate_object THEN null;
-        END $$;
-    """)
+    # Note: We use VARCHAR instead of PostgreSQL ENUM types for alert_type and severity
+    # to avoid issues with enum type management across migrations
 
     # 1. Create screen_time_configs table
     op.create_table('screen_time_configs',
@@ -112,8 +96,8 @@ def upgrade() -> None:
         sa.Column('id', sa.UUID(), nullable=False),
         sa.Column('installation_id', sa.UUID(), nullable=False),
         sa.Column('user_id', sa.UUID(), nullable=False),
-        sa.Column('alert_type', sa.Enum('blocked_site', 'blocked_app', 'screen_time_limit', 'tamper_attempt', 'device_offline', 'new_app_installed', name='alerttype', create_type=False), nullable=False),
-        sa.Column('severity', sa.Enum('info', 'warning', 'critical', name='alertseverity', create_type=False), nullable=False, server_default='info'),
+        sa.Column('alert_type', sa.String(length=50), nullable=False),
+        sa.Column('severity', sa.String(length=20), nullable=False, server_default='info'),
         sa.Column('title', sa.String(length=255), nullable=False),
         sa.Column('message', sa.Text(), nullable=False),
         sa.Column('details', JSON(), nullable=True),
@@ -183,7 +167,3 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_blocked_apps_installation_id'), table_name='blocked_apps')
     op.drop_table('blocked_apps')
     op.drop_table('screen_time_configs')
-
-    # Drop enum types
-    op.execute("DROP TYPE IF EXISTS alertseverity")
-    op.execute("DROP TYPE IF EXISTS alerttype")

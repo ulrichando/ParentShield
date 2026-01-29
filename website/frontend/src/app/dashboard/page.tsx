@@ -69,17 +69,17 @@ function StatCard({ title, value, subtitle, icon: Icon, color = "primary" }: Sta
 
   return (
     <motion.div
-      className="bg-surface-card rounded-2xl border border-white/5 p-6"
-      whileHover={{ y: -4, boxShadow: "0 0 30px rgba(6, 182, 212, 0.1)" }}
+      className="bg-surface-card rounded-xl border border-white/5 p-4"
+      whileHover={{ y: -2, boxShadow: "0 0 20px rgba(6, 182, 212, 0.1)" }}
     >
-      <div className="flex items-start justify-between mb-4">
-        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${colorClasses[color]}`}>
-          <Icon className="w-6 h-6" />
+      <div className="flex items-start justify-between mb-2">
+        <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${colorClasses[color]}`}>
+          <Icon className="w-4 h-4" />
         </div>
       </div>
-      <p className="text-3xl font-bold text-white mb-1">{value}</p>
-      <p className="text-sm text-gray-500">{title}</p>
-      {subtitle && <p className="text-xs text-gray-600 mt-1">{subtitle}</p>}
+      <p className="text-xl font-bold text-white mb-0.5">{value}</p>
+      <p className="text-xs text-gray-500">{title}</p>
+      {subtitle && <p className="text-[10px] text-gray-600 mt-0.5">{subtitle}</p>}
     </motion.div>
   );
 }
@@ -194,6 +194,7 @@ export default function DashboardPage() {
     { icon: Ban, label: "Blocked Apps", href: "/dashboard/blocked-apps" },
     { icon: Globe, label: "Web Filters", href: "/dashboard/web-filters" },
     { icon: Bell, label: "Alerts", href: "/dashboard/alerts" },
+    { icon: CreditCard, label: "Subscription", href: "/dashboard/billing" },
     { icon: Settings, label: "Settings", href: "/dashboard/settings" },
   ];
 
@@ -224,76 +225,77 @@ export default function DashboardPage() {
       )}
 
       {/* Sidebar */}
-      <aside className={`fixed left-0 top-0 h-full w-64 bg-surface-card border-r border-white/5 p-6 flex flex-col z-50 transform transition-transform duration-300 lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}>
+      <aside className={`fixed left-0 top-0 h-full w-52 bg-surface-card border-r border-white/5 p-4 flex flex-col z-50 transform transition-transform duration-300 lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}>
         {/* Logo */}
-        <div className="flex items-center gap-3 mb-10">
-          <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center">
-            <Shield className="w-5 h-5 text-white" />
+        <div className="flex items-center gap-2 mb-6">
+          <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+            <Shield className="w-4 h-4 text-white" />
           </div>
-          <span className="text-lg font-bold text-white">ParentShield</span>
+          <span className="text-base font-bold text-white">ParentShield</span>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 space-y-2">
+        <nav className="flex-1 space-y-1">
           {navItems.map((item) => (
             <Link
               key={item.label}
               href={item.href}
               onClick={() => setMobileOpen(false)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+              className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all ${
                 item.active
                   ? "bg-gradient-primary text-white"
                   : "text-gray-400 hover:bg-white/5 hover:text-white"
               }`}
             >
-              <item.icon className="w-5 h-5" />
+              <item.icon className="w-4 h-4" />
               {item.label}
             </Link>
           ))}
         </nav>
 
         {/* User */}
-        <div className="border-t border-white/5 pt-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full bg-linear-to-br from-primary-400 to-secondary-500 flex items-center justify-center">
-              <User className="w-5 h-5 text-white" />
+        <div className="border-t border-white/5 pt-4">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-8 h-8 rounded-full bg-linear-to-br from-primary-400 to-secondary-500 flex items-center justify-center">
+              <User className="w-4 h-4 text-white" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-white truncate">{user?.first_name || "User"}</p>
-              <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+              <p className="text-xs font-medium text-white truncate">{user?.first_name || "User"}</p>
+              <p className="text-[10px] text-gray-500 truncate">{user?.email}</p>
             </div>
           </div>
-          <Button variant="ghost" size="sm" className="w-full justify-start" onClick={logout}>
-            <LogOut className="w-4 h-4" />
+          <Button variant="ghost" size="sm" className="w-full justify-start text-xs" onClick={logout}>
+            <LogOut className="w-3.5 h-3.5" />
             Sign Out
           </Button>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="lg:ml-64 p-4 md:p-6 lg:p-8 pt-20 lg:pt-8">
+      <main className="lg:ml-52 pt-16 lg:pt-0">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 py-4 md:py-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
           <div>
-            <h1 className="text-xl md:text-2xl font-bold text-white mb-1">
+            <h1 className="text-lg md:text-xl font-bold text-white mb-0.5">
               Welcome back, {user?.first_name || "User"}
             </h1>
-            <p className="text-sm md:text-base text-gray-400">Here&apos;s your family protection overview.</p>
+            <p className="text-xs md:text-sm text-gray-400">Here&apos;s your family protection overview.</p>
           </div>
-          <Button variant="secondary" className="w-full sm:w-auto">
-            <Bell className="w-4 h-4" />
+          <Button variant="secondary" size="sm" className="w-full sm:w-auto">
+            <Bell className="w-3.5 h-3.5" />
             Notifications
           </Button>
         </div>
 
         {loadingData ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+          <div className="flex items-center justify-center py-12">
+            <div className="w-6 h-6 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
           </div>
         ) : (
           <>
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
               <StatCard
                 title="Subscription Status"
                 value={subscription ? subscription.status.charAt(0).toUpperCase() + subscription.status.slice(1) : "None"}
@@ -325,42 +327,42 @@ export default function DashboardPage() {
             </div>
 
             {/* Main Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Devices List */}
-              <div className="bg-surface-card rounded-2xl border border-white/5 p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold text-white">Your Devices</h2>
-                  <Link href="/dashboard/devices" className="text-sm text-primary-400 hover:text-primary-300">
+              <div className="bg-surface-card rounded-xl border border-white/5 p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-sm font-semibold text-white">Your Devices</h2>
+                  <Link href="/dashboard/devices" className="text-xs text-primary-400 hover:text-primary-300">
                     View all
                   </Link>
                 </div>
                 {installations.length === 0 ? (
-                  <div className="text-center py-8">
-                    <Laptop className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-                    <p className="text-gray-400 mb-2">No devices registered yet</p>
+                  <div className="text-center py-6">
+                    <Laptop className="w-8 h-8 text-gray-600 mx-auto mb-2" />
+                    <p className="text-gray-400 text-sm mb-2">No devices registered yet</p>
                     <Link href="/dashboard/download">
-                      <Button size="sm">
-                        <Download className="w-4 h-4" />
+                      <Button size="sm" className="shadow-none">
+                        <Download className="w-3.5 h-3.5" />
                         Download App
                       </Button>
                     </Link>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {installations.slice(0, 4).map((device) => (
                       <div
                         key={device.id}
-                        className="flex items-center justify-between py-3 border-b border-white/5 last:border-0"
+                        className="flex items-center justify-between py-2 border-b border-white/5 last:border-0"
                       >
-                        <div className="flex items-center gap-3">
-                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                        <div className="flex items-center gap-2">
+                          <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
                             device.is_blocked
                               ? "bg-red-500/10"
                               : device.status === "active"
                               ? "bg-green-500/10"
                               : "bg-yellow-500/10"
                           }`}>
-                            <Laptop className={`w-4 h-4 ${
+                            <Laptop className={`w-3.5 h-3.5 ${
                               device.is_blocked
                                 ? "text-red-400"
                                 : device.status === "active"
@@ -369,16 +371,16 @@ export default function DashboardPage() {
                             }`} />
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-white">
+                            <p className="text-xs font-medium text-white">
                               {device.device_name || device.platform.charAt(0).toUpperCase() + device.platform.slice(1)}
                             </p>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-[10px] text-gray-500">
                               {device.platform} • v{device.app_version}
                             </p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <span className={`text-xs px-2 py-1 rounded-full ${
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
                             device.is_blocked
                               ? "bg-red-500/10 text-red-400"
                               : device.status === "active"
@@ -387,7 +389,7 @@ export default function DashboardPage() {
                           }`}>
                             {device.is_blocked ? "Blocked" : device.status}
                           </span>
-                          <p className="text-xs text-gray-500 mt-1">{getRelativeTime(device.last_seen)}</p>
+                          <p className="text-[10px] text-gray-500 mt-0.5">{getRelativeTime(device.last_seen)}</p>
                         </div>
                       </div>
                     ))}
@@ -396,9 +398,9 @@ export default function DashboardPage() {
               </div>
 
               {/* Quick Actions */}
-              <div className="bg-surface-card rounded-2xl border border-white/5 p-6">
-                <h2 className="text-lg font-semibold text-white mb-4">Quick Actions</h2>
-                <div className="space-y-3">
+              <div className="bg-surface-card rounded-xl border border-white/5 p-4">
+                <h2 className="text-sm font-semibold text-white mb-3">Quick Actions</h2>
+                <div className="space-y-2">
                   {[
                     { label: "Download App", description: "Install on a new device", href: "/dashboard/download", icon: Download },
                     { label: "Manage Devices", description: "View and manage installations", href: "/dashboard/devices", icon: Laptop },
@@ -408,18 +410,18 @@ export default function DashboardPage() {
                     <Link
                       key={action.label}
                       href={action.href}
-                      className="flex items-center justify-between p-4 rounded-xl bg-surface-elevated hover:bg-white/5 transition-all group"
+                      className="flex items-center justify-between p-3 rounded-lg bg-surface-elevated hover:bg-white/5 transition-all group"
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-primary-500/10 flex items-center justify-center">
-                          <action.icon className="w-5 h-5 text-primary-400" />
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-primary-500/10 flex items-center justify-center">
+                          <action.icon className="w-4 h-4 text-primary-400" />
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-white">{action.label}</p>
-                          <p className="text-xs text-gray-500">{action.description}</p>
+                          <p className="text-xs font-medium text-white">{action.label}</p>
+                          <p className="text-[10px] text-gray-500">{action.description}</p>
                         </div>
                       </div>
-                      <ChevronRight className="w-5 h-5 text-gray-500 group-hover:text-primary-400 transition-colors" />
+                      <ChevronRight className="w-4 h-4 text-gray-500 group-hover:text-primary-400 transition-colors" />
                     </Link>
                   ))}
                 </div>
@@ -429,22 +431,22 @@ export default function DashboardPage() {
             {/* Subscription Banner (if no subscription or expired) */}
             {(!subscription || subscription.status === "canceled" || subscription.status === "expired") && (
               <motion.div
-                className="mt-6 bg-linear-to-r from-primary-500/20 to-secondary-500/20 rounded-2xl border border-primary-500/30 p-6"
+                className="mt-4 bg-linear-to-r from-primary-500/20 to-secondary-500/20 rounded-xl border border-primary-500/30 p-4"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-1">
+                    <h3 className="text-sm font-semibold text-white mb-0.5">
                       {!subscription ? "Get Started with ParentShield" : "Reactivate Your Protection"}
                     </h3>
-                    <p className="text-gray-400">
+                    <p className="text-gray-400 text-xs">
                       {!subscription
                         ? "Subscribe to protect your family's devices with advanced parental controls."
                         : "Your subscription has ended. Reactivate to continue protecting your devices."}
                     </p>
                   </div>
-                  <Button className="shrink-0">
+                  <Button size="sm" className="shrink-0 shadow-none">
                     {!subscription ? "View Plans" : "Reactivate Now"}
                   </Button>
                 </div>
@@ -452,6 +454,7 @@ export default function DashboardPage() {
             )}
           </>
         )}
+        </div>
       </main>
     </div>
   );

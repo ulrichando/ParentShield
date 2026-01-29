@@ -16,6 +16,9 @@ from app.routers import auth_router, customer_router, admin_router, public_route
 from app.routers.app_api import router as app_api_router
 from app.routers.device import router as device_router
 from app.routers.parental_controls import router as parental_controls_router
+from app.routers.api_keys import router as api_keys_router
+from sqlalchemy import update
+from app.models import User
 from app.services.auth_service import AuthService
 from app.db.database import async_session_maker
 
@@ -23,9 +26,13 @@ from app.db.database import async_session_maker
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan events."""
-    # Startup: Create admin user if not exists
     async with async_session_maker() as db:
+        # Startup: Create admin user if not exists
         await AuthService.create_admin(db)
+        # Auto-verify all unverified users (email verification not yet functional)
+        await db.execute(
+            update(User).where(User.is_verified == False).values(is_verified=True)
+        )
         await db.commit()
     yield
     # Shutdown: cleanup if needed
@@ -60,6 +67,7 @@ app.include_router(admin_router)
 app.include_router(app_api_router)  # Desktop app API
 app.include_router(device_router)  # Device & installation tracking
 app.include_router(parental_controls_router)  # Parental controls API
+app.include_router(api_keys_router)  # API key management
 
 
 if __name__ == "__main__":

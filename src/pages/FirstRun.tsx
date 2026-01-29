@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Shield, Eye, EyeOff, Check, Copy, Server, AlertTriangle } from "lucide-react";
+import { Shield, Eye, EyeOff, Check, Copy, Server, AlertTriangle, X } from "lucide-react";
+import { invoke } from "@tauri-apps/api/core";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -82,13 +83,28 @@ export function FirstRun() {
     completeSetup();
   };
 
+  const handleCloseApp = async () => {
+    try {
+      await invoke("force_quit_unconfigured");
+    } catch (error) {
+      console.error("Failed to close app:", error);
+    }
+  };
+
   if (step === 1) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 to-indigo-100 dark:from-slate-900 dark:to-slate-800 p-4">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <Card className="w-full max-w-md relative fluent-card">
+          <button
+            onClick={handleCloseApp}
+            className="absolute right-4 top-4 text-muted-foreground hover:text-foreground transition-colors"
+            title="Close"
+          >
+            <X size={20} />
+          </button>
           <CardHeader className="text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
-              <Shield className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-primary">
+              <Shield className="h-8 w-8 text-white" />
             </div>
             <CardTitle className="text-2xl">Welcome to ParentShield</CardTitle>
             <CardDescription>
@@ -165,11 +181,18 @@ export function FirstRun() {
 
   if (step === 2) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 to-indigo-100 dark:from-slate-900 dark:to-slate-800 p-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <Card className="w-full max-w-md relative fluent-card">
+        <button
+          onClick={handleCloseApp}
+          className="absolute right-4 top-4 text-muted-foreground hover:text-foreground transition-colors"
+          title="Close"
+        >
+          <X size={20} />
+        </button>
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
-            <Check className="h-8 w-8 text-green-600 dark:text-green-400" />
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-success">
+            <Check className="h-8 w-8 text-success-foreground" />
           </div>
           <CardTitle className="text-2xl">Save Your Recovery Password</CardTitle>
           <CardDescription>
@@ -213,11 +236,18 @@ export function FirstRun() {
 
   // Step 3: Daemon installation
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 to-indigo-100 dark:from-slate-900 dark:to-slate-800 p-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <Card className="w-full max-w-md relative fluent-card">
+        <button
+          onClick={handleCloseApp}
+          className="absolute right-4 top-4 text-muted-foreground hover:text-foreground transition-colors"
+          title="Close"
+        >
+          <X size={20} />
+        </button>
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900">
-            <Server className="h-8 w-8 text-purple-600 dark:text-purple-400" />
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-secondary">
+            <Server className="h-8 w-8 text-secondary-foreground" />
           </div>
           <CardTitle className="text-2xl">Install Background Service</CardTitle>
           <CardDescription>
@@ -225,11 +255,11 @@ export function FirstRun() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-4">
-            <p className="text-sm text-blue-700 dark:text-blue-300">
+          <div className="rounded-lg bg-primary/10 border border-primary/20 p-4">
+            <p className="text-sm text-primary">
               <strong>Why install the service?</strong>
             </p>
-            <ul className="text-sm text-blue-600 dark:text-blue-400 mt-2 space-y-1 list-disc list-inside">
+            <ul className="text-sm text-primary/80 mt-2 space-y-1 list-disc list-inside">
               <li>Blocking continues when app is closed</li>
               <li>No password prompts for settings changes</li>
               <li>Automatic firewall protection</li>

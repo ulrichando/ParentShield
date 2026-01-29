@@ -23,6 +23,17 @@ interface HeartbeatResponse {
   server_time: string;
 }
 
+interface LicenseCheckResponse {
+  valid: boolean;
+  plan: string;
+  status: string;
+  is_locked: boolean;
+  expires_at: string | null;
+  features: Record<string, unknown>;
+  message: string | null;
+  upgrade_url: string | null;
+}
+
 // Generate a unique device ID based on machine characteristics
 function getDeviceId(): string {
   // Use a combination of factors to create a unique ID
@@ -78,10 +89,16 @@ class ApiService {
   private refreshToken: string | null = null;
   private deviceId: string;
   private heartbeatInterval: ReturnType<typeof setInterval> | null = null;
+  private onSessionExpiredCallback: (() => void) | null = null;
 
   constructor() {
     this.deviceId = getDeviceId();
     this.loadTokens();
+  }
+
+  // Allow components to subscribe to session expiration events
+  onSessionExpired(callback: () => void) {
+    this.onSessionExpiredCallback = callback;
   }
 
   private loadTokens() {
@@ -230,7 +247,8 @@ class ApiService {
       });
 
       if (!response.ok) {
-        this.logout();
+        // Session expired - token was revoked (e.g., password changed)
+        this.logout(true);
         return false;
       }
 
@@ -243,6 +261,33 @@ class ApiService {
     }
   }
 
+  async checkLicense(): Promise<LicenseCheckResponse | null> {
+    if (!this.accessToken) return null;
+
+    try {
+      const response = await fetch(`${API_URL}/api/v1/app/license/check`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${this.accessToken}`,
+        },
+        body: JSON.stringify({ device_id: this.deviceId }),
+      });
+
+      if (response.status === 401) {
+        const refreshed = await this.refreshAccessToken();
+        if (refreshed) return this.checkLicense();
+        return null;
+      }
+
+      if (!response.ok) return null;
+      return await response.json();
+    } catch (error) {
+      console.error("License check error:", error);
+      return null;
+    }
+  }
+
   startHeartbeat() {
     // Send heartbeat every 5 minutes
     if (this.heartbeatInterval) {
@@ -252,12 +297,14 @@ class ApiService {
     this.heartbeatInterval = setInterval(
       () => {
         this.sendHeartbeat();
+        this.checkLicense();
       },
       5 * 60 * 1000
     );
 
-    // Send initial heartbeat
+    // Send initial heartbeat and license check
     this.sendHeartbeat();
+    this.checkLicense();
   }
 
   stopHeartbeat() {
@@ -267,12 +314,17 @@ class ApiService {
     }
   }
 
-  logout() {
+  logout(sessionExpired: boolean = false) {
     this.accessToken = null;
     this.refreshToken = null;
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
     this.stopHeartbeat();
+
+    // Notify listeners if session expired (not user-initiated logout)
+    if (sessionExpired && this.onSessionExpiredCallback) {
+      this.onSessionExpiredCallback();
+    }
   }
 
   isLoggedIn(): boolean {
@@ -281,6 +333,52 @@ class ApiService {
 
   getDeviceId(): string {
     return this.deviceId;
+  }
+
+  async changePassword(currentPassword: string, newPassword: string): Promise<{ success: boolean; error: string | null }> {
+    if (!this.accessToken) {
+      return { success: false, error: "Not logged in" };
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/account/password`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${this.accessToken}`,
+        },
+        body: JSON.stringify({
+          current_password: currentPassword,
+          new_password: newPassword,
+          confirm_password: newPassword, // Backend requires confirmation
+        }),
+      });
+
+      if (response.status === 401) {
+        const refreshed = await this.refreshAccessToken();
+        if (refreshed) {
+          return this.changePassword(currentPassword, newPassword);
+        }
+        return { success: false, error: "Session expired. Please log in again." };
+      }
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        // Handle validation errors (detail is an array) vs regular errors (detail is a string)
+        let errorMessage = "Failed to change password";
+        if (typeof data.detail === "string") {
+          errorMessage = data.detail;
+        } else if (Array.isArray(data.detail) && data.detail.length > 0) {
+          errorMessage = data.detail[0]?.msg || errorMessage;
+        }
+        return { success: false, error: errorMessage };
+      }
+
+      return { success: true, error: null };
+    } catch (error) {
+      console.error("Change password error:", error);
+      return { success: false, error: "Connection failed. Please try again." };
+    }
   }
 
   // Initialize on app start - check if logged in and register

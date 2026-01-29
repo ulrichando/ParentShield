@@ -66,3 +66,18 @@ def generate_token() -> str:
 def hash_token(token: str) -> str:
     """Hash a token for storage."""
     return hashlib.sha256(token.encode()).hexdigest()
+
+
+def generate_api_key(prefix: str = "ps_live") -> tuple[str, str]:
+    """
+    Generate an API key with a prefix.
+
+    Returns:
+        tuple: (full_key, display_prefix)
+        - full_key: The complete API key to return to the user (only shown once)
+        - display_prefix: A shortened prefix for display in the UI (e.g., "ps_live_abc1...")
+    """
+    random_part = secrets.token_urlsafe(24)  # 32 characters
+    full_key = f"{prefix}_{random_part}"
+    display_prefix = f"{prefix}_{random_part[:8]}..."
+    return full_key, display_prefix

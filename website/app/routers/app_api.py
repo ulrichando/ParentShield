@@ -15,8 +15,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.database import get_db
 from app.models.user import User
 from app.models.subscription import Subscription, SubscriptionStatus, PlanType, PLAN_CONFIG
+from app.models.device import Installation
+from app.models.parental_controls import Alert, AlertType, AlertSeverity
 from app.core.security import decode_token, create_access_token
 from app.core.dependencies import get_current_user
+from app.services.user_service import UserService
 
 
 router = APIRouter(prefix="/api/v1/app", tags=["App API"])
@@ -34,9 +37,12 @@ class LicenseCheckRequest(BaseModel):
 class LicenseCheckResponse(BaseModel):
     valid: bool
     plan: str
+    status: str = "none"  # active, trialing, expired_trial, past_due, canceled, none
+    is_locked: bool = True
     expires_at: datetime | None
     features: dict
     message: str | None = None
+    upgrade_url: str | None = None
 
 
 class DeviceRegisterRequest(BaseModel):
@@ -57,8 +63,11 @@ class AppLoginResponse(BaseModel):
     refresh_token: str | None = None
     user_id: str | None = None
     plan: str | None = None
+    status: str | None = None  # active, trialing, expired_trial, past_due, canceled, none
+    is_locked: bool = True
     features: dict | None = None
     message: str | None = None
+    upgrade_url: str | None = None
 
 
 class SyncRequest(BaseModel):
@@ -74,6 +83,20 @@ class SyncResponse(BaseModel):
     blocked_games: list[str] = []
     schedules: dict = {}
     last_sync: datetime
+
+
+class CreateAlertRequest(BaseModel):
+    alert_type: str  # blocked_site, blocked_app, screen_time, tamper_attempt, app_uninstall
+    severity: str = "info"  # info, warning, critical
+    title: str
+    message: str
+    details: dict | None = None
+
+
+class CreateAlertResponse(BaseModel):
+    success: bool
+    alert_id: str | None = None
+    message: str | None = None
 
 
 # ============================================================================
@@ -123,33 +146,87 @@ async def check_license(
             message="Invalid token."
         )
 
-    # Get user's subscription
+    # Get user's most recent subscription (any status)
     result = await db.execute(
         select(Subscription).where(
             Subscription.user_id == uuid.UUID(user_id),
-            Subscription.status.in_([SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIALING])
         ).order_by(Subscription.created_at.desc())
     )
     subscription = result.scalar_one_or_none()
+
+    upgrade_url = "https://parentshield.app/pricing"
 
     if not subscription:
         return LicenseCheckResponse(
             valid=False,
             plan="none",
+            status="none",
+            is_locked=True,
             expires_at=None,
             features={},
-            message="No active subscription found."
+            message="No subscription found. Please subscribe to use ParentShield.",
+            upgrade_url=upgrade_url,
         )
 
-    # Get plan features using the subscription's features property
-    features = subscription.features
+    # Check if trial has expired
+    if subscription.status == SubscriptionStatus.TRIALING:
+        if subscription.current_period_end and subscription.current_period_end < datetime.utcnow():
+            subscription.status = SubscriptionStatus.INCOMPLETE
+            await db.commit()
+            return LicenseCheckResponse(
+                valid=False,
+                plan="expired_trial",
+                status="expired_trial",
+                is_locked=True,
+                expires_at=subscription.current_period_end,
+                features={},
+                message="Your 7-day free trial has expired. Subscribe to continue using ParentShield.",
+                upgrade_url=upgrade_url,
+            )
 
+    # Check if active subscription period has expired
+    if subscription.status == SubscriptionStatus.ACTIVE:
+        if subscription.current_period_end and subscription.current_period_end < datetime.utcnow():
+            subscription.status = SubscriptionStatus.PAST_DUE
+            await db.commit()
+            return LicenseCheckResponse(
+                valid=False,
+                plan=subscription.plan_name,
+                status="past_due",
+                is_locked=True,
+                expires_at=subscription.current_period_end,
+                features={},
+                message="Your subscription payment is past due. Please update your payment method.",
+                upgrade_url=upgrade_url,
+            )
+
+    # Handle already-expired statuses
+    if subscription.status in (SubscriptionStatus.CANCELED, SubscriptionStatus.PAST_DUE, SubscriptionStatus.INCOMPLETE):
+        status_messages = {
+            SubscriptionStatus.CANCELED: "Your subscription has been canceled. Resubscribe to continue.",
+            SubscriptionStatus.PAST_DUE: "Your subscription payment is past due. Please update your payment method.",
+            SubscriptionStatus.INCOMPLETE: "Your trial has expired. Subscribe to continue using ParentShield.",
+        }
+        return LicenseCheckResponse(
+            valid=False,
+            plan=subscription.plan_name if subscription.status != SubscriptionStatus.INCOMPLETE else "expired_trial",
+            status=subscription.status.value if subscription.status != SubscriptionStatus.INCOMPLETE else "expired_trial",
+            is_locked=True,
+            expires_at=subscription.current_period_end,
+            features={},
+            message=status_messages.get(subscription.status, "Subscription inactive."),
+            upgrade_url=upgrade_url,
+        )
+
+    # Valid subscription (ACTIVE or TRIALING)
     return LicenseCheckResponse(
         valid=True,
         plan=subscription.plan_name,
+        status=subscription.status.value,
+        is_locked=False,
         expires_at=subscription.current_period_end,
-        features=features,
-        message=None
+        features=subscription.features,
+        message=None,
     )
 
 
@@ -185,20 +262,57 @@ async def app_login(
             message="Account is suspended."
         )
 
-    # Get subscription
-    result = await db.execute(
-        select(Subscription).where(
-            Subscription.user_id == user.id,
-            Subscription.status.in_([SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIALING])
-        ).order_by(Subscription.created_at.desc())
-    )
-    subscription = result.scalar_one_or_none()
+    # Get or create subscription, and activate trial on first app login
+    subscription = await UserService.get_user_subscription(db, user.id)
 
+    # Activate trial if this is the first time the app is being used
+    if subscription and subscription.current_period_start is None:
+        subscription = await UserService.activate_trial(db, user.id)
+
+    upgrade_url = "https://parentshield.app/pricing"
     plan = "none"
+    status = "none"
     features = {}
+    is_locked = True
+    message = "Login successful. Your 7-day free trial has started!"
+
     if subscription:
-        plan = subscription.plan_name
-        features = subscription.features
+        # Check if trial has expired
+        if subscription.status == SubscriptionStatus.TRIALING:
+            if subscription.current_period_end and subscription.current_period_end < datetime.utcnow():
+                subscription.status = SubscriptionStatus.INCOMPLETE
+                await db.commit()
+                plan = "expired_trial"
+                status = "expired_trial"
+                message = "Your 7-day free trial has expired. Subscribe to continue."
+            else:
+                plan = subscription.plan_name
+                status = subscription.status.value
+                features = subscription.features
+                is_locked = False
+                upgrade_url = None
+                message = "Login successful."
+        elif subscription.status == SubscriptionStatus.ACTIVE:
+            if subscription.current_period_end and subscription.current_period_end < datetime.utcnow():
+                subscription.status = SubscriptionStatus.PAST_DUE
+                await db.commit()
+                plan = subscription.plan_name
+                status = "past_due"
+                message = "Your subscription payment is past due."
+            else:
+                plan = subscription.plan_name
+                status = subscription.status.value
+                features = subscription.features
+                is_locked = False
+                upgrade_url = None
+        elif subscription.status == SubscriptionStatus.CANCELED:
+            plan = subscription.plan_name
+            status = "canceled"
+            message = "Your subscription has been canceled. Resubscribe to continue."
+        elif subscription.status in (SubscriptionStatus.PAST_DUE, SubscriptionStatus.INCOMPLETE):
+            plan = "expired_trial" if subscription.status == SubscriptionStatus.INCOMPLETE else subscription.plan_name
+            status = "expired_trial" if subscription.status == SubscriptionStatus.INCOMPLETE else "past_due"
+            message = "Your trial has expired. Subscribe to continue." if subscription.status == SubscriptionStatus.INCOMPLETE else "Payment past due."
 
     # Create tokens
     access_token = create_access_token(
@@ -210,8 +324,11 @@ async def app_login(
         access_token=access_token,
         user_id=str(user.id),
         plan=plan,
+        status=status,
+        is_locked=is_locked,
         features=features,
-        message="Login successful."
+        message=message,
+        upgrade_url=upgrade_url,
     )
 
 
@@ -331,6 +448,107 @@ async def sync_settings(
         blocked_games=request.blocked_games or [],
         schedules=request.schedules or {},
         last_sync=datetime.utcnow()
+    )
+
+
+# ============================================================================
+# ALERTS (from desktop app)
+# ============================================================================
+
+@router.post("/alerts", response_model=CreateAlertResponse)
+async def create_alert(
+    request: CreateAlertRequest,
+    authorization: Optional[str] = Header(None),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Create an alert from the desktop app.
+    Used when the app detects blocked content, screen time limits, tamper attempts, etc.
+    """
+    if not authorization:
+        return CreateAlertResponse(
+            success=False,
+            message="No authorization provided."
+        )
+
+    token = authorization.replace("Bearer ", "") if authorization.startswith("Bearer ") else authorization
+
+    payload = decode_token(token)
+    if not payload:
+        return CreateAlertResponse(
+            success=False,
+            message="Invalid or expired token."
+        )
+
+    user_id = payload.get("sub")
+    device_id = payload.get("device_id")
+
+    if not user_id:
+        return CreateAlertResponse(
+            success=False,
+            message="Invalid token."
+        )
+
+    # Get the user
+    result = await db.execute(
+        select(User).where(User.id == uuid.UUID(user_id))
+    )
+    user = result.scalar_one_or_none()
+
+    if not user:
+        return CreateAlertResponse(
+            success=False,
+            message="User not found."
+        )
+
+    # Get the installation by device_id
+    installation = None
+    if device_id:
+        result = await db.execute(
+            select(Installation).where(
+                Installation.user_id == user.id,
+                Installation.device_id == device_id
+            )
+        )
+        installation = result.scalar_one_or_none()
+
+    # Validate alert_type
+    try:
+        alert_type = AlertType(request.alert_type)
+    except ValueError:
+        return CreateAlertResponse(
+            success=False,
+            message=f"Invalid alert_type. Must be one of: {[t.value for t in AlertType]}"
+        )
+
+    # Validate severity
+    try:
+        severity = AlertSeverity(request.severity)
+    except ValueError:
+        return CreateAlertResponse(
+            success=False,
+            message=f"Invalid severity. Must be one of: {[s.value for s in AlertSeverity]}"
+        )
+
+    # Create the alert
+    alert = Alert(
+        user_id=user.id,
+        installation_id=installation.id if installation else None,
+        alert_type=alert_type,
+        severity=severity,
+        title=request.title,
+        message=request.message,
+        details=request.details or {}
+    )
+
+    db.add(alert)
+    await db.commit()
+    await db.refresh(alert)
+
+    return CreateAlertResponse(
+        success=True,
+        alert_id=str(alert.id),
+        message="Alert created successfully."
     )
 
 

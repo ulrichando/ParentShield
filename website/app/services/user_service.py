@@ -1,8 +1,9 @@
+from datetime import datetime, timedelta
 from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 
-from app.models import User, Subscription, Transaction, SubscriptionStatus
+from app.models import User, Subscription, Transaction, SubscriptionStatus, RefreshToken
 from app.schemas.user import UserProfileUpdate
 from app.core.security import get_password_hash, verify_password
 
@@ -40,23 +41,67 @@ class UserService:
         current_password: str,
         new_password: str,
     ) -> bool:
-        """Change user password."""
+        """Change user password and revoke all refresh tokens to logout other sessions."""
         if not verify_password(current_password, user.password_hash):
             return False
 
         user.password_hash = get_password_hash(new_password)
+
+        # Revoke all refresh tokens to force logout on all devices
+        result = await db.execute(
+            select(RefreshToken)
+            .where(RefreshToken.user_id == user.id)
+            .where(RefreshToken.revoked == False)
+        )
+        tokens = result.scalars().all()
+        for token in tokens:
+            token.revoked = True
+
         await db.commit()
         return True
 
     @staticmethod
     async def get_user_subscription(db: AsyncSession, user_id: UUID) -> Subscription | None:
-        """Get user's active subscription."""
+        """Get user's subscription, auto-creating a trial if none exists."""
         result = await db.execute(
             select(Subscription)
             .where(Subscription.user_id == user_id)
             .order_by(Subscription.created_at.desc())
         )
-        return result.scalar_one_or_none()
+        subscription = result.scalar_one_or_none()
+
+        # Auto-create a Free Trial subscription for users who don't have one
+        # Trial period starts when user installs the app (dates are null until then)
+        if subscription is None:
+            subscription = Subscription(
+                user_id=user_id,
+                status=SubscriptionStatus.TRIALING,
+                plan_name="Free Trial",
+                amount=0.00,
+                currency="USD",
+                current_period_start=None,  # Set when app is installed
+                current_period_end=None,    # Set when app is installed
+            )
+            db.add(subscription)
+            await db.commit()
+            await db.refresh(subscription)
+
+        return subscription
+
+    @staticmethod
+    async def activate_trial(db: AsyncSession, user_id: UUID) -> Subscription | None:
+        """Activate the free trial (called when app is first installed)."""
+        subscription = await UserService.get_user_subscription(db, user_id)
+
+        if subscription and subscription.status == SubscriptionStatus.TRIALING:
+            # Only activate if trial hasn't started yet
+            if subscription.current_period_start is None:
+                subscription.current_period_start = datetime.utcnow()
+                subscription.current_period_end = datetime.utcnow() + timedelta(days=7)
+                await db.commit()
+                await db.refresh(subscription)
+
+        return subscription
 
     @staticmethod
     async def get_user_transactions(

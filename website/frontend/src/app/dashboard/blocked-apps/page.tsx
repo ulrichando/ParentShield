@@ -4,8 +4,6 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
-  Shield,
-  ArrowLeft,
   Ban,
   Laptop,
   Plus,
@@ -20,6 +18,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCustomerAuth } from "@/hooks/useCustomerAuth";
+import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -41,7 +40,7 @@ interface BlockedApp {
 }
 
 export default function BlockedAppsPage() {
-  const { user, isLoading: authLoading, authFetch, logout } = useCustomerAuth();
+  const { isLoading: authLoading, authFetch } = useCustomerAuth();
   const [devices, setDevices] = useState<Installation[]>([]);
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
   const [apps, setApps] = useState<BlockedApp[]>([]);
@@ -51,7 +50,6 @@ export default function BlockedAppsPage() {
   const [filter, setFilter] = useState<"all" | "apps" | "games">("all");
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  // Add form state
   const [newApp, setNewApp] = useState({
     app_name: "",
     app_identifier: "",
@@ -173,229 +171,207 @@ export default function BlockedAppsPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-surface-base flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
-      </div>
+      <DashboardLayout>
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-6 h-6 text-primary-500 animate-spin" />
+        </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-surface-base">
-      {/* Header */}
-      <header className="border-b border-white/5 bg-surface-card">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="text-gray-400 hover:text-white transition-colors">
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center">
-                <Shield className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-lg font-bold text-white">ParentShield</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-400">{user?.email}</span>
-            <Button variant="ghost" size="sm" onClick={logout}>
-              Sign Out
-            </Button>
-          </div>
+    <DashboardLayout>
+      {/* Page Header */}
+      <motion.div
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div>
+          <h1 className="text-lg md:text-base font-bold text-white mb-2 flex items-center gap-3">
+            <Ban className="w-5 h-5 text-red-400" />
+            Blocked Apps
+          </h1>
+          <p className="text-gray-400">Manage applications and games to block on devices.</p>
         </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-6 py-12">
-        {/* Page Header */}
-        <motion.div
-          className="flex items-center justify-between mb-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <div>
-            <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
-              <Ban className="w-8 h-8 text-red-400" />
-              Blocked Apps
-            </h1>
-            <p className="text-gray-400">Manage applications and games to block on devices.</p>
-          </div>
-          <div className="flex gap-3">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => selectedDevice && fetchApps(selectedDevice)}
-              disabled={isLoading}
-            >
-              <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
-              Refresh
-            </Button>
-            <Button size="sm" onClick={() => setShowAddModal(true)} disabled={!selectedDevice}>
-              <Plus className="w-4 h-4" />
-              Add App
-            </Button>
-          </div>
-        </motion.div>
-
-        {/* Device Selector & Filter */}
-        <motion.div
-          className="flex flex-col md:flex-row gap-4 mb-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.1 }}
-        >
-          {devices.length > 0 && (
-            <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">Select Device</label>
-              <select
-                value={selectedDevice || ""}
-                onChange={(e) => setSelectedDevice(e.target.value)}
-                className="w-full md:w-64 bg-surface-card border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500"
-              >
-                {devices.map((device) => (
-                  <option key={device.id} value={device.id}>
-                    {device.device_name || `${device.platform} Device`}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          <div>
-            <label className="block text-sm font-medium text-gray-400 mb-2">Filter</label>
-            <div className="flex gap-2">
-              {(["all", "apps", "games"] as const).map((f) => (
-                <button
-                  key={f}
-                  onClick={() => setFilter(f)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    filter === f
-                      ? "bg-primary-500 text-white"
-                      : "bg-surface-card text-gray-400 hover:text-white"
-                  }`}
-                >
-                  {f.charAt(0).toUpperCase() + f.slice(1)}
-                </button>
-              ))}
-            </div>
-          </div>
-        </motion.div>
-
-        {error && (
-          <motion.div
-            className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-8"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+        <div className="flex gap-3">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => selectedDevice && fetchApps(selectedDevice)}
+            disabled={isLoading}
           >
-            <p className="text-red-400 text-center">{error}</p>
-          </motion.div>
+            <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
+            Refresh
+          </Button>
+          <Button size="sm" onClick={() => setShowAddModal(true)} disabled={!selectedDevice}>
+            <Plus className="w-4 h-4" />
+            Add App
+          </Button>
+        </div>
+      </motion.div>
+
+      {/* Device Selector & Filter */}
+      <motion.div
+        className="flex flex-col md:flex-row gap-4 mb-6"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.1 }}
+      >
+        {devices.length > 0 && (
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-2">Select Device</label>
+            <select
+              value={selectedDevice || ""}
+              onChange={(e) => setSelectedDevice(e.target.value)}
+              className="w-full md:w-64 bg-surface-card border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500"
+            >
+              {devices.map((device) => (
+                <option key={device.id} value={device.id}>
+                  {device.device_name || `${device.platform} Device`}
+                </option>
+              ))}
+            </select>
+          </div>
         )}
 
-        {devices.length === 0 ? (
-          <motion.div
-            className="bg-surface-card rounded-2xl border border-white/5 p-12 text-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <div className="w-16 h-16 mx-auto rounded-full bg-surface-elevated flex items-center justify-center mb-6">
-              <Laptop className="w-8 h-8 text-gray-500" />
-            </div>
-            <h2 className="text-xl font-bold text-white mb-2">No Devices Found</h2>
-            <p className="text-gray-400 mb-6 max-w-md mx-auto">
-              You need to have at least one active device to manage blocked apps.
-            </p>
-            <Link href="/dashboard/download">
-              <Button>Add Your First Device</Button>
-            </Link>
-          </motion.div>
-        ) : isLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
-          </div>
-        ) : filteredApps.length === 0 ? (
-          <motion.div
-            className="bg-surface-card rounded-2xl border border-white/5 p-12 text-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <div className="w-16 h-16 mx-auto rounded-full bg-surface-elevated flex items-center justify-center mb-6">
-              <Ban className="w-8 h-8 text-gray-500" />
-            </div>
-            <h2 className="text-xl font-bold text-white mb-2">No Blocked Apps</h2>
-            <p className="text-gray-400 mb-6 max-w-md mx-auto">
-              You haven&apos;t blocked any {filter === "all" ? "apps" : filter} yet. Add apps to
-              block them on this device.
-            </p>
-            <Button onClick={() => setShowAddModal(true)}>
-              <Plus className="w-4 h-4" />
-              Add Your First App
-            </Button>
-          </motion.div>
-        ) : (
-          <div className="space-y-3">
-            {filteredApps.map((app, index) => (
-              <motion.div
-                key={app.id}
-                className="bg-surface-card rounded-xl border border-white/5 p-4 flex items-center justify-between hover:border-primary-500/20 transition-all"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
+        <div>
+          <label className="block text-sm font-medium text-gray-400 mb-2">Filter</label>
+          <div className="flex gap-2">
+            {(["all", "apps", "games"] as const).map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  filter === f
+                    ? "bg-primary-500 text-white"
+                    : "bg-surface-card text-gray-400 hover:text-white"
+                }`}
               >
-                <div className="flex items-center gap-4">
-                  <div
-                    className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                      app.is_game ? "bg-purple-500/10" : "bg-blue-500/10"
-                    }`}
-                  >
-                    {app.is_game ? (
-                      <Gamepad2 className="w-5 h-5 text-purple-400" />
-                    ) : (
-                      <AppWindow className="w-5 h-5 text-blue-400" />
-                    )}
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-white">{app.app_name}</h3>
-                    <p className="text-sm text-gray-500 truncate max-w-xs">{app.app_identifier}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <span
-                    className={`text-xs px-2 py-1 rounded-full ${
-                      app.is_game
-                        ? "bg-purple-500/10 text-purple-400"
-                        : "bg-blue-500/10 text-blue-400"
-                    }`}
-                  >
-                    {app.is_game ? "Game" : "App"}
-                  </span>
-                  <button
-                    onClick={() => toggleApp(app.id, !app.is_enabled)}
-                    className="text-primary-400 hover:text-primary-300 transition-colors"
-                  >
-                    {app.is_enabled ? (
-                      <ToggleRight className="w-8 h-8" />
-                    ) : (
-                      <ToggleLeft className="w-8 h-8 text-gray-500" />
-                    )}
-                  </button>
-                  <button
-                    onClick={() => deleteApp(app.id)}
-                    disabled={deletingId === app.id}
-                    className="p-2 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50"
-                  >
-                    {deletingId === app.id ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Trash2 className="w-4 h-4" />
-                    )}
-                  </button>
-                </div>
-              </motion.div>
+                {f.charAt(0).toUpperCase() + f.slice(1)}
+              </button>
             ))}
           </div>
-        )}
-      </main>
+        </div>
+      </motion.div>
+
+      {error && (
+        <motion.div
+          className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-5"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
+          <p className="text-red-400 text-center">{error}</p>
+        </motion.div>
+      )}
+
+      {devices.length === 0 ? (
+        <motion.div
+          className="bg-surface-card rounded-2xl border border-white/5 p-8 text-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <div className="w-10 h-10 mx-auto rounded-full bg-surface-elevated flex items-center justify-center mb-6">
+            <Laptop className="w-8 h-8 text-gray-500" />
+          </div>
+          <h2 className="text-base font-bold text-white mb-2">No Devices Found</h2>
+          <p className="text-gray-400 text-sm mb-4 max-w-md mx-auto">
+            You need to have at least one active device to manage blocked apps.
+          </p>
+          <Link href="/dashboard/download">
+            <Button>
+              <Plus className="w-4 h-4" />
+              Add Your First Device
+            </Button>
+          </Link>
+        </motion.div>
+      ) : isLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-6 h-6 text-primary-500 animate-spin" />
+        </div>
+      ) : filteredApps.length === 0 ? (
+        <motion.div
+          className="bg-surface-card rounded-2xl border border-white/5 p-8 text-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <div className="w-10 h-10 mx-auto rounded-full bg-surface-elevated flex items-center justify-center mb-6">
+            <Ban className="w-8 h-8 text-gray-500" />
+          </div>
+          <h2 className="text-base font-bold text-white mb-2">No Blocked Apps</h2>
+          <p className="text-gray-400 text-sm mb-4 max-w-md mx-auto">
+            You haven&apos;t blocked any {filter === "all" ? "apps" : filter} yet.
+          </p>
+          <Button onClick={() => setShowAddModal(true)}>
+            <Plus className="w-4 h-4" />
+            Add Your First App
+          </Button>
+        </motion.div>
+      ) : (
+        <div className="space-y-3">
+          {filteredApps.map((app, index) => (
+            <motion.div
+              key={app.id}
+              className="bg-surface-card rounded-xl border border-white/5 p-4 flex items-center justify-between hover:border-primary-500/20 transition-all"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+            >
+              <div className="flex items-center gap-4">
+                <div
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                    app.is_game ? "bg-purple-500/10" : "bg-blue-500/10"
+                  }`}
+                >
+                  {app.is_game ? (
+                    <Gamepad2 className="w-5 h-5 text-purple-400" />
+                  ) : (
+                    <AppWindow className="w-5 h-5 text-blue-400" />
+                  )}
+                </div>
+                <div>
+                  <h3 className="font-medium text-white">{app.app_name}</h3>
+                  <p className="text-sm text-gray-500 truncate max-w-xs">{app.app_identifier}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <span
+                  className={`text-xs px-2 py-1 rounded-full ${
+                    app.is_game
+                      ? "bg-purple-500/10 text-purple-400"
+                      : "bg-blue-500/10 text-blue-400"
+                  }`}
+                >
+                  {app.is_game ? "Game" : "App"}
+                </span>
+                <button
+                  onClick={() => toggleApp(app.id, !app.is_enabled)}
+                  className="text-primary-400 hover:text-primary-300 transition-colors"
+                >
+                  {app.is_enabled ? (
+                    <ToggleRight className="w-8 h-8" />
+                  ) : (
+                    <ToggleLeft className="w-8 h-8 text-gray-500" />
+                  )}
+                </button>
+                <button
+                  onClick={() => deleteApp(app.id)}
+                  disabled={deletingId === app.id}
+                  className="p-2 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50"
+                >
+                  {deletingId === app.id ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      )}
 
       {/* Add App Modal */}
       {showAddModal && (
@@ -406,7 +382,7 @@ export default function BlockedAppsPage() {
             animate={{ opacity: 1, scale: 1 }}
           >
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-white">Add Blocked App</h2>
+              <h2 className="text-base font-bold text-white">Add Blocked App</h2>
               <button
                 onClick={() => setShowAddModal(false)}
                 className="p-2 hover:bg-white/5 rounded-lg transition-colors"
@@ -415,7 +391,7 @@ export default function BlockedAppsPage() {
               </button>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-2">App Name</label>
                 <input
@@ -474,6 +450,6 @@ export default function BlockedAppsPage() {
           </motion.div>
         </div>
       )}
-    </div>
+    </DashboardLayout>
   );
 }

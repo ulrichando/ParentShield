@@ -76,34 +76,34 @@ const features = [
 
 export function Features() {
   return (
-    <section id="features" className="py-24 bg-surface-base relative">
+    <section id="features" className="py-16 bg-surface-base relative">
       {/* Subtle gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary-500/5 to-transparent" />
+      <div className="absolute inset-0 bg-linear-to-b from-transparent via-primary-500/5 to-transparent" />
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         {/* Section Header */}
         <motion.div
-          className="text-center max-w-2xl mx-auto mb-16"
+          className="text-center max-w-2xl mx-auto mb-10"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <span className="inline-flex items-center gap-2 bg-primary-500/10 border border-primary-500/20 text-primary-400 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-4">
+          <span className="inline-flex items-center gap-2 bg-primary-500/10 border border-primary-500/20 text-primary-400 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-3">
             Features
           </span>
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold mb-3">
             Everything You Need to{" "}
             <span className="text-gradient">Protect Your Family</span>
           </h2>
-          <p className="text-gray-400 text-lg">
+          <p className="text-gray-400 text-sm">
             Comprehensive parental control tools designed for modern families.
             Easy to set up, impossible to bypass.
           </p>
         </motion.div>
 
         {/* Bento Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {features.map((feature, index) => (
             <motion.div
               key={feature.title}
@@ -136,29 +136,29 @@ function FeatureCard({
   return (
     <motion.div
       className={cn(
-        "h-full rounded-2xl p-6 border transition-all duration-300",
+        "h-full rounded-xl p-4 border transition-all duration-300",
         "bg-surface-card hover:bg-surface-elevated",
         featured
-          ? "border-primary-500/30 bg-gradient-to-br from-primary-500/10 to-transparent"
+          ? "border-primary-500/30 bg-linear-to-br from-primary-500/10 to-transparent"
           : "border-white/5 hover:border-primary-500/20"
       )}
       whileHover={{
-        y: -4,
+        y: -3,
         boxShadow: featured
-          ? "0 0 60px rgba(6, 182, 212, 0.2)"
-          : "0 0 40px rgba(6, 182, 212, 0.1)",
+          ? "0 0 40px rgba(6, 182, 212, 0.15)"
+          : "0 0 30px rgba(6, 182, 212, 0.08)",
       }}
     >
       <div
         className={cn(
-          "w-12 h-12 rounded-xl flex items-center justify-center mb-4",
+          "w-10 h-10 rounded-lg flex items-center justify-center mb-3",
           featured ? "bg-gradient-primary shadow-glow-sm" : "bg-surface-elevated"
         )}
       >
-        <Icon className={cn("w-6 h-6", featured ? "text-white" : "text-primary-400")} />
+        <Icon className={cn("w-5 h-5", featured ? "text-white" : "text-primary-400")} />
       </div>
-      <h3 className="text-xl font-semibold text-white mb-2">{title}</h3>
-      <p className="text-gray-400 leading-relaxed">{description}</p>
+      <h3 className="text-base font-semibold text-white mb-1.5">{title}</h3>
+      <p className="text-gray-400 text-sm leading-relaxed">{description}</p>
     </motion.div>
   );
 }

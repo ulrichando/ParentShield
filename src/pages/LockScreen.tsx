@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Shield, Eye, EyeOff, Lock } from "lucide-react";
+import { Shield, Eye, EyeOff, Lock, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -50,24 +50,24 @@ export function LockScreen() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-800 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <Card className="w-full max-w-md border-border">
+        <CardHeader className="text-center pb-2">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-primary">
             {currentlyBlocking ? (
-              <Shield className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+              <Shield className="h-8 w-8 text-white" />
             ) : (
-              <Lock className="h-8 w-8 text-gray-600 dark:text-gray-400" />
+              <Lock className="h-8 w-8 text-white" />
             )}
           </div>
-          <CardTitle className="text-2xl">ParentShield</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-2xl font-semibold">ParentShield</CardTitle>
+          <CardDescription className="text-muted-foreground">
             {currentlyBlocking
               ? "Protection is active. Enter password to access settings."
               : "Enter your password to access settings."}
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 pt-4">
           {!showRecovery ? (
             <>
               <div className="space-y-2">
@@ -84,11 +84,12 @@ export function LockScreen() {
                     onKeyDown={handleKeyDown}
                     placeholder="Enter your password"
                     autoFocus
+                    className="pr-10"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
@@ -96,11 +97,11 @@ export function LockScreen() {
               </div>
 
               {error && (
-                <p className="text-sm text-red-500">{error}</p>
+                <p className="text-sm text-destructive">{error}</p>
               )}
 
               <Button
-                className="w-full"
+                className="w-full bg-gradient-primary hover:opacity-90"
                 onClick={handleLogin}
                 disabled={!password || isLoading}
               >
@@ -108,8 +109,8 @@ export function LockScreen() {
               </Button>
 
               <Button
-                variant="link"
-                className="w-full text-sm"
+                variant="ghost"
+                className="w-full text-sm text-muted-foreground hover:text-foreground"
                 onClick={() => setShowRecovery(true)}
               >
                 Forgot password?
@@ -150,11 +151,11 @@ export function LockScreen() {
               </div>
 
               {error && (
-                <p className="text-sm text-red-500">{error}</p>
+                <p className="text-sm text-destructive">{error}</p>
               )}
 
               <Button
-                className="w-full"
+                className="w-full bg-gradient-primary hover:opacity-90"
                 onClick={handleRecovery}
                 disabled={!masterPassword || !newPassword || isLoading}
               >
@@ -162,13 +163,14 @@ export function LockScreen() {
               </Button>
 
               <Button
-                variant="link"
-                className="w-full text-sm"
+                variant="ghost"
+                className="w-full text-sm text-muted-foreground hover:text-foreground"
                 onClick={() => {
                   setShowRecovery(false);
                   setError("");
                 }}
               >
+                <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to login
               </Button>
             </>

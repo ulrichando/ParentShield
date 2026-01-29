@@ -3,8 +3,10 @@ import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/core";
 import { useAuthStore } from "@/stores/auth-store";
 import { useBlockingStore } from "@/stores/blocking-store";
+import { useLicenseStore } from "@/stores/license-store";
 import { FirstRun } from "@/pages/FirstRun";
 import { LockScreen } from "@/pages/LockScreen";
+import { SubscriptionLockScreen } from "@/components/SubscriptionLockScreen";
 import { Dashboard } from "@/pages/Dashboard";
 import { Schedule } from "@/pages/Schedule";
 import { Blocklist } from "@/pages/Blocklist";
@@ -25,6 +27,13 @@ function App() {
     aiBlockingEnabled,
     dnsBlockingEnabled
   } = useBlockingStore();
+  const {
+    isLocked: isSubscriptionLocked,
+    checkLicense,
+    getLicenseState,
+    initLicenseListener,
+    status: subscriptionStatus,
+  } = useLicenseStore();
   const [currentPage, setCurrentPage] = useState<Page>("dashboard");
   const blockingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -38,6 +47,13 @@ function App() {
     checkAuthStatus();
     // Initialize API service to register installation and start heartbeat
     apiService.initialize().catch(console.error);
+    // Load cached license state immediately
+    getLicenseState();
+    // Set up listener for license-state-changed events from Rust backend
+    const unlistenPromise = initLicenseListener();
+    return () => {
+      unlistenPromise.then((fn) => fn());
+    };
   }, []);
 
   // Listen for quit-requested event from tray menu
@@ -125,6 +141,8 @@ function App() {
   useEffect(() => {
     if (isAuthenticated) {
       fetchStatus();
+      // Check license when user authenticates
+      checkLicense();
     }
   }, [isAuthenticated]);
 
@@ -173,9 +191,14 @@ function App() {
     return <>{quitModal}<FirstRun /></>;
   }
 
-  // Lock screen
+  // Lock screen (parental password)
   if (!isAuthenticated) {
     return <>{quitModal}<LockScreen /></>;
+  }
+
+  // Subscription lock screen (shown when trial expired or no active subscription)
+  if (isSubscriptionLocked && subscriptionStatus !== "none") {
+    return <>{quitModal}<SubscriptionLockScreen /></>;
   }
 
   // Main app

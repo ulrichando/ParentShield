@@ -31,22 +31,22 @@ interface StatCardProps {
 function StatCard({ title, value, icon: Icon, color, loading }: StatCardProps) {
   return (
     <motion.div
-      className="bg-surface-card rounded-2xl border border-white/5 p-6"
-      whileHover={{ y: -4, boxShadow: "0 0 30px rgba(6, 182, 212, 0.1)" }}
+      className="bg-surface-card rounded-xl border border-white/5 p-4"
+      whileHover={{ y: -2, boxShadow: "0 0 20px rgba(6, 182, 212, 0.1)" }}
     >
-      <div className="flex items-start justify-between mb-4">
-        <div className={`w-12 h-12 rounded-xl ${color} flex items-center justify-center`}>
-          <Icon className="w-6 h-6 text-white" />
+      <div className="flex items-start justify-between mb-2">
+        <div className={`w-9 h-9 rounded-lg ${color} flex items-center justify-center`}>
+          <Icon className="w-4 h-4 text-white" />
         </div>
       </div>
       {loading ? (
-        <div className="h-9 flex items-center">
-          <Loader2 className="w-5 h-5 text-gray-500 animate-spin" />
+        <div className="h-7 flex items-center">
+          <Loader2 className="w-4 h-4 text-gray-500 animate-spin" />
         </div>
       ) : (
-        <p className="text-3xl font-bold text-white mb-1">{value}</p>
+        <p className="text-xl font-bold text-white mb-0.5">{value}</p>
       )}
-      <p className="text-sm text-gray-500">{title}</p>
+      <p className="text-xs text-gray-500">{title}</p>
     </motion.div>
   );
 }
@@ -88,28 +88,29 @@ export default function AdminDashboardPage() {
     <div className="min-h-screen bg-surface-base">
       <AdminSidebar activePage="dashboard" user={user} />
 
-      <main className="lg:ml-64 p-4 md:p-6 lg:p-8">
+      <main className="lg:ml-52 pt-14 lg:pt-6">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 py-4 md:py-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-5">
           <div>
-            <h1 className="text-2xl font-bold text-white mb-1">Admin Dashboard</h1>
-            <p className="text-gray-400">Overview of ParentShield platform</p>
+            <h1 className="text-lg font-bold text-white mb-0.5">Admin Dashboard</h1>
+            <p className="text-sm text-gray-400">Overview of ParentShield platform</p>
           </div>
-          <Button variant="secondary">
-            <Bell className="w-4 h-4" />
+          <Button variant="secondary" size="sm">
+            <Bell className="w-3.5 h-3.5" />
             Notifications
           </Button>
         </div>
 
         {/* Stats Error */}
         {statsError && (
-          <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-lg mb-6 text-sm">
+          <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-3 py-2 rounded-lg mb-5 text-sm">
             {statsError}
           </div>
         )}
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
           <StatCard
             title="Total Customers"
             value={stats?.total_customers.toLocaleString() || "0"}
@@ -141,7 +142,7 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Downloads & Installations Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
           <StatCard
             title="Total Downloads"
             value={stats?.total_downloads.toLocaleString() || "0"}
@@ -166,36 +167,36 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Summary Cards */}
-          <div className="bg-surface-card rounded-2xl border border-white/5 p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">Revenue Summary</h2>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between py-3 border-b border-white/5">
-                <span className="text-gray-400">Today</span>
-                <span className="text-white font-medium">
+          <div className="bg-surface-card rounded-xl border border-white/5 p-4">
+            <h2 className="text-sm font-semibold text-white mb-3">Revenue Summary</h2>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between py-2 border-b border-white/5">
+                <span className="text-sm text-gray-400">Today</span>
+                <span className="text-sm text-white font-medium">
                   {statsLoading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Loader2 className="w-3 h-3 animate-spin" />
                   ) : (
                     `$${stats?.revenue_today.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "0.00"}`
                   )}
                 </span>
               </div>
-              <div className="flex items-center justify-between py-3 border-b border-white/5">
-                <span className="text-gray-400">This Month</span>
-                <span className="text-white font-medium">
+              <div className="flex items-center justify-between py-2 border-b border-white/5">
+                <span className="text-sm text-gray-400">This Month</span>
+                <span className="text-sm text-white font-medium">
                   {statsLoading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Loader2 className="w-3 h-3 animate-spin" />
                   ) : (
                     `$${stats?.revenue_this_month.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "0.00"}`
                   )}
                 </span>
               </div>
-              <div className="flex items-center justify-between py-3">
-                <span className="text-gray-400">All Time</span>
-                <span className="text-white font-medium">
+              <div className="flex items-center justify-between py-2">
+                <span className="text-sm text-gray-400">All Time</span>
+                <span className="text-sm text-white font-medium">
                   {statsLoading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Loader2 className="w-3 h-3 animate-spin" />
                   ) : (
                     `$${stats?.revenue_total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "0.00"}`
                   )}
@@ -205,34 +206,34 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* Customer Growth */}
-          <div className="bg-surface-card rounded-2xl border border-white/5 p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">Customer Growth</h2>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between py-3 border-b border-white/5">
-                <span className="text-gray-400">New Today</span>
-                <span className="text-white font-medium">
+          <div className="bg-surface-card rounded-xl border border-white/5 p-4">
+            <h2 className="text-sm font-semibold text-white mb-3">Customer Growth</h2>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between py-2 border-b border-white/5">
+                <span className="text-sm text-gray-400">New Today</span>
+                <span className="text-sm text-white font-medium">
                   {statsLoading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Loader2 className="w-3 h-3 animate-spin" />
                   ) : (
                     stats?.new_customers_today.toLocaleString() || "0"
                   )}
                 </span>
               </div>
-              <div className="flex items-center justify-between py-3 border-b border-white/5">
-                <span className="text-gray-400">New This Month</span>
-                <span className="text-white font-medium">
+              <div className="flex items-center justify-between py-2 border-b border-white/5">
+                <span className="text-sm text-gray-400">New This Month</span>
+                <span className="text-sm text-white font-medium">
                   {statsLoading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Loader2 className="w-3 h-3 animate-spin" />
                   ) : (
                     stats?.new_customers_this_month.toLocaleString() || "0"
                   )}
                 </span>
               </div>
-              <div className="flex items-center justify-between py-3">
-                <span className="text-gray-400">Total Customers</span>
-                <span className="text-white font-medium">
+              <div className="flex items-center justify-between py-2">
+                <span className="text-sm text-gray-400">Total Customers</span>
+                <span className="text-sm text-white font-medium">
                   {statsLoading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Loader2 className="w-3 h-3 animate-spin" />
                   ) : (
                     stats?.total_customers.toLocaleString() || "0"
                   )}
@@ -240,6 +241,7 @@ export default function AdminDashboardPage() {
               </div>
             </div>
           </div>
+        </div>
         </div>
       </main>
     </div>

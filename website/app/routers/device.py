@@ -17,6 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.database import get_db
 from app.core.dependencies import CurrentUser, OptionalUser, DbSession
 from app.models import User, Download, Installation, Platform, DownloadSource, InstallationStatus
+from app.services.user_service import UserService
 
 # Base directory for downloads
 DOWNLOADS_DIR = Path(__file__).resolve().parent.parent.parent / "downloads"
@@ -105,16 +106,6 @@ async def get_available_downloads():
                 "fileName": f"ParentShield_{version}_universal.dmg",
                 "label": "Universal",
                 "description": "Works on Intel & Apple Silicon",
-            },
-            "dmg-intel": {
-                "fileName": f"ParentShield_{version}_x64.dmg",
-                "label": "Intel (x64)",
-                "description": "For Intel-based Macs",
-            },
-            "dmg-arm64": {
-                "fileName": f"ParentShield_{version}_aarch64.dmg",
-                "label": "Apple Silicon",
-                "description": "For M1/M2/M3 Macs",
             },
         },
         "linux": {
@@ -315,6 +306,9 @@ async def register_installation(
     db.add(installation)
     await db.commit()
     await db.refresh(installation)
+
+    # Activate the user's trial subscription (if they have one and it hasn't started yet)
+    await UserService.activate_trial(db, current_user.id)
 
     return InstallationResponse(
         installation_id=str(installation.id),

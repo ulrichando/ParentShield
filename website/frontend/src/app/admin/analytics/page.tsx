@@ -29,16 +29,16 @@ function StatCard({ title, value, icon: Icon, color }: {
 }) {
   return (
     <motion.div
-      className="bg-surface-card rounded-2xl border border-white/5 p-6"
-      whileHover={{ y: -4, boxShadow: "0 0 30px rgba(6, 182, 212, 0.1)" }}
+      className="bg-surface-card rounded-xl border border-white/5 p-4"
+      whileHover={{ y: -2, boxShadow: "0 0 20px rgba(6, 182, 212, 0.1)" }}
     >
-      <div className="flex items-start justify-between mb-4">
-        <div className={`w-12 h-12 rounded-xl ${color} flex items-center justify-center`}>
-          <Icon className="w-6 h-6 text-white" />
+      <div className="flex items-start justify-between mb-2">
+        <div className={`w-9 h-9 rounded-lg ${color} flex items-center justify-center`}>
+          <Icon className="w-4 h-4 text-white" />
         </div>
       </div>
-      <p className="text-3xl font-bold text-white mb-1">{value}</p>
-      <p className="text-sm text-gray-500">{title}</p>
+      <p className="text-xl font-bold text-white mb-0.5">{value}</p>
+      <p className="text-xs text-gray-500">{title}</p>
     </motion.div>
   );
 }
@@ -143,10 +143,11 @@ export default function AdminAnalyticsPage() {
     <div className="min-h-screen bg-surface-base">
       <AdminSidebar activePage="analytics" user={user} />
 
-      <main className="lg:ml-64 p-4 md:p-6 lg:p-8">
-        <div className="flex items-center justify-between mb-8">
+      <main className="lg:ml-52 pt-14 lg:pt-6">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 py-4 md:py-6">
+        <div className="flex items-center justify-between mb-5">
           <div>
-            <h1 className="text-2xl font-bold text-white mb-1">Analytics</h1>
+            <h1 className="text-lg font-bold text-white mb-0.5">Analytics</h1>
             <p className="text-gray-400">Platform insights and metrics</p>
           </div>
           <select
@@ -174,7 +175,7 @@ export default function AdminAnalyticsPage() {
         ) : (
           <>
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
               <StatCard
                 title="Total Revenue"
                 value={`$${stats?.revenue_total.toLocaleString(undefined, { minimumFractionDigits: 2 }) || "0.00"}`}
@@ -202,10 +203,10 @@ export default function AdminAnalyticsPage() {
             </div>
 
             {/* Charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Revenue Chart */}
-              <div className="bg-surface-card rounded-2xl border border-white/5 p-6">
-                <h2 className="text-lg font-semibold text-white mb-6">Revenue Over Time</h2>
+              <div className="bg-surface-card rounded-xl border border-white/5 p-4">
+                <h2 className="text-sm font-semibold text-white mb-4">Revenue Over Time</h2>
                 <SimpleBarChart data={revenueData} label="Revenue" />
                 <p className="text-xs text-gray-500 mt-4 text-center">
                   Showing last {days} days
@@ -213,8 +214,8 @@ export default function AdminAnalyticsPage() {
               </div>
 
               {/* Customer Growth Chart */}
-              <div className="bg-surface-card rounded-2xl border border-white/5 p-6">
-                <h2 className="text-lg font-semibold text-white mb-6">Customer Growth</h2>
+              <div className="bg-surface-card rounded-xl border border-white/5 p-4">
+                <h2 className="text-sm font-semibold text-white mb-4">Customer Growth</h2>
                 <SimpleBarChart data={customerData} label="Customers" />
                 <p className="text-xs text-gray-500 mt-4 text-center">
                   Showing last {days} days
@@ -223,17 +224,17 @@ export default function AdminAnalyticsPage() {
             </div>
 
             {/* Summary Stats */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-              <div className="bg-surface-card rounded-2xl border border-white/5 p-6">
-                <h2 className="text-lg font-semibold text-white mb-4">Revenue Breakdown</h2>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between py-3 border-b border-white/5">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+              <div className="bg-surface-card rounded-xl border border-white/5 p-4">
+                <h2 className="text-sm font-semibold text-white mb-3">Revenue Breakdown</h2>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between py-2 border-b border-white/5">
                     <span className="text-gray-400">Today</span>
                     <span className="text-white font-medium">
                       ${stats?.revenue_today.toFixed(2) || "0.00"}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between py-3 border-b border-white/5">
+                  <div className="flex items-center justify-between py-2 border-b border-white/5">
                     <span className="text-gray-400">This Month</span>
                     <span className="text-white font-medium">
                       ${stats?.revenue_this_month.toFixed(2) || "0.00"}
@@ -248,16 +249,16 @@ export default function AdminAnalyticsPage() {
                 </div>
               </div>
 
-              <div className="bg-surface-card rounded-2xl border border-white/5 p-6">
-                <h2 className="text-lg font-semibold text-white mb-4">Customer Metrics</h2>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between py-3 border-b border-white/5">
+              <div className="bg-surface-card rounded-xl border border-white/5 p-4">
+                <h2 className="text-sm font-semibold text-white mb-3">Customer Metrics</h2>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between py-2 border-b border-white/5">
                     <span className="text-gray-400">New Today</span>
                     <span className="text-white font-medium">
                       {stats?.new_customers_today || 0}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between py-3 border-b border-white/5">
+                  <div className="flex items-center justify-between py-2 border-b border-white/5">
                     <span className="text-gray-400">New This Month</span>
                     <span className="text-white font-medium">
                       {stats?.new_customers_this_month || 0}
@@ -274,6 +275,7 @@ export default function AdminAnalyticsPage() {
             </div>
           </>
         )}
+        </div>
       </main>
     </div>
   );

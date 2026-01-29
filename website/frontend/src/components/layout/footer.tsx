@@ -5,9 +5,9 @@ import { Shield, Twitter, Github, Linkedin, Mail } from "lucide-react";
 
 const footerLinks = {
   product: [
-    { label: "Features", href: "#features" },
-    { label: "Pricing", href: "#pricing" },
-    { label: "Download", href: "#download" },
+    { label: "Features", href: "/#features" },
+    { label: "Pricing", href: "/#pricing" },
+    { label: "Download", href: "/#download" },
     { label: "Changelog", href: "/changelog" },
   ],
   company: [
@@ -20,7 +20,7 @@ const footerLinks = {
     { label: "Documentation", href: "/docs" },
     { label: "Help Center", href: "/support" },
     { label: "Community", href: "/community" },
-    { label: "API", href: "/api" },
+    { label: "API", href: "/api-docs" },
   ],
   legal: [
     { label: "Privacy Policy", href: "/privacy" },
@@ -40,30 +40,30 @@ const socialLinks = [
 export function Footer() {
   return (
     <footer className="bg-surface-base border-t border-white/5">
-      <div className="max-w-7xl mx-auto px-6 py-16">
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-8 mb-12">
+      <div className="max-w-7xl mx-auto px-6 py-10">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-6 mb-8">
           {/* Brand */}
           <div className="col-span-2">
-            <Link href="/" className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center">
-                <Shield className="w-5 h-5 text-white" />
+            <Link href="/" className="flex items-center gap-2 mb-3">
+              <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                <Shield className="w-4 h-4 text-white" />
               </div>
-              <span className="text-xl font-bold text-white">ParentShield</span>
+              <span className="text-lg font-bold text-white">ParentShield</span>
             </Link>
-            <p className="text-gray-500 text-sm leading-relaxed mb-6 max-w-xs">
+            <p className="text-gray-500 text-xs leading-relaxed mb-4 max-w-xs">
               Enterprise-grade parental control software that helps families manage screen time and digital safety.
             </p>
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               {socialLinks.map((social) => (
                 <a
                   key={social.label}
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-lg bg-surface-card border border-white/5 flex items-center justify-center text-gray-500 hover:text-white hover:bg-primary-600 hover:border-primary-600 transition-all duration-300"
+                  className="w-8 h-8 rounded-lg bg-surface-card border border-white/5 flex items-center justify-center text-gray-500 hover:text-white hover:bg-primary-600 hover:border-primary-600 transition-all duration-300"
                   aria-label={social.label}
                 >
-                  <social.icon className="w-4 h-4" />
+                  <social.icon className="w-3.5 h-3.5" />
                 </a>
               ))}
             </div>
@@ -71,15 +71,15 @@ export function Footer() {
 
           {/* Links */}
           <div>
-            <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">
+            <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
               Product
             </h4>
-            <ul className="space-y-3">
+            <ul className="space-y-2">
               {footerLinks.product.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-gray-400 hover:text-white transition-colors text-sm"
+                    className="text-gray-400 hover:text-white transition-colors text-xs"
                   >
                     {link.label}
                   </Link>
@@ -89,15 +89,15 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">
+            <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
               Company
             </h4>
-            <ul className="space-y-3">
+            <ul className="space-y-2">
               {footerLinks.company.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-gray-400 hover:text-white transition-colors text-sm"
+                    className="text-gray-400 hover:text-white transition-colors text-xs"
                   >
                     {link.label}
                   </Link>
@@ -107,15 +107,15 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">
+            <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
               Resources
             </h4>
-            <ul className="space-y-3">
+            <ul className="space-y-2">
               {footerLinks.resources.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-gray-400 hover:text-white transition-colors text-sm"
+                    className="text-gray-400 hover:text-white transition-colors text-xs"
                   >
                     {link.label}
                   </Link>
@@ -125,15 +125,15 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">
+            <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
               Legal
             </h4>
-            <ul className="space-y-3">
+            <ul className="space-y-2">
               {footerLinks.legal.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-gray-400 hover:text-white transition-colors text-sm"
+                    className="text-gray-400 hover:text-white transition-colors text-xs"
                   >
                     {link.label}
                   </Link>
@@ -144,8 +144,8 @@ export function Footer() {
         </div>
 
         {/* Bottom */}
-        <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-gray-500 text-sm">
+        <div className="pt-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-3">
+          <p className="text-gray-500 text-xs">
             © {new Date().getFullYear()} ParentShield. All rights reserved.
           </p>
           <div className="flex items-center gap-6">

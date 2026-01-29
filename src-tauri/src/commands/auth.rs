@@ -130,10 +130,17 @@ pub async fn uninstall_app(password: String) -> Result<bool, String> {
         .map_err(|e| e.to_string())
 }
 
-/// Quit the application (requires password)
+/// Quit the application (requires password, or no password if not configured)
 #[tauri::command]
 pub async fn quit_with_password(password: String, app: tauri::AppHandle) -> Result<bool, String> {
     let manager = ConfigManager::new().map_err(|e| e.to_string())?;
+
+    // If app is not configured yet, allow quitting without password
+    if !manager.config_exists() {
+        tracing::info!("App not configured, allowing quit without password");
+        app.exit(0);
+        return Ok(true);
+    }
 
     // Verify password first
     if !manager.verify_password(&password).map_err(|e| e.to_string())? {
@@ -141,6 +148,21 @@ pub async fn quit_with_password(password: String, app: tauri::AppHandle) -> Resu
     }
 
     // Password correct, exit the app
+    app.exit(0);
+    Ok(true)
+}
+
+/// Force quit the application (only works if app is not configured)
+#[tauri::command]
+pub async fn force_quit_unconfigured(app: tauri::AppHandle) -> Result<bool, String> {
+    let manager = ConfigManager::new().map_err(|e| e.to_string())?;
+
+    // Only allow if app is not configured
+    if manager.config_exists() {
+        return Ok(false);
+    }
+
+    tracing::info!("Force quit: app not configured");
     app.exit(0);
     Ok(true)
 }

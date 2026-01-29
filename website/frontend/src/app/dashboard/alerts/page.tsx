@@ -2,10 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import Link from "next/link";
 import {
-  Shield,
-  ArrowLeft,
   Bell,
   Loader2,
   RefreshCw,
@@ -23,6 +20,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCustomerAuth } from "@/hooks/useCustomerAuth";
+import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -74,7 +72,7 @@ function formatTimeAgo(dateString: string): string {
 }
 
 export default function AlertsPage() {
-  const { user, isLoading: authLoading, authFetch, logout } = useCustomerAuth();
+  const { isLoading: authLoading, authFetch } = useCustomerAuth();
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [devices, setDevices] = useState<Installation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -193,49 +191,26 @@ export default function AlertsPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-surface-base flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
-      </div>
+      <DashboardLayout>
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-6 h-6 text-primary-500 animate-spin" />
+        </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-surface-base">
-      {/* Header */}
-      <header className="border-b border-white/5 bg-surface-card">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="text-gray-400 hover:text-white transition-colors">
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center">
-                <Shield className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-lg font-bold text-white">ParentShield</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-400">{user?.email}</span>
-            <Button variant="ghost" size="sm" onClick={logout}>
-              Sign Out
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-6 py-12">
+    <DashboardLayout>
         {/* Page Header */}
         <motion.div
-          className="flex items-center justify-between mb-8"
+          className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
-              <Bell className="w-8 h-8 text-yellow-400" />
+            <h1 className="text-lg md:text-base font-bold text-white mb-2 flex items-center gap-3">
+              <Bell className="w-5 h-5 text-yellow-400" />
               Alerts
               {unreadCount > 0 && (
                 <span className="text-sm bg-red-500 text-white px-2 py-1 rounded-full">
@@ -319,7 +294,7 @@ export default function AlertsPage() {
 
         {error && (
           <motion.div
-            className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-8"
+            className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-5"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
@@ -328,19 +303,19 @@ export default function AlertsPage() {
         )}
 
         {isLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-6 h-6 text-primary-500 animate-spin" />
           </div>
         ) : alerts.length === 0 ? (
           <motion.div
-            className="bg-surface-card rounded-2xl border border-white/5 p-12 text-center"
+            className="bg-surface-card rounded-2xl border border-white/5 p-8 text-center"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <div className="w-16 h-16 mx-auto rounded-full bg-surface-elevated flex items-center justify-center mb-6">
+            <div className="w-10 h-10 mx-auto rounded-full bg-surface-elevated flex items-center justify-center mb-6">
               <Bell className="w-8 h-8 text-gray-500" />
             </div>
-            <h2 className="text-xl font-bold text-white mb-2">No Alerts</h2>
+            <h2 className="text-base font-bold text-white mb-2">No Alerts</h2>
             <p className="text-gray-400 max-w-md mx-auto">
               {filter === "unread"
                 ? "You have no unread alerts. Great job keeping up!"
@@ -365,7 +340,7 @@ export default function AlertsPage() {
                 >
                   <div className="flex items-start gap-4">
                     <div
-                      className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${colors.bg}`}
+                      className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${colors.bg}`}
                     >
                       <Icon className={`w-5 h-5 ${colors.text}`} />
                     </div>
@@ -376,7 +351,7 @@ export default function AlertsPage() {
                           <h3 className={`font-medium ${alert.is_read ? "text-gray-300" : "text-white"}`}>
                             {alert.title}
                           </h3>
-                          <p className="text-sm text-gray-400 mt-1">{alert.message}</p>
+                          <p className="text-xs text-gray-400">{alert.message}</p>
                           <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
                             {alert.device_name && (
                               <>
@@ -391,7 +366,7 @@ export default function AlertsPage() {
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2 flex-shrink-0">
+                        <div className="flex items-center gap-2 shrink-0">
                           {!alert.is_read && (
                             <button
                               onClick={() => markAsRead(alert.id)}
@@ -427,7 +402,6 @@ export default function AlertsPage() {
             })}
           </div>
         )}
-      </main>
-    </div>
+    </DashboardLayout>
   );
 }

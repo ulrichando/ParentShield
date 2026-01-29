@@ -108,10 +108,11 @@ export default function AdminTransactionsPage() {
     <div className="min-h-screen bg-surface-base">
       <AdminSidebar activePage="transactions" user={user} />
 
-      <main className="lg:ml-64 p-4 md:p-6 lg:p-8">
-        <div className="flex items-center justify-between mb-8">
+      <main className="lg:ml-52 pt-14 lg:pt-6">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 py-4 md:py-6">
+        <div className="flex items-center justify-between mb-5">
           <div>
-            <h1 className="text-2xl font-bold text-white mb-1">Transactions</h1>
+            <h1 className="text-lg font-bold text-white mb-0.5">Transactions</h1>
             <p className="text-gray-400">View payment history</p>
           </div>
           <Button variant="secondary" onClick={handleExport}>
@@ -144,7 +145,7 @@ export default function AdminTransactionsPage() {
           </div>
         )}
 
-        <div className="bg-surface-card rounded-2xl border border-white/5 overflow-hidden">
+        <div className="bg-surface-card rounded-xl border border-white/5 overflow-hidden">
           {dataLoading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-6 h-6 text-gray-500 animate-spin" />
@@ -159,11 +160,11 @@ export default function AdminTransactionsPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-white/5">
-                    <th className="text-left text-sm font-medium text-gray-400 px-6 py-4">Date</th>
-                    <th className="text-left text-sm font-medium text-gray-400 px-6 py-4">Customer</th>
-                    <th className="text-left text-sm font-medium text-gray-400 px-6 py-4">Description</th>
-                    <th className="text-left text-sm font-medium text-gray-400 px-6 py-4">Amount</th>
-                    <th className="text-left text-sm font-medium text-gray-400 px-6 py-4">Status</th>
+                    <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">Date</th>
+                    <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">Customer</th>
+                    <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">Description</th>
+                    <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">Amount</th>
+                    <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">Status</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -174,7 +175,7 @@ export default function AdminTransactionsPage() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                     >
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-3">
                         <span className="text-sm text-white">
                           {new Date(tx.created_at).toLocaleDateString()}
                         </span>
@@ -182,21 +183,21 @@ export default function AdminTransactionsPage() {
                           {new Date(tx.created_at).toLocaleTimeString()}
                         </p>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-3">
                         <div>
                           <p className="text-sm font-medium text-white">{tx.user_name || "No name"}</p>
                           <p className="text-xs text-gray-500">{tx.user_email}</p>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-3">
                         <span className="text-sm text-gray-400">{tx.description || "-"}</span>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-3">
                         <span className="text-sm font-medium text-white">
                           ${tx.amount.toFixed(2)} {tx.currency}
                         </span>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-3">
                         <span className={`text-xs font-medium px-2 py-1 rounded-full capitalize ${statusColors[tx.status] || "bg-gray-500/20 text-gray-400"}`}>
                           {tx.status}
                         </span>
@@ -206,7 +207,7 @@ export default function AdminTransactionsPage() {
                 </tbody>
               </table>
 
-              <div className="flex items-center justify-between px-6 py-4 border-t border-white/5">
+              <div className="flex items-center justify-between px-4 py-3 border-t border-white/5">
                 <p className="text-sm text-gray-400">
                   Showing {transactions.length} of {total} transactions
                 </p>
@@ -236,6 +237,7 @@ export default function AdminTransactionsPage() {
               </div>
             </>
           )}
+        </div>
         </div>
       </main>
     </div>

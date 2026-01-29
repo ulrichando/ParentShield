@@ -63,6 +63,14 @@ pub fn run() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+            // When a second instance is launched, show and focus the existing window
+            tracing::info!("Second instance launched, focusing existing window");
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.show();
+                let _ = window.set_focus();
+            }
+        }))
         .setup(|app| {
             // Create system tray menu
             let show_item = MenuItem::with_id(app, "show", "Show ParentShield", true, None::<&str>)?;
@@ -115,6 +123,36 @@ pub fn run() {
                 tracing::warn!("Failed to initialize license state: {}", e);
             }
 
+            // Periodic license check - verify subscription status every 15 minutes
+            let app_handle = app.handle().clone();
+            std::thread::spawn(move || {
+                // Wait 30 seconds before first check (let app initialize)
+                std::thread::sleep(std::time::Duration::from_secs(30));
+
+                loop {
+                    if let Ok(rt) = tokio::runtime::Runtime::new() {
+                        match rt.block_on(commands::license::check_license()) {
+                            Ok(ref state) => {
+                                tracing::info!(
+                                    "License check: plan={}, status={}, locked={}",
+                                    state.plan, state.status, state.is_locked
+                                );
+                                // Emit event to frontend so UI can react
+                                if let Some(window) = app_handle.get_webview_window("main") {
+                                    let _ = window.emit("license-state-changed", state);
+                                }
+                            }
+                            Err(e) => {
+                                tracing::warn!("Periodic license check failed: {}", e);
+                            }
+                        }
+                    }
+
+                    // Re-check every 15 minutes
+                    std::thread::sleep(std::time::Duration::from_secs(15 * 60));
+                }
+            });
+
             // Ensure daemon is running on app startup
             std::thread::spawn(|| {
                 ensure_daemon_running();
@@ -144,6 +182,7 @@ pub fn run() {
             reset_with_master,
             get_master_password,
             quit_with_password,
+            force_quit_unconfigured,
             enable_uninstall_protection,
             disable_uninstall_protection,
             uninstall_app,

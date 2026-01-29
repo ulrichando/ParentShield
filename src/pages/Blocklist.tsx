@@ -104,31 +104,31 @@ export function Blocklist({ onBack }: BlocklistPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700">
+      <header className="app-header">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={onBack}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Blocklist</h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Manage blocked items</p>
+            <h1 className="text-xl font-semibold text-foreground">Blocklist</h1>
+            <p className="text-sm text-muted-foreground">Manage blocked items</p>
           </div>
         </div>
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-6 space-y-6">
         {/* Tabs */}
-        <div className="flex gap-2 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex gap-2 border-b border-border">
           {categories.map((category, index) => (
             <button
               key={category.name}
               onClick={() => setActiveTab(index)}
               className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === index
-                  ? "border-blue-600 text-blue-600"
-                  : "border-transparent text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
             >
               {category.name}
@@ -200,7 +200,7 @@ export function Blocklist({ onBack }: BlocklistPageProps) {
         </div>
 
         {/* Items List */}
-        <Card>
+        <Card className="fluent-card">
           <CardContent className="pt-6">
             {isLoading ? (
               <div className="text-center py-8 text-muted-foreground">Loading...</div>
@@ -211,17 +211,17 @@ export function Blocklist({ onBack }: BlocklistPageProps) {
                     key={item.value}
                     className={`flex items-center justify-between p-3 rounded-lg ${
                       item.is_allowed
-                        ? "bg-green-50 dark:bg-green-900/20"
-                        : "bg-gray-50 dark:bg-gray-800/50"
+                        ? "bg-success/10"
+                        : "bg-muted"
                     }`}
                   >
                     <div className="flex items-center gap-3">
                       {item.is_allowed ? (
-                        <ShieldOff className="h-4 w-4 text-green-600" />
+                        <ShieldOff className="h-4 w-4 text-success" />
                       ) : (
-                        <Shield className="h-4 w-4 text-red-600" />
+                        <Shield className="h-4 w-4 text-destructive" />
                       )}
-                      <span className="font-mono text-sm text-gray-900 dark:text-white">{item.value}</span>
+                      <span className="font-mono text-sm text-foreground">{item.value}</span>
                       {item.is_default && (
                         <Badge variant="outline" className="text-xs">
                           Default
@@ -274,13 +274,13 @@ export function Blocklist({ onBack }: BlocklistPageProps) {
         </Card>
 
         {/* Legend */}
-        <div className="flex gap-6 text-sm text-gray-600 dark:text-gray-300">
+        <div className="flex gap-6 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
-            <Shield className="h-4 w-4 text-red-600" />
+            <Shield className="h-4 w-4 text-destructive" />
             <span>Blocked</span>
           </div>
           <div className="flex items-center gap-2">
-            <ShieldOff className="h-4 w-4 text-green-600" />
+            <ShieldOff className="h-4 w-4 text-success" />
             <span>Allowed (whitelisted)</span>
           </div>
         </div>

@@ -15,6 +15,8 @@ import {
   CheckCircle2,
   Server,
   AlertTriangle,
+  Clock,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,6 +26,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useBlockingStore } from "@/stores/blocking-store";
 import { useAuthStore } from "@/stores/auth-store";
 import { useDaemonStore } from "@/stores/daemon-store";
+import { useLicenseStore } from "@/stores/license-store";
 
 interface DashboardProps {
   onNavigate: (page: string) => void;
@@ -53,6 +56,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
 
   const { logout } = useAuthStore();
   const { status: daemonStatus, fetchStatus: fetchDaemonStatus } = useDaemonStore();
+  const { features, plan, status: subscriptionStatus, daysRemaining } = useLicenseStore();
 
   useEffect(() => {
     fetchStatus();
@@ -62,27 +66,53 @@ export function Dashboard({ onNavigate }: DashboardProps) {
   const isProtectionActive = currentlyBlocking && (gameBlockingEnabled || aiBlockingEnabled || dnsBlockingEnabled);
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-slate-950 text-gray-900 dark:text-gray-100">
-      {/* Header */}
-      <header className="bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700 shadow-sm">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+    <div className="min-h-screen bg-background">
+      {/* Header - Fluent Design */}
+      <header className="app-header">
+        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Shield className="h-8 w-8 text-blue-600" />
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">ParentShield</h1>
+            <div className="w-9 h-9 bg-gradient-primary rounded-lg flex items-center justify-center">
+              <Shield className="h-5 w-5 text-white" />
+            </div>
+            <h1 className="text-lg font-semibold">ParentShield</h1>
           </div>
-          <Button variant="ghost" size="sm" onClick={logout} className="text-gray-700 dark:text-gray-200">
+          <Button variant="ghost" size="sm" onClick={logout} className="text-muted-foreground hover:text-foreground">
             <LogOut className="h-4 w-4 mr-2" />
             Lock
           </Button>
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-6 space-y-6">
+      <main className="max-w-5xl mx-auto px-4 py-6 space-y-4">
+        {/* Trial Banner */}
+        {subscriptionStatus === "trialing" && daysRemaining !== null && (
+          <Alert className="border-primary/30 bg-primary/5">
+            <Clock className="h-4 w-4 text-primary" />
+            <AlertTitle className="text-primary font-medium">Free Trial</AlertTitle>
+            <AlertDescription className="text-primary/80">
+              {daysRemaining > 0
+                ? `You have ${daysRemaining} day${daysRemaining !== 1 ? "s" : ""} remaining in your free trial.`
+                : "Your trial expires today!"}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Plan Badge */}
+        {plan && plan !== "none" && plan !== "Free Trial" && (
+          <Alert className="border-success/30 bg-success/5">
+            <Sparkles className="h-4 w-4 text-success" />
+            <AlertTitle className="text-success font-medium">{plan} Plan</AlertTitle>
+            <AlertDescription className="text-success/80">
+              Your subscription is active.
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Error Alert */}
         {error && (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Blocking Error</AlertTitle>
+            <AlertTitle>Error</AlertTitle>
             <AlertDescription className="flex items-center justify-between">
               <span>{error}</span>
               <Button variant="ghost" size="sm" onClick={clearError} className="h-6 px-2">
@@ -92,96 +122,111 @@ export function Dashboard({ onNavigate }: DashboardProps) {
           </Alert>
         )}
 
-        {/* Status Card */}
-        <Card className={isProtectionActive
-          ? "border-green-300 bg-green-50 dark:bg-green-950 dark:border-green-700"
-          : "border-amber-300 bg-amber-50 dark:bg-amber-950 dark:border-amber-700"}>
+        {/* Status Card - Main Protection Status */}
+        <Card className={`overflow-hidden ${
+          isProtectionActive
+            ? "border-success/50 bg-success/5"
+            : "border-warning/50 bg-warning/5"
+        }`}>
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className={`flex h-16 w-16 items-center justify-center rounded-full ${isProtectionActive ? "bg-green-200 dark:bg-green-900" : "bg-amber-200 dark:bg-amber-900"}`}>
+              <div className={`flex h-14 w-14 items-center justify-center rounded-xl ${
+                isProtectionActive
+                  ? "bg-success/20"
+                  : "bg-warning/20"
+              }`}>
                 {isProtectionActive ? (
-                  <Shield className="h-8 w-8 text-green-700 dark:text-green-300" />
+                  <Shield className="h-7 w-7 text-success" />
                 ) : (
-                  <ShieldOff className="h-8 w-8 text-amber-700 dark:text-amber-300" />
+                  <ShieldOff className="h-7 w-7 text-warning" />
                 )}
               </div>
-              <div>
-                <h2 className={`text-xl font-bold ${isProtectionActive ? "text-green-800 dark:text-green-200" : "text-amber-800 dark:text-amber-200"}`}>
+              <div className="flex-1">
+                <h2 className={`text-lg font-semibold ${
+                  isProtectionActive ? "text-success" : "text-warning"
+                }`}>
                   {isProtectionActive ? "Protection Active" : "Protection Paused"}
                 </h2>
-                <p className={`text-sm ${isProtectionActive ? "text-green-700 dark:text-green-300" : "text-amber-700 dark:text-amber-300"}`}>
+                <p className="text-sm text-muted-foreground">
                   {isProtectionActive
-                    ? "Gaming/AI websites blocked via hosts file. Process blocking runs every 5s."
+                    ? "Blocking is enabled and running"
                     : currentlyBlocking
                     ? "Enable blocking options below"
                     : "Blocking paused due to schedule"}
                 </p>
               </div>
+              {firewallBlockingActive && (
+                <Badge className="bg-success/20 text-success border-success/30">
+                  <Flame className="h-3 w-3 mr-1" />
+                  Firewall
+                </Badge>
+              )}
             </div>
           </CardContent>
         </Card>
 
-        {/* Daemon Status */}
-        {daemonStatus?.installed && daemonStatus?.running && (
-          <Alert className="border-purple-200 bg-purple-50 dark:bg-purple-900/20 dark:border-purple-800">
-            <Server className="h-4 w-4 text-purple-600" />
-            <AlertTitle className="text-purple-800 dark:text-purple-200">Background Service Active</AlertTitle>
-            <AlertDescription className="text-purple-700 dark:text-purple-300">
-              Blocking continues even when app is closed. {daemonStatus.blockedCount > 0 && `Blocked ${daemonStatus.blockedCount} processes.`}
-            </AlertDescription>
-          </Alert>
-        )}
+        {/* Service & Firewall Status Row */}
+        <div className="grid gap-3 md:grid-cols-2">
+          {/* Daemon Status */}
+          {daemonStatus?.installed && daemonStatus?.running && (
+            <Alert className="border-secondary/30 bg-secondary/5">
+              <Server className="h-4 w-4 text-secondary" />
+              <AlertTitle className="text-secondary font-medium">Background Service</AlertTitle>
+              <AlertDescription className="text-secondary/80 text-sm">
+                Active{daemonStatus.blockedCount > 0 && ` • ${daemonStatus.blockedCount} blocked`}
+              </AlertDescription>
+            </Alert>
+          )}
 
-        {daemonStatus && !daemonStatus.installed && (
-          <Alert className="border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-800">
-            <AlertTriangle className="h-4 w-4 text-amber-600" />
-            <AlertTitle className="text-amber-800 dark:text-amber-200">Background Service Not Installed</AlertTitle>
-            <AlertDescription className="text-amber-700 dark:text-amber-300">
-              Blocking only works while the app is open. Install the service in Settings for continuous protection.
-            </AlertDescription>
-          </Alert>
-        )}
+          {daemonStatus && !daemonStatus.installed && (
+            <Alert className="border-warning/30 bg-warning/5">
+              <AlertTriangle className="h-4 w-4 text-warning" />
+              <AlertTitle className="text-warning font-medium">Service Not Installed</AlertTitle>
+              <AlertDescription className="text-warning/80 text-sm">
+                Install in Settings for 24/7 protection
+              </AlertDescription>
+            </Alert>
+          )}
 
-        {/* Firewall Blocking Status - Show when active */}
-        {firewallBlockingActive && (
-          <Alert className="border-green-200 bg-green-50 dark:bg-green-900/20 dark:border-green-800">
-            <CheckCircle2 className="h-4 w-4 text-green-600" />
-            <AlertTitle className="text-green-800 dark:text-green-200">Firewall Protection Active</AlertTitle>
-            <AlertDescription className="text-green-700 dark:text-green-300">
-              DNS-over-HTTPS providers are blocked at the firewall level. Websites cannot bypass blocking.
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={disableFirewallBlocking}
-                disabled={isLoading}
-                className="ml-3"
-              >
-                Disable Firewall
-              </Button>
-            </AlertDescription>
-          </Alert>
-        )}
+          {/* Firewall Status */}
+          {firewallBlockingActive && (
+            <Alert className="border-success/30 bg-success/5">
+              <CheckCircle2 className="h-4 w-4 text-success" />
+              <AlertTitle className="text-success font-medium">Firewall Active</AlertTitle>
+              <AlertDescription className="text-success/80 text-sm flex items-center justify-between">
+                <span>DoH providers blocked</span>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={disableFirewallBlocking}
+                  disabled={isLoading}
+                  className="h-6 text-xs"
+                >
+                  Disable
+                </Button>
+              </AlertDescription>
+            </Alert>
+          )}
+        </div>
 
-        {/* Warning when blocking is active but firewall isn't */}
+        {/* Bypass Warning */}
         {isProtectionActive && !firewallBlockingActive && (
-          <Alert variant="destructive" className="border-2">
+          <Alert variant="destructive" className="border-destructive/50">
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle className="font-bold">Website Blocking Can Be Bypassed!</AlertTitle>
+            <AlertTitle className="font-semibold">Blocking Can Be Bypassed</AlertTitle>
             <AlertDescription className="space-y-3">
-              <p className="font-medium">
-                Modern browsers use DNS-over-HTTPS (DoH) which bypasses hosts file blocking.
-                Enable firewall protection to block DoH providers and enforce website blocking.
+              <p className="text-sm">
+                Browsers use DNS-over-HTTPS which bypasses blocking. Enable firewall protection.
               </p>
               <div className="flex gap-2 flex-wrap">
                 <Button
                   size="sm"
-                  variant="default"
                   onClick={enableFirewallBlocking}
                   disabled={isLoading}
-                  className="bg-red-600 hover:bg-red-700"
+                  className="bg-destructive hover:bg-destructive/90"
                 >
                   <Flame className="h-4 w-4 mr-2" />
-                  Enable Firewall Protection (Recommended)
+                  Enable Firewall
                 </Button>
                 <Button
                   size="sm"
@@ -189,59 +234,62 @@ export function Dashboard({ onNavigate }: DashboardProps) {
                   onClick={disableBrowserDoh}
                   disabled={isLoading}
                 >
-                  Disable Browser DoH (Alternative)
+                  Disable Browser DoH
                 </Button>
               </div>
-              <p className="text-xs opacity-80">
-                Firewall protection blocks connections to DoH servers (Cloudflare, Google DNS, etc.) using iptables.
-              </p>
             </AlertDescription>
           </Alert>
         )}
 
         {/* DoH disabled confirmation */}
         {dohDisabled && dohConfiguredBrowsers.length > 0 && !firewallBlockingActive && (
-          <Alert className="border-green-200 bg-green-50 dark:bg-green-900/20 dark:border-green-800">
-            <Shield className="h-4 w-4 text-green-600" />
-            <AlertTitle>Browser DoH Disabled</AlertTitle>
-            <AlertDescription>
-              Configured: {dohConfiguredBrowsers.join(", ")}. Restart your browser for changes to take effect.
+          <Alert className="border-success/30 bg-success/5">
+            <Shield className="h-4 w-4 text-success" />
+            <AlertTitle className="text-success">Browser DoH Disabled</AlertTitle>
+            <AlertDescription className="text-success/80 text-sm">
+              {dohConfiguredBrowsers.join(", ")} • Restart browser to apply
             </AlertDescription>
           </Alert>
         )}
 
-        {/* Quick Toggles */}
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card className="bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-700">
-            <CardContent className="pt-6">
+        {/* Quick Toggles - Fluent Cards */}
+        <div className="grid gap-3 md:grid-cols-3">
+          <Card className="fluent-card">
+            <CardContent className="pt-5 pb-5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <Gamepad2 className="h-5 w-5 text-purple-500" />
+                  <div className="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center">
+                    <Gamepad2 className="h-5 w-5 text-secondary" />
+                  </div>
                   <div>
-                    <p className="font-semibold text-gray-900 dark:text-white">Game Blocking</p>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">200+ gaming sites & apps</p>
+                    <p className="font-medium flex items-center gap-2">
+                      Game Blocking
+                      {!features.gameBlocking && (
+                        <Badge variant="outline" className="text-xs px-1.5 py-0">Pro</Badge>
+                      )}
+                    </p>
+                    <p className="text-xs text-muted-foreground">200+ gaming sites</p>
                   </div>
                 </div>
                 <Switch
                   checked={gameBlockingEnabled}
-                  onCheckedChange={(checked) => {
-                    console.log("[Dashboard] Game blocking switch toggled to:", checked);
-                    setGameBlocking(checked);
-                  }}
-                  disabled={isLoading}
+                  onCheckedChange={setGameBlocking}
+                  disabled={isLoading || !features.gameBlocking}
                 />
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-700">
-            <CardContent className="pt-6">
+          <Card className="fluent-card">
+            <CardContent className="pt-5 pb-5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <Bot className="h-5 w-5 text-blue-500" />
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Bot className="h-5 w-5 text-primary" />
+                  </div>
                   <div>
-                    <p className="font-semibold text-gray-900 dark:text-white">AI Blocking</p>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">50+ AI sites & apps</p>
+                    <p className="font-medium">AI Blocking</p>
+                    <p className="text-xs text-muted-foreground">50+ AI services</p>
                   </div>
                 </div>
                 <Switch
@@ -253,14 +301,16 @@ export function Dashboard({ onNavigate }: DashboardProps) {
             </CardContent>
           </Card>
 
-          <Card className="bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-700">
-            <CardContent className="pt-6">
+          <Card className="fluent-card">
+            <CardContent className="pt-5 pb-5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <Globe className="h-5 w-5 text-green-500" />
+                  <div className="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center">
+                    <Globe className="h-5 w-5 text-success" />
+                  </div>
                   <div>
-                    <p className="font-semibold text-gray-900 dark:text-white">Custom Websites</p>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">Your blocked sites</p>
+                    <p className="font-medium">Custom Sites</p>
+                    <p className="text-xs text-muted-foreground">Your blocklist</p>
                   </div>
                 </div>
                 <Switch
@@ -275,15 +325,15 @@ export function Dashboard({ onNavigate }: DashboardProps) {
 
         {/* Recent Activity */}
         {recentlyBlocked.length > 0 && (
-          <Card className="bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-700">
-            <CardHeader>
-              <CardTitle className="text-lg text-gray-900 dark:text-white">Recently Blocked</CardTitle>
-              <CardDescription className="text-gray-600 dark:text-gray-400">Processes that were blocked</CardDescription>
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Recently Blocked</CardTitle>
+              <CardDescription>Processes that were terminated</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
                 {recentlyBlocked.map((process) => (
-                  <Badge key={process.pid} variant="secondary" className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                  <Badge key={process.pid} variant="secondary" className="bg-destructive/10 text-destructive border-destructive/20">
                     {process.name}
                   </Badge>
                 ))}
@@ -293,47 +343,53 @@ export function Dashboard({ onNavigate }: DashboardProps) {
         )}
 
         {/* Navigation Cards */}
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-3">
           <Card
-            className="cursor-pointer bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
+            className="fluent-card cursor-pointer hover:border-accent"
             onClick={() => onNavigate("schedule")}
           >
-            <CardContent className="pt-6">
+            <CardContent className="pt-5 pb-5">
               <div className="flex items-center gap-3">
-                <Calendar className="h-5 w-5 text-orange-500" />
+                <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+                  <Calendar className="h-5 w-5 text-accent" />
+                </div>
                 <div>
-                  <p className="font-semibold text-gray-900 dark:text-white">Schedule</p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">Set blocking times</p>
+                  <p className="font-medium">Schedule</p>
+                  <p className="text-xs text-muted-foreground">Set blocking times</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card
-            className="cursor-pointer bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
+            className="fluent-card cursor-pointer hover:border-destructive"
             onClick={() => onNavigate("blocklist")}
           >
-            <CardContent className="pt-6">
+            <CardContent className="pt-5 pb-5">
               <div className="flex items-center gap-3">
-                <List className="h-5 w-5 text-red-500" />
+                <div className="w-10 h-10 rounded-lg bg-destructive/10 flex items-center justify-center">
+                  <List className="h-5 w-5 text-destructive" />
+                </div>
                 <div>
-                  <p className="font-semibold text-gray-900 dark:text-white">Blocklist</p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">Manage blocked items</p>
+                  <p className="font-medium">Blocklist</p>
+                  <p className="text-xs text-muted-foreground">Manage blocked items</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card
-            className="cursor-pointer bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
+            className="fluent-card cursor-pointer hover:border-muted-foreground"
             onClick={() => onNavigate("settings")}
           >
-            <CardContent className="pt-6">
+            <CardContent className="pt-5 pb-5">
               <div className="flex items-center gap-3">
-                <Settings className="h-5 w-5 text-gray-500" />
+                <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
+                  <Settings className="h-5 w-5 text-muted-foreground" />
+                </div>
                 <div>
-                  <p className="font-semibold text-gray-900 dark:text-white">Settings</p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">App preferences</p>
+                  <p className="font-medium">Settings</p>
+                  <p className="text-xs text-muted-foreground">App preferences</p>
                 </div>
               </div>
             </CardContent>

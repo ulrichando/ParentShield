@@ -9,7 +9,8 @@ import io
 
 from app.db.database import get_db
 from app.core.dependencies import AdminUser, DbSession
-from app.models import User, UserRole, Subscription, Transaction, Download, Installation, Platform, InstallationStatus
+from app.core.security import generate_api_key, hash_token
+from app.models import User, UserRole, Subscription, Transaction, Download, Installation, Platform, InstallationStatus, APIKey
 from app.schemas.admin import DashboardStats, CustomerListResponse, CustomerWithSubscription
 from app.schemas.user import UserResponse
 from app.schemas.subscription import SubscriptionResponse
@@ -690,3 +691,211 @@ async def unblock_installation(
     await db.commit()
 
     return {"message": "Installation unblocked", "installation_id": str(installation_id)}
+
+
+# ============================================================================
+# API KEYS MANAGEMENT
+# ============================================================================
+
+@router.get("/api/api-keys")
+async def list_all_api_keys(
+    current_user: AdminUser,
+    db: DbSession,
+    page: int = Query(1, ge=1),
+    per_page: int = Query(20, ge=1, le=100),
+    search: str = Query("", description="Search by key name or user email"),
+):
+    """List all API keys across all users (Admin only)."""
+    from sqlalchemy.orm import selectinload
+
+    query = select(APIKey).options(selectinload(APIKey.user))
+
+    if search:
+        query = query.join(User).where(
+            APIKey.name.ilike(f"%{search}%") |
+            User.email.ilike(f"%{search}%")
+        )
+
+    # Count total
+    count_query = select(func.count(APIKey.id))
+    if search:
+        count_query = count_query.join(User).where(
+            APIKey.name.ilike(f"%{search}%") |
+            User.email.ilike(f"%{search}%")
+        )
+    total_result = await db.execute(count_query)
+    total = total_result.scalar() or 0
+
+    # Paginate
+    query = query.order_by(APIKey.created_at.desc()).offset((page - 1) * per_page).limit(per_page)
+    result = await db.execute(query)
+    api_keys = result.scalars().all()
+
+    api_key_list = []
+    for key in api_keys:
+        api_key_list.append({
+            "id": str(key.id),
+            "user_id": str(key.user_id),
+            "user_email": key.user.email if key.user else None,
+            "name": key.name,
+            "key_prefix": key.key_prefix,
+            "scopes": key.scopes or [],
+            "is_revoked": key.is_revoked,
+            "expires_at": key.expires_at.isoformat() if key.expires_at else None,
+            "last_used_at": key.last_used_at.isoformat() if key.last_used_at else None,
+            "created_at": key.created_at.isoformat(),
+        })
+
+    total_pages = (total + per_page - 1) // per_page
+
+    return {
+        "api_keys": api_key_list,
+        "total": total,
+        "page": page,
+        "per_page": per_page,
+        "total_pages": total_pages,
+    }
+
+
+@router.post("/api/api-keys")
+async def admin_create_api_key(
+    current_user: AdminUser,
+    db: DbSession,
+    user_id: UUID = Query(..., description="User ID to create key for"),
+    name: str = Query(..., description="Name for the API key"),
+    scopes: list[str] = Query(default=["read"], description="Scopes for the key"),
+    expires_in_days: int | None = Query(None, ge=1, le=365, description="Days until expiration"),
+):
+    """Create an API key for a specific user (Admin only)."""
+    from datetime import datetime, timedelta
+
+    # Verify user exists
+    user_result = await db.execute(select(User).where(User.id == user_id))
+    user = user_result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Generate the key
+    full_key, display_prefix = generate_api_key()
+    key_hash = hash_token(full_key)
+
+    # Calculate expiration
+    expires_at = None
+    if expires_in_days:
+        expires_at = datetime.utcnow() + timedelta(days=expires_in_days)
+
+    # Create the API key
+    api_key = APIKey(
+        user_id=user_id,
+        key_hash=key_hash,
+        key_prefix=display_prefix,
+        name=name,
+        scopes=scopes,
+        expires_at=expires_at,
+    )
+
+    db.add(api_key)
+    await db.commit()
+    await db.refresh(api_key)
+
+    return {
+        "id": str(api_key.id),
+        "user_id": str(api_key.user_id),
+        "user_email": user.email,
+        "name": api_key.name,
+        "key": full_key,  # Only returned once
+        "key_prefix": api_key.key_prefix,
+        "scopes": api_key.scopes or [],
+        "expires_at": api_key.expires_at.isoformat() if api_key.expires_at else None,
+        "created_at": api_key.created_at.isoformat(),
+    }
+
+
+@router.delete("/api/api-keys/{key_id}")
+async def admin_revoke_api_key(
+    key_id: UUID,
+    current_user: AdminUser,
+    db: DbSession,
+):
+    """Revoke any API key (Admin only)."""
+    result = await db.execute(select(APIKey).where(APIKey.id == key_id))
+    api_key = result.scalar_one_or_none()
+
+    if not api_key:
+        raise HTTPException(status_code=404, detail="API key not found")
+
+    api_key.is_revoked = True
+    await db.commit()
+
+    return {"message": "API key revoked", "key_id": str(key_id)}
+
+
+@router.put("/api/api-keys/{key_id}/toggle")
+async def admin_toggle_api_key(
+    key_id: UUID,
+    current_user: AdminUser,
+    db: DbSession,
+):
+    """Toggle an API key's active status (Admin only)."""
+    result = await db.execute(select(APIKey).where(APIKey.id == key_id))
+    api_key = result.scalar_one_or_none()
+
+    if not api_key:
+        raise HTTPException(status_code=404, detail="API key not found")
+
+    api_key.is_revoked = not api_key.is_revoked
+    await db.commit()
+
+    return {
+        "message": f"API key {'revoked' if api_key.is_revoked else 'activated'}",
+        "key_id": str(key_id),
+        "is_revoked": api_key.is_revoked,
+    }
+
+
+@router.get("/stats/api-keys")
+async def get_api_key_stats(
+    current_user: AdminUser,
+    db: DbSession,
+):
+    """Get API key statistics."""
+    from datetime import datetime, timedelta
+
+    # Total keys
+    total_result = await db.execute(select(func.count(APIKey.id)))
+    total_keys = total_result.scalar() or 0
+
+    # Active keys (not revoked)
+    active_result = await db.execute(
+        select(func.count(APIKey.id)).where(APIKey.is_revoked == False)
+    )
+    active_keys = active_result.scalar() or 0
+
+    # Keys used in last 7 days
+    week_ago = datetime.utcnow() - timedelta(days=7)
+    used_result = await db.execute(
+        select(func.count(APIKey.id)).where(
+            APIKey.last_used_at >= week_ago,
+            APIKey.is_revoked == False
+        )
+    )
+    recently_used = used_result.scalar() or 0
+
+    # Keys expiring soon (next 30 days)
+    thirty_days = datetime.utcnow() + timedelta(days=30)
+    expiring_result = await db.execute(
+        select(func.count(APIKey.id)).where(
+            APIKey.expires_at != None,
+            APIKey.expires_at <= thirty_days,
+            APIKey.is_revoked == False
+        )
+    )
+    expiring_soon = expiring_result.scalar() or 0
+
+    return {
+        "total_keys": total_keys,
+        "active_keys": active_keys,
+        "revoked_keys": total_keys - active_keys,
+        "recently_used_7d": recently_used,
+        "expiring_soon_30d": expiring_soon,
+    }

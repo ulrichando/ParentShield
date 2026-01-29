@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from app.models.transaction import Transaction
     from app.models.device import Download, Installation
     from app.models.parental_controls import UserSettings, Alert
+    from app.models.api_key import APIKey
 
 
 class UserRole(str, PyEnum):
@@ -44,6 +45,9 @@ class User(Base):
     # Parental control relationships
     settings: Mapped["UserSettings | None"] = relationship("UserSettings", back_populates="user", uselist=False)
     alerts: Mapped[list["Alert"]] = relationship("Alert", back_populates="user")
+
+    # API keys
+    api_keys: Mapped[list["APIKey"]] = relationship("APIKey", back_populates="user", cascade="all, delete-orphan")
 
     @property
     def full_name(self) -> str:

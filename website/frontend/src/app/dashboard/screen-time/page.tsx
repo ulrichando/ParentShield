@@ -4,8 +4,6 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
-  Shield,
-  ArrowLeft,
   Clock,
   Laptop,
   Save,
@@ -13,9 +11,11 @@ import {
   RefreshCw,
   ToggleLeft,
   ToggleRight,
+  Plus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCustomerAuth } from "@/hooks/useCustomerAuth";
+import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -61,7 +61,7 @@ function formatMinutes(minutes: number): string {
 }
 
 export default function ScreenTimePage() {
-  const { user, isLoading: authLoading, authFetch, logout } = useCustomerAuth();
+  const { isLoading: authLoading, authFetch } = useCustomerAuth();
   const [devices, setDevices] = useState<Installation[]>([]);
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
   const [config, setConfig] = useState<ScreenTimeConfig | null>(null);
@@ -140,261 +140,238 @@ export default function ScreenTimePage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-surface-base flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
-      </div>
+      <DashboardLayout>
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-6 h-6 text-primary-500 animate-spin" />
+        </div>
+      </DashboardLayout>
     );
   }
 
-  const selectedDeviceInfo = devices.find((d) => d.id === selectedDevice);
-
   return (
-    <div className="min-h-screen bg-surface-base">
-      {/* Header */}
-      <header className="border-b border-white/5 bg-surface-card">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="text-gray-400 hover:text-white transition-colors">
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center">
-                <Shield className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-lg font-bold text-white">ParentShield</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-400">{user?.email}</span>
-            <Button variant="ghost" size="sm" onClick={logout}>
-              Sign Out
-            </Button>
-          </div>
+    <DashboardLayout>
+      {/* Page Header */}
+      <motion.div
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div>
+          <h1 className="text-lg md:text-base font-bold text-white mb-2 flex items-center gap-3">
+            <Clock className="w-5 h-5 text-primary-400" />
+            Screen Time
+          </h1>
+          <p className="text-gray-400">Set daily time limits for device usage.</p>
         </div>
-      </header>
+        <div className="flex gap-3">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => selectedDevice && fetchConfig(selectedDevice)}
+            disabled={isLoading}
+          >
+            <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
+            Refresh
+          </Button>
+          <Button size="sm" onClick={saveConfig} disabled={!hasChanges || isSaving}>
+            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            Save Changes
+          </Button>
+        </div>
+      </motion.div>
 
-      {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-6 py-12">
-        {/* Page Header */}
+      {/* Device Selector */}
+      {devices.length > 0 && (
         <motion.div
-          className="flex items-center justify-between mb-8"
+          className="mb-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.1 }}
+        >
+          <label className="block text-sm font-medium text-gray-400 mb-2">Select Device</label>
+          <select
+            value={selectedDevice || ""}
+            onChange={(e) => setSelectedDevice(e.target.value)}
+            className="w-full md:w-64 bg-surface-card border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500"
+          >
+            {devices.map((device) => (
+              <option key={device.id} value={device.id}>
+                {device.device_name || `${device.platform} Device`}
+              </option>
+            ))}
+          </select>
+        </motion.div>
+      )}
+
+      {error && (
+        <motion.div
+          className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-5"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
+          <p className="text-red-400 text-center">{error}</p>
+        </motion.div>
+      )}
+
+      {devices.length === 0 ? (
+        <motion.div
+          className="bg-surface-card rounded-2xl border border-white/5 p-8 text-center"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
         >
-          <div>
-            <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
-              <Clock className="w-8 h-8 text-primary-400" />
-              Screen Time
-            </h1>
-            <p className="text-gray-400">Set daily time limits for device usage.</p>
+          <div className="w-10 h-10 mx-auto rounded-full bg-surface-elevated flex items-center justify-center mb-6">
+            <Laptop className="w-8 h-8 text-gray-500" />
           </div>
-          <div className="flex gap-3">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => selectedDevice && fetchConfig(selectedDevice)}
-              disabled={isLoading}
-            >
-              <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
-              Refresh
+          <h2 className="text-base font-bold text-white mb-2">No Devices Found</h2>
+          <p className="text-gray-400 text-sm mb-4 max-w-md mx-auto">
+            You need to have at least one active device to configure screen time limits.
+          </p>
+          <Link href="/dashboard/download">
+            <Button>
+              <Plus className="w-4 h-4" />
+              Add Your First Device
             </Button>
-            <Button size="sm" onClick={saveConfig} disabled={!hasChanges || isSaving}>
-              {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              Save Changes
-            </Button>
-          </div>
+          </Link>
         </motion.div>
-
-        {/* Device Selector */}
-        {devices.length > 0 && (
+      ) : isLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-6 h-6 text-primary-500 animate-spin" />
+        </div>
+      ) : config ? (
+        <div className="space-y-3">
+          {/* Enable/Disable Toggle */}
           <motion.div
-            className="mb-6"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.1 }}
-          >
-            <label className="block text-sm font-medium text-gray-400 mb-2">Select Device</label>
-            <select
-              value={selectedDevice || ""}
-              onChange={(e) => setSelectedDevice(e.target.value)}
-              className="w-full md:w-64 bg-surface-card border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500"
-            >
-              {devices.map((device) => (
-                <option key={device.id} value={device.id}>
-                  {device.device_name || `${device.platform} Device`}
-                </option>
-              ))}
-            </select>
-          </motion.div>
-        )}
-
-        {error && (
-          <motion.div
-            className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-8"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            <p className="text-red-400 text-center">{error}</p>
-          </motion.div>
-        )}
-
-        {devices.length === 0 ? (
-          <motion.div
-            className="bg-surface-card rounded-2xl border border-white/5 p-12 text-center"
+            className="bg-surface-card rounded-xl border border-white/5 p-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
           >
-            <div className="w-16 h-16 mx-auto rounded-full bg-surface-elevated flex items-center justify-center mb-6">
-              <Laptop className="w-8 h-8 text-gray-500" />
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-semibold text-white">Enable Screen Time Limits</h3>
+                <p className="text-xs text-gray-400">
+                  Turn on to enforce daily usage limits on this device.
+                </p>
+              </div>
+              <button
+                onClick={() => updateConfig("is_enabled", !config.is_enabled)}
+                className="text-primary-400 hover:text-primary-300 transition-colors"
+              >
+                {config.is_enabled ? (
+                  <ToggleRight className="w-8 h-8" />
+                ) : (
+                  <ToggleLeft className="w-8 h-8 text-gray-500" />
+                )}
+              </button>
             </div>
-            <h2 className="text-xl font-bold text-white mb-2">No Devices Found</h2>
-            <p className="text-gray-400 mb-6 max-w-md mx-auto">
-              You need to have at least one active device to configure screen time limits.
-            </p>
-            <Link href="/dashboard/download">
-              <Button>Add Your First Device</Button>
-            </Link>
           </motion.div>
-        ) : isLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
-          </div>
-        ) : config ? (
-          <div className="space-y-6">
-            {/* Enable/Disable Toggle */}
-            <motion.div
-              className="bg-surface-card rounded-xl border border-white/5 p-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-lg font-semibold text-white">Enable Screen Time Limits</h3>
-                  <p className="text-sm text-gray-400 mt-1">
-                    Turn on to enforce daily usage limits on this device.
-                  </p>
-                </div>
-                <button
-                  onClick={() => updateConfig("is_enabled", !config.is_enabled)}
-                  className="text-primary-400 hover:text-primary-300 transition-colors"
-                >
-                  {config.is_enabled ? (
-                    <ToggleRight className="w-12 h-12" />
-                  ) : (
-                    <ToggleLeft className="w-12 h-12 text-gray-500" />
-                  )}
-                </button>
-              </div>
-            </motion.div>
 
-            {/* Daily Limits */}
-            <motion.div
-              className={`bg-surface-card rounded-xl border border-white/5 p-6 ${
-                !config.is_enabled ? "opacity-50" : ""
-              }`}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <h3 className="text-lg font-semibold text-white mb-4">Daily Time Limits</h3>
-              <p className="text-sm text-gray-400 mb-6">
-                Set maximum screen time for each day. Use 0 for unlimited.
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {DAYS.map((day) => (
-                  <div key={day.key} className="flex items-center justify-between py-3 px-4 bg-surface-elevated rounded-lg">
-                    <span className="text-white font-medium">{day.label}</span>
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="range"
-                        min="0"
-                        max="720"
-                        step="15"
-                        value={config[day.key as keyof ScreenTimeConfig] as number}
-                        onChange={(e) => updateConfig(day.key, parseInt(e.target.value))}
-                        disabled={!config.is_enabled}
-                        className="w-24 accent-primary-500"
-                      />
-                      <span className="text-sm text-gray-400 w-20 text-right">
-                        {formatMinutes(config[day.key as keyof ScreenTimeConfig] as number)}
-                      </span>
-                    </div>
+          {/* Daily Limits */}
+          <motion.div
+            className={`bg-surface-card rounded-xl border border-white/5 p-4 ${
+              !config.is_enabled ? "opacity-50" : ""
+            }`}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <h3 className="text-sm font-semibold text-white mb-4">Daily Time Limits</h3>
+            <p className="text-sm text-gray-400 text-sm mb-4">
+              Set maximum screen time for each day. Use 0 for unlimited.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {DAYS.map((day) => (
+                <div key={day.key} className="flex items-center justify-between py-3 px-4 bg-surface-elevated rounded-lg">
+                  <span className="text-white font-medium">{day.label}</span>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="range"
+                      min="0"
+                      max="720"
+                      step="15"
+                      value={config[day.key as keyof ScreenTimeConfig] as number}
+                      onChange={(e) => updateConfig(day.key, parseInt(e.target.value))}
+                      disabled={!config.is_enabled}
+                      className="w-24 accent-primary-500"
+                    />
+                    <span className="text-sm text-gray-400 w-20 text-right">
+                      {formatMinutes(config[day.key as keyof ScreenTimeConfig] as number)}
+                    </span>
                   </div>
-                ))}
-              </div>
-            </motion.div>
-
-            {/* Time Window */}
-            <motion.div
-              className={`bg-surface-card rounded-xl border border-white/5 p-6 ${
-                !config.is_enabled ? "opacity-50" : ""
-              }`}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <h3 className="text-lg font-semibold text-white mb-4">Allowed Time Window</h3>
-              <p className="text-sm text-gray-400 mb-6">
-                Optionally restrict usage to specific hours. Leave empty for no restrictions.
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">Start Time</label>
-                  <input
-                    type="time"
-                    value={config.allowed_start_time || ""}
-                    onChange={(e) => updateConfig("allowed_start_time", e.target.value || null)}
-                    disabled={!config.is_enabled}
-                    className="w-full bg-surface-elevated border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500"
-                  />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">End Time</label>
-                  <input
-                    type="time"
-                    value={config.allowed_end_time || ""}
-                    onChange={(e) => updateConfig("allowed_end_time", e.target.value || null)}
-                    disabled={!config.is_enabled}
-                    className="w-full bg-surface-elevated border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500"
-                  />
-                </div>
-              </div>
-            </motion.div>
+              ))}
+            </div>
+          </motion.div>
 
-            {/* Grace Period */}
-            <motion.div
-              className={`bg-surface-card rounded-xl border border-white/5 p-6 ${
-                !config.is_enabled ? "opacity-50" : ""
-              }`}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-            >
-              <h3 className="text-lg font-semibold text-white mb-4">Grace Period</h3>
-              <p className="text-sm text-gray-400 mb-6">
-                Allow a warning period before enforcing limits.
-              </p>
-              <div className="flex items-center gap-4">
+          {/* Time Window */}
+          <motion.div
+            className={`bg-surface-card rounded-xl border border-white/5 p-4 ${
+              !config.is_enabled ? "opacity-50" : ""
+            }`}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <h3 className="text-sm font-semibold text-white mb-4">Allowed Time Window</h3>
+            <p className="text-sm text-gray-400 text-sm mb-4">
+              Optionally restrict usage to specific hours. Leave empty for no restrictions.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">Start Time</label>
                 <input
-                  type="range"
-                  min="0"
-                  max="30"
-                  step="5"
-                  value={config.grace_period}
-                  onChange={(e) => updateConfig("grace_period", parseInt(e.target.value))}
+                  type="time"
+                  value={config.allowed_start_time || ""}
+                  onChange={(e) => updateConfig("allowed_start_time", e.target.value || null)}
                   disabled={!config.is_enabled}
-                  className="flex-1 accent-primary-500"
+                  className="w-full bg-surface-elevated border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500"
                 />
-                <span className="text-white font-medium w-24 text-right">
-                  {config.grace_period} minutes
-                </span>
               </div>
-            </motion.div>
-          </div>
-        ) : null}
-      </main>
-    </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">End Time</label>
+                <input
+                  type="time"
+                  value={config.allowed_end_time || ""}
+                  onChange={(e) => updateConfig("allowed_end_time", e.target.value || null)}
+                  disabled={!config.is_enabled}
+                  className="w-full bg-surface-elevated border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500"
+                />
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Grace Period */}
+          <motion.div
+            className={`bg-surface-card rounded-xl border border-white/5 p-4 ${
+              !config.is_enabled ? "opacity-50" : ""
+            }`}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            <h3 className="text-sm font-semibold text-white mb-4">Grace Period</h3>
+            <p className="text-sm text-gray-400 text-sm mb-4">
+              Allow a warning period before enforcing limits.
+            </p>
+            <div className="flex items-center gap-4">
+              <input
+                type="range"
+                min="0"
+                max="30"
+                step="5"
+                value={config.grace_period}
+                onChange={(e) => updateConfig("grace_period", parseInt(e.target.value))}
+                disabled={!config.is_enabled}
+                className="flex-1 accent-primary-500"
+              />
+              <span className="text-white font-medium w-24 text-right">
+                {config.grace_period} minutes
+              </span>
+            </div>
+          </motion.div>
+        </div>
+      ) : null}
+    </DashboardLayout>
   );
 }

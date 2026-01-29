@@ -195,17 +195,18 @@ export default function AdminDevicesPage() {
     <div className="min-h-screen bg-surface-base">
       <AdminSidebar activePage="devices" user={user} />
 
-      <main className="lg:ml-64 p-4 md:p-6 lg:p-8">
-        <div className="flex items-center justify-between mb-8">
+      <main className="lg:ml-52 pt-14 lg:pt-6">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 py-4 md:py-6">
+        <div className="flex items-center justify-between mb-5">
           <div>
-            <h1 className="text-2xl font-bold text-white mb-1">Devices & Downloads</h1>
+            <h1 className="text-lg font-bold text-white mb-0.5">Devices & Downloads</h1>
             <p className="text-gray-400">Monitor app downloads and installations</p>
           </div>
         </div>
 
         {/* Stats Cards */}
         {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-5">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -217,7 +218,7 @@ export default function AdminDevicesPage() {
                 </div>
                 <span className="text-gray-400 text-sm">Total Downloads</span>
               </div>
-              <p className="text-2xl font-bold text-white">{stats.total_downloads.toLocaleString()}</p>
+              <p className="text-lg font-bold text-white">{stats.total_downloads.toLocaleString()}</p>
               <p className="text-xs text-gray-500 mt-1">{stats.recent_downloads_30d} in last 30 days</p>
             </motion.div>
 
@@ -233,7 +234,7 @@ export default function AdminDevicesPage() {
                 </div>
                 <span className="text-gray-400 text-sm">Total Installations</span>
               </div>
-              <p className="text-2xl font-bold text-white">{stats.total_installations.toLocaleString()}</p>
+              <p className="text-lg font-bold text-white">{stats.total_installations.toLocaleString()}</p>
             </motion.div>
 
             <motion.div
@@ -248,7 +249,7 @@ export default function AdminDevicesPage() {
                 </div>
                 <span className="text-gray-400 text-sm">Active Devices</span>
               </div>
-              <p className="text-2xl font-bold text-white">{stats.active_installations.toLocaleString()}</p>
+              <p className="text-lg font-bold text-white">{stats.active_installations.toLocaleString()}</p>
               <p className="text-xs text-gray-500 mt-1">Active in last 7 days</p>
             </motion.div>
 
@@ -264,7 +265,7 @@ export default function AdminDevicesPage() {
                 </div>
                 <span className="text-gray-400 text-sm">Conversion Rate</span>
               </div>
-              <p className="text-2xl font-bold text-white">{stats.conversion_rate}%</p>
+              <p className="text-lg font-bold text-white">{stats.conversion_rate}%</p>
               <p className="text-xs text-gray-500 mt-1">Downloads to installs</p>
             </motion.div>
           </div>
@@ -331,7 +332,7 @@ export default function AdminDevicesPage() {
           </div>
         )}
 
-        <div className="bg-surface-card rounded-2xl border border-white/5 overflow-hidden">
+        <div className="bg-surface-card rounded-xl border border-white/5 overflow-hidden">
           {dataLoading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-6 h-6 text-gray-500 animate-spin" />
@@ -347,13 +348,13 @@ export default function AdminDevicesPage() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-white/5">
-                      <th className="text-left text-sm font-medium text-gray-400 px-6 py-4">Device</th>
-                      <th className="text-left text-sm font-medium text-gray-400 px-6 py-4">User</th>
-                      <th className="text-left text-sm font-medium text-gray-400 px-6 py-4">Platform</th>
-                      <th className="text-left text-sm font-medium text-gray-400 px-6 py-4">Version</th>
-                      <th className="text-left text-sm font-medium text-gray-400 px-6 py-4">Status</th>
-                      <th className="text-left text-sm font-medium text-gray-400 px-6 py-4">Last Seen</th>
-                      <th className="text-left text-sm font-medium text-gray-400 px-6 py-4">Actions</th>
+                      <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">Device</th>
+                      <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">User</th>
+                      <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">Platform</th>
+                      <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">Version</th>
+                      <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">Status</th>
+                      <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">Last Seen</th>
+                      <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -364,7 +365,7 @@ export default function AdminDevicesPage() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                       >
-                        <td className="px-6 py-4">
+                        <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-lg bg-surface-base flex items-center justify-center">
                               {platformIcons[item.platform] || <Monitor className="w-4 h-4 text-gray-400" />}
@@ -377,20 +378,20 @@ export default function AdminDevicesPage() {
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 py-3">
                           <p className="text-sm text-white">{item.user_name || "—"}</p>
                           <p className="text-xs text-gray-500">{item.user_email}</p>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 py-3">
                           <span className="text-sm text-white capitalize">{item.platform}</span>
                           {item.os_version && (
                             <p className="text-xs text-gray-500">{item.os_version}</p>
                           )}
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 py-3">
                           <span className="text-sm text-white">{item.app_version}</span>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 py-3">
                           <div className="flex flex-col gap-1">
                             <span className={`text-xs font-medium px-2 py-1 rounded-full inline-block w-fit ${statusColors[item.status] || "bg-gray-500/20 text-gray-400"}`}>
                               {item.status}
@@ -402,12 +403,12 @@ export default function AdminDevicesPage() {
                             )}
                           </div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 py-3">
                           <span className="text-gray-400 text-sm">
                             {new Date(item.last_seen).toLocaleString()}
                           </span>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 py-3">
                           <Button
                             variant={item.is_blocked ? "success" : "destructive"}
                             size="sm"
@@ -435,7 +436,7 @@ export default function AdminDevicesPage() {
                   </tbody>
                 </table>
 
-                <div className="flex items-center justify-between px-6 py-4 border-t border-white/5">
+                <div className="flex items-center justify-between px-4 py-3 border-t border-white/5">
                   <p className="text-sm text-gray-400">
                     Showing {installations.length} of {total} installations
                   </p>
@@ -475,12 +476,12 @@ export default function AdminDevicesPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-white/5">
-                    <th className="text-left text-sm font-medium text-gray-400 px-6 py-4">Platform</th>
-                    <th className="text-left text-sm font-medium text-gray-400 px-6 py-4">User</th>
-                    <th className="text-left text-sm font-medium text-gray-400 px-6 py-4">Version</th>
-                    <th className="text-left text-sm font-medium text-gray-400 px-6 py-4">Source</th>
-                    <th className="text-left text-sm font-medium text-gray-400 px-6 py-4">IP Address</th>
-                    <th className="text-left text-sm font-medium text-gray-400 px-6 py-4">Date</th>
+                    <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">Platform</th>
+                    <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">User</th>
+                    <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">Version</th>
+                    <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">Source</th>
+                    <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">IP Address</th>
+                    <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">Date</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -491,7 +492,7 @@ export default function AdminDevicesPage() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                     >
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-lg bg-surface-base flex items-center justify-center">
                             {platformIcons[item.platform] || <Monitor className="w-4 h-4 text-gray-400" />}
@@ -499,23 +500,23 @@ export default function AdminDevicesPage() {
                           <span className="text-sm text-white capitalize">{item.platform}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-3">
                         <span className="text-sm text-white">
                           {item.user_email || <span className="text-gray-500">Anonymous</span>}
                         </span>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-3">
                         <span className="text-sm text-white">{item.app_version}</span>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-3">
                         <span className="text-xs font-medium px-2 py-1 rounded-full bg-blue-500/20 text-blue-400 capitalize">
                           {item.source}
                         </span>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-3">
                         <span className="text-gray-400 text-sm">{item.ip_address || "—"}</span>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-3">
                         <span className="text-gray-400 text-sm">
                           {new Date(item.created_at).toLocaleString()}
                         </span>
@@ -525,7 +526,7 @@ export default function AdminDevicesPage() {
                 </tbody>
               </table>
 
-              <div className="flex items-center justify-between px-6 py-4 border-t border-white/5">
+              <div className="flex items-center justify-between px-4 py-3 border-t border-white/5">
                 <p className="text-sm text-gray-400">
                   Showing {downloads.length} of {total} downloads
                 </p>
@@ -555,6 +556,7 @@ export default function AdminDevicesPage() {
               </div>
             </>
           )}
+        </div>
         </div>
       </main>
     </div>

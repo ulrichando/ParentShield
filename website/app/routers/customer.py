@@ -1,7 +1,9 @@
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 from pathlib import Path
 
 from app.db.database import get_db
@@ -11,7 +13,7 @@ from app.schemas.auth import PasswordChangeRequest
 from app.schemas.subscription import SubscriptionResponse
 from app.schemas.transaction import TransactionResponse
 from app.services.user_service import UserService
-from app.models import User
+from app.models import User, Subscription, SubscriptionStatus
 
 router = APIRouter(prefix="/account", tags=["Customer Portal"])
 templates = Jinja2Templates(directory="templates")
@@ -204,6 +206,53 @@ async def get_transactions(
     """Get transaction history."""
     transactions = await UserService.get_user_transactions(db, current_user.id, limit, offset)
     return transactions
+
+
+@router.post("/subscription/cancel")
+async def cancel_subscription(
+    current_user: ActiveUser,
+    db: DbSession,
+):
+    """Cancel the current subscription."""
+    subscription = await UserService.get_user_subscription(db, current_user.id)
+
+    if not subscription:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No active subscription found",
+        )
+
+    if subscription.status == SubscriptionStatus.CANCELED:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Subscription is already canceled",
+        )
+
+    # Update subscription status
+    subscription.status = SubscriptionStatus.CANCELED
+    subscription.canceled_at = datetime.utcnow()
+    await db.commit()
+
+    return {"message": "Subscription canceled successfully"}
+
+
+@router.delete("/close")
+async def close_account(
+    current_user: ActiveUser,
+    db: DbSession,
+):
+    """Close the user account permanently."""
+    # Cancel any active subscription first
+    subscription = await UserService.get_user_subscription(db, current_user.id)
+    if subscription and subscription.status != SubscriptionStatus.CANCELED:
+        subscription.status = SubscriptionStatus.CANCELED
+        subscription.canceled_at = datetime.utcnow()
+
+    # Deactivate the user account
+    current_user.is_active = False
+    await db.commit()
+
+    return {"message": "Account closed successfully"}
 
 
 @router.get("/download/{platform}")

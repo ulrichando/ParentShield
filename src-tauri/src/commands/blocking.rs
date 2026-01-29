@@ -1,10 +1,20 @@
 //! Blocking control Tauri commands.
 
 use crate::blocking::{self, process};
+use crate::commands::license::LICENSE_STATE;
 use crate::config::ConfigManager;
 use crate::daemon::client;
 use serde::{Deserialize, Serialize};
 use tracing::info;
+
+/// Check if the license is active (not locked). Returns Err if locked.
+fn check_license_active() -> Result<(), String> {
+    let state = LICENSE_STATE.lock().map_err(|e| e.to_string())?;
+    if state.is_locked {
+        return Err("Your subscription has expired. Please subscribe to continue using ParentShield.".to_string());
+    }
+    Ok(())
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -51,6 +61,7 @@ pub async fn get_blocking_status() -> Result<BlockingStatus, String> {
 /// Toggle game blocking
 #[tauri::command]
 pub async fn set_game_blocking(enabled: bool) -> Result<bool, String> {
+    check_license_active()?;
     info!("set_game_blocking called with enabled={}", enabled);
 
     // Try to use daemon first (no password prompt needed)
@@ -78,6 +89,7 @@ pub async fn set_game_blocking(enabled: bool) -> Result<bool, String> {
 /// Toggle AI service blocking
 #[tauri::command]
 pub async fn set_ai_blocking(enabled: bool) -> Result<bool, String> {
+    check_license_active()?;
     info!("set_ai_blocking called with enabled={}", enabled);
 
     // Try to use daemon first
@@ -103,6 +115,7 @@ pub async fn set_ai_blocking(enabled: bool) -> Result<bool, String> {
 /// Toggle browser blocking
 #[tauri::command]
 pub async fn set_browser_blocking(enabled: bool) -> Result<bool, String> {
+    check_license_active()?;
     info!("set_browser_blocking called with enabled={}", enabled);
 
     // Try to use daemon first
@@ -127,6 +140,7 @@ pub async fn set_browser_blocking(enabled: bool) -> Result<bool, String> {
 /// Toggle DNS/network blocking
 #[tauri::command]
 pub async fn set_dns_blocking(enabled: bool) -> Result<bool, String> {
+    check_license_active()?;
     info!("set_dns_blocking called with enabled={}", enabled);
 
     // Try to use daemon first
@@ -190,6 +204,7 @@ pub async fn list_processes() -> Result<Vec<BlockedProcess>, String> {
 /// Apply current blocking settings (call on app start/login)
 #[tauri::command]
 pub async fn apply_blocking() -> Result<(), String> {
+    check_license_active()?;
     // Try to use daemon first (runs as root, no password prompt)
     if client::is_daemon_running() {
         info!("Using daemon for apply_blocking");
@@ -288,6 +303,7 @@ pub async fn is_doh_disabled() -> Result<bool, String> {
 /// Enable firewall-level blocking (blocks DoH providers to enforce hosts file)
 #[tauri::command]
 pub async fn enable_firewall_blocking() -> Result<bool, String> {
+    check_license_active()?;
     info!("Enabling firewall-level DoH blocking...");
 
     // Try to use daemon first (runs as root, no password prompt)

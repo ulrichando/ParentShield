@@ -8,10 +8,10 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
-  { href: "#features", label: "Features" },
-  { href: "#pricing", label: "Pricing" },
-  { href: "#testimonials", label: "Reviews" },
-  { href: "#download", label: "Download" },
+  { href: "/#features", label: "Features" },
+  { href: "/#pricing", label: "Pricing" },
+  { href: "/#testimonials", label: "Reviews" },
+  { href: "/#download", label: "Download" },
 ];
 
 export function Navbar() {
@@ -31,7 +31,7 @@ export function Navbar() {
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
         isScrolled
-          ? "bg-surface-base/90 backdrop-blur-xl border-b border-white/5"
+          ? "bg-surface-base/95 backdrop-blur-xl shadow-lg"
           : "bg-transparent"
       )}
       initial={{ y: -100 }}
@@ -39,17 +39,17 @@ export function Navbar() {
       transition={{ duration: 0.5, ease: "easeOut" }}
     >
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-14">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 group">
+          <Link href="/" className="flex items-center gap-2 group">
             <motion.div
-              className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center"
+              className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center"
               whileHover={{ rotate: -5, scale: 1.05 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
             >
-              <Shield className="w-5 h-5 text-white" />
+              <Shield className="w-4 h-4 text-white" />
             </motion.div>
-            <span className="text-xl font-bold text-white">ParentShield</span>
+            <span className="text-lg font-bold text-white">ParentShield</span>
           </Link>
 
           {/* Desktop Navigation */}

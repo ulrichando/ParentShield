@@ -54,12 +54,12 @@ function AnimatedCounter({
 
 export function Stats() {
   return (
-    <section className="py-20 bg-surface-overlay relative overflow-hidden">
+    <section className="py-12 bg-surface-overlay relative overflow-hidden">
       {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-r from-primary-500/10 via-transparent to-secondary-500/10" />
+      <div className="absolute inset-0 bg-linear-to-r from-primary-500/10 via-transparent to-secondary-500/10" />
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {stats.map((stat, index) => (
             <motion.div
               key={stat.label}
@@ -69,14 +69,14 @@ export function Stats() {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
-              <p className="text-4xl md:text-5xl font-bold text-gradient mb-2">
+              <p className="text-3xl md:text-4xl font-bold text-gradient mb-1">
                 <AnimatedCounter
                   value={stat.value}
                   suffix={stat.suffix}
                   decimals={stat.decimals}
                 />
               </p>
-              <p className="text-gray-400">{stat.label}</p>
+              <p className="text-gray-400 text-sm">{stat.label}</p>
             </motion.div>
           ))}
         </div>

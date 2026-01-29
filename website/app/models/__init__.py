@@ -2,6 +2,7 @@ from .user import User, UserRole, EmailVerificationToken, PasswordResetToken, Re
 from .subscription import Subscription, SubscriptionStatus
 from .transaction import Transaction, TransactionStatus
 from .device import Download, Installation, Platform, DownloadSource, InstallationStatus
+from .api_key import APIKey
 from .parental_controls import (
     ScreenTimeConfig,
     BlockedApp,
@@ -12,6 +13,7 @@ from .parental_controls import (
     WebFilterCategory,
     AlertType,
     AlertSeverity,
+    SyncMetadata,
 )
 
 __all__ = [
@@ -29,6 +31,8 @@ __all__ = [
     "Platform",
     "DownloadSource",
     "InstallationStatus",
+    # API Keys
+    "APIKey",
     # Parental controls
     "ScreenTimeConfig",
     "BlockedApp",
@@ -39,4 +43,5 @@ __all__ = [
     "WebFilterCategory",
     "AlertType",
     "AlertSeverity",
+    "SyncMetadata",
 ]

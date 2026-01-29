@@ -91,10 +91,11 @@ export default function AdminSubscriptionsPage() {
     <div className="min-h-screen bg-surface-base">
       <AdminSidebar activePage="subscriptions" user={user} />
 
-      <main className="lg:ml-64 p-4 md:p-6 lg:p-8">
-        <div className="flex items-center justify-between mb-8">
+      <main className="lg:ml-52 pt-14 lg:pt-6">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 py-4 md:py-6">
+        <div className="flex items-center justify-between mb-5">
           <div>
-            <h1 className="text-2xl font-bold text-white mb-1">Subscriptions</h1>
+            <h1 className="text-lg font-bold text-white mb-0.5">Subscriptions</h1>
             <p className="text-gray-400">Manage customer subscriptions</p>
           </div>
         </div>
@@ -124,7 +125,7 @@ export default function AdminSubscriptionsPage() {
           </div>
         )}
 
-        <div className="bg-surface-card rounded-2xl border border-white/5 overflow-hidden">
+        <div className="bg-surface-card rounded-xl border border-white/5 overflow-hidden">
           {dataLoading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-6 h-6 text-gray-500 animate-spin" />
@@ -139,12 +140,12 @@ export default function AdminSubscriptionsPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-white/5">
-                    <th className="text-left text-sm font-medium text-gray-400 px-6 py-4">Customer</th>
-                    <th className="text-left text-sm font-medium text-gray-400 px-6 py-4">Plan</th>
-                    <th className="text-left text-sm font-medium text-gray-400 px-6 py-4">Status</th>
-                    <th className="text-left text-sm font-medium text-gray-400 px-6 py-4">Amount</th>
-                    <th className="text-left text-sm font-medium text-gray-400 px-6 py-4">Period End</th>
-                    <th className="text-left text-sm font-medium text-gray-400 px-6 py-4">Created</th>
+                    <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">Customer</th>
+                    <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">Plan</th>
+                    <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">Status</th>
+                    <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">Amount</th>
+                    <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">Period End</th>
+                    <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">Created</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -155,33 +156,33 @@ export default function AdminSubscriptionsPage() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                     >
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-3">
                         <div>
                           <p className="text-sm font-medium text-white">{sub.user_name || "No name"}</p>
                           <p className="text-xs text-gray-500">{sub.user_email}</p>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-3">
                         <span className="text-sm text-white">{sub.plan_name}</span>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-3">
                         <span className={`text-xs font-medium px-2 py-1 rounded-full capitalize ${statusColors[sub.status] || "bg-gray-500/20 text-gray-400"}`}>
                           {sub.status.replace("_", " ")}
                         </span>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-3">
                         <span className="text-sm text-white">
                           ${sub.amount.toFixed(2)} {sub.currency}
                         </span>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-3">
                         <span className="text-sm text-gray-400">
                           {sub.current_period_end
                             ? new Date(sub.current_period_end).toLocaleDateString()
                             : "-"}
                         </span>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-3">
                         <span className="text-sm text-gray-400">
                           {new Date(sub.created_at).toLocaleDateString()}
                         </span>
@@ -191,7 +192,7 @@ export default function AdminSubscriptionsPage() {
                 </tbody>
               </table>
 
-              <div className="flex items-center justify-between px-6 py-4 border-t border-white/5">
+              <div className="flex items-center justify-between px-4 py-3 border-t border-white/5">
                 <p className="text-sm text-gray-400">
                   Showing {subscriptions.length} of {total} subscriptions
                 </p>
@@ -221,6 +222,7 @@ export default function AdminSubscriptionsPage() {
               </div>
             </>
           )}
+        </div>
         </div>
       </main>
     </div>

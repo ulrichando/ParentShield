@@ -92,12 +92,36 @@ export function useCustomerAuth() {
     }
 
     setToken(accessToken);
-    setUser({
-      email: localStorage.getItem("user_email") || "user@example.com",
-      role: localStorage.getItem("user_role") || "customer",
-      first_name: localStorage.getItem("user_name") || "User",
-    });
-    setIsLoading(false);
+
+    // Fetch actual profile from backend to ensure user data is up to date
+    fetch(`${API_URL}/account/profile`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
+      .then((res) => {
+        if (res.ok) return res.json();
+        throw new Error("Profile fetch failed");
+      })
+      .then((profile) => {
+        localStorage.setItem("user_email", profile.email);
+        localStorage.setItem("user_role", profile.role);
+        localStorage.setItem("user_name", profile.first_name || "User");
+        setUser({
+          email: profile.email,
+          role: profile.role,
+          first_name: profile.first_name || "User",
+        });
+      })
+      .catch(() => {
+        // Fall back to cached localStorage values
+        setUser({
+          email: localStorage.getItem("user_email") || "",
+          role: localStorage.getItem("user_role") || "customer",
+          first_name: localStorage.getItem("user_name") || "User",
+        });
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, [router]);
 
   return { user, isLoading, token, router, authFetch, logout };

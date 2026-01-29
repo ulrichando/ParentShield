@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Shield, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Navbar } from "@/components/layout/navbar";
+import { Footer } from "@/components/layout/footer";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -77,35 +79,37 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-surface-base flex items-center justify-center p-6 relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute -top-50 -right-25 w-125 h-125 rounded-full bg-primary-600/30 blur-[120px]" />
-      <div className="absolute -bottom-25 -left-25 w-100 h-100 rounded-full bg-secondary-500/20 blur-[100px]" />
+    <main className="min-h-screen bg-surface-base flex flex-col">
+      <Navbar />
+      <div className="flex-1 flex items-center justify-center p-4 pt-24 pb-16 relative overflow-hidden">
+        {/* Background Effects */}
+        <div className="absolute -top-25 -right-12 w-75 h-75 rounded-full bg-primary-600/30 blur-[100px]" />
+        <div className="absolute -bottom-12 -left-12 w-50 h-50 rounded-full bg-secondary-500/20 blur-[80px]" />
 
       <motion.div
-        className="w-full max-w-md relative z-10"
+        className="w-full max-w-sm relative z-10"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
         {/* Logo */}
-        <Link href="/" className="flex items-center justify-center gap-3 mb-8">
-          <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center">
-            <Shield className="w-6 h-6 text-white" />
+        <Link href="/" className="flex items-center justify-center gap-2 mb-5">
+          <div className="w-9 h-9 bg-gradient-primary rounded-lg flex items-center justify-center">
+            <Shield className="w-4.5 h-4.5 text-white" />
           </div>
-          <span className="text-2xl font-bold text-white">ParentShield</span>
+          <span className="text-xl font-bold text-white">ParentShield</span>
         </Link>
 
         {/* Card */}
-        <div className="bg-surface-card/80 backdrop-blur-xl rounded-2xl border border-white/10 p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-white mb-2">Welcome Back</h1>
-            <p className="text-gray-400">Sign in to your account</p>
+        <div className="bg-surface-card/80 backdrop-blur-xl rounded-xl border border-white/10 p-5">
+          <div className="text-center mb-5">
+            <h1 className="text-xl font-bold text-white mb-1">Welcome Back</h1>
+            <p className="text-gray-400 text-sm">Sign in to your account</p>
           </div>
 
           {error && (
             <motion.div
-              className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-lg mb-6 text-sm"
+              className="bg-red-500/10 border border-red-500/30 text-red-400 px-3 py-2 rounded-lg mb-4 text-xs"
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
             >
@@ -113,19 +117,19 @@ export default function LoginPage() {
             </motion.div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-xs font-medium text-gray-300 mb-1.5">
                 Email
               </label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-surface-elevated border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
+                  className="w-full bg-surface-elevated border border-white/10 rounded-lg py-2 pl-9 pr-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
                   placeholder="you@example.com"
                   required
                 />
@@ -134,25 +138,25 @@ export default function LoginPage() {
 
             {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-xs font-medium text-gray-300 mb-1.5">
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-surface-elevated border border-white/10 rounded-xl py-3 pl-12 pr-12 text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
+                  className="w-full bg-surface-elevated border border-white/10 rounded-lg py-2 pl-9 pr-9 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
                   placeholder="••••••••"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
@@ -161,27 +165,27 @@ export default function LoginPage() {
             <div className="flex justify-end">
               <Link
                 href="/forgot-password"
-                className="text-sm text-primary-400 hover:text-primary-300 transition-colors"
+                className="text-xs text-primary-400 hover:text-primary-300 transition-colors"
               >
                 Forgot password?
               </Link>
             </div>
 
             {/* Submit */}
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" size="sm" className="w-full" disabled={isLoading}>
               {isLoading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
                 <>
                   Sign In
-                  <ArrowRight className="w-5 h-5" />
+                  <ArrowRight className="w-4 h-4" />
                 </>
               )}
             </Button>
           </form>
 
           {/* Register Link */}
-          <p className="text-center text-gray-400 mt-6">
+          <p className="text-center text-gray-400 text-sm mt-4">
             Don&apos;t have an account?{" "}
             <Link
               href="/register"
@@ -194,23 +198,23 @@ export default function LoginPage() {
 
         {/* Demo Accounts Info */}
         <motion.div
-          className="mt-6 bg-surface-card/50 backdrop-blur rounded-xl border border-white/5 p-4"
+          className="mt-4 bg-surface-card/50 backdrop-blur rounded-lg border border-white/5 p-3"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
         >
-          <p className="text-xs text-gray-500 text-center mb-2">Demo Accounts (click to fill)</p>
-          <div className="grid grid-cols-2 gap-3 text-xs">
+          <p className="text-xs text-gray-500 text-center mb-1.5">Demo Accounts (click to fill)</p>
+          <div className="grid grid-cols-2 gap-2 text-xs">
             <button
               type="button"
               onClick={() => {
                 setEmail("admin@parentshield.app");
                 setPassword("Admin123!");
               }}
-              className="bg-surface-elevated rounded-lg p-2 text-left hover:bg-white/10 transition-colors cursor-pointer"
+              className="bg-surface-elevated rounded-lg p-1.5 text-left hover:bg-white/10 transition-colors cursor-pointer"
             >
-              <p className="text-gray-400 font-medium">Admin</p>
-              <p className="text-gray-500">admin@parentshield.app</p>
+              <p className="text-gray-400 font-medium text-xs">Admin</p>
+              <p className="text-gray-500 text-xs truncate">admin@parentshield.app</p>
             </button>
             <button
               type="button"
@@ -218,14 +222,16 @@ export default function LoginPage() {
                 setEmail("customer@test.com");
                 setPassword("Customer123");
               }}
-              className="bg-surface-elevated rounded-lg p-2 text-left hover:bg-white/10 transition-colors cursor-pointer"
+              className="bg-surface-elevated rounded-lg p-1.5 text-left hover:bg-white/10 transition-colors cursor-pointer"
             >
-              <p className="text-gray-400 font-medium">Customer</p>
-              <p className="text-gray-500">customer@test.com</p>
+              <p className="text-gray-400 font-medium text-xs">Customer</p>
+              <p className="text-gray-500 text-xs truncate">customer@test.com</p>
             </button>
           </div>
         </motion.div>
       </motion.div>
-    </div>
+      </div>
+      <Footer />
+    </main>
   );
 }

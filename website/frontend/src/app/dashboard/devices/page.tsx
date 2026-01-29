@@ -4,8 +4,6 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
-  Shield,
-  ArrowLeft,
   Laptop,
   Monitor,
   Apple,
@@ -22,6 +20,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCustomerAuth } from "@/hooks/useCustomerAuth";
+import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -67,7 +66,7 @@ function formatTimeAgo(dateString: string): string {
 }
 
 export default function DevicesPage() {
-  const { user, isLoading: authLoading, authFetch, logout } = useCustomerAuth();
+  const { isLoading: authLoading, authFetch } = useCustomerAuth();
   const [devices, setDevices] = useState<Installation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -119,48 +118,28 @@ export default function DevicesPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-surface-base flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
-      </div>
+      <DashboardLayout>
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-6 h-6 text-primary-500 animate-spin" />
+        </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-surface-base">
-      {/* Header */}
-      <header className="border-b border-white/5 bg-surface-card">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="text-gray-400 hover:text-white transition-colors">
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center">
-                <Shield className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-lg font-bold text-white">ParentShield</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-400">{user?.email}</span>
-            <Button variant="ghost" size="sm" onClick={logout}>
-              Sign Out
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-6 py-12">
+    <DashboardLayout>
         {/* Page Header */}
         <motion.div
-          className="flex items-center justify-between mb-8"
+          className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">My Devices</h1>
+            <h1 className="text-lg md:text-base font-bold text-white mb-2 flex items-center gap-3">
+              <Laptop className="w-5 h-5 text-primary-400" />
+              My Devices
+            </h1>
             <p className="text-gray-400">
               Manage your protected devices and installations.
             </p>
@@ -181,7 +160,7 @@ export default function DevicesPage() {
 
         {error && (
           <motion.div
-            className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-8"
+            className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-5"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
@@ -190,20 +169,20 @@ export default function DevicesPage() {
         )}
 
         {isLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-6 h-6 text-primary-500 animate-spin" />
           </div>
         ) : devices.length === 0 ? (
           <motion.div
-            className="bg-surface-card rounded-2xl border border-white/5 p-12 text-center"
+            className="bg-surface-card rounded-2xl border border-white/5 p-8 text-center"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <div className="w-16 h-16 mx-auto rounded-full bg-surface-elevated flex items-center justify-center mb-6">
+            <div className="w-10 h-10 mx-auto rounded-full bg-surface-elevated flex items-center justify-center mb-6">
               <Laptop className="w-8 h-8 text-gray-500" />
             </div>
-            <h2 className="text-xl font-bold text-white mb-2">No Devices Yet</h2>
-            <p className="text-gray-400 mb-6 max-w-md mx-auto">
+            <h2 className="text-base font-bold text-white mb-2">No Devices Yet</h2>
+            <p className="text-gray-400 text-sm mb-4 max-w-md mx-auto">
               You haven&apos;t installed ParentShield on any devices yet. Download the app to
               start protecting your family.
             </p>
@@ -215,7 +194,7 @@ export default function DevicesPage() {
             </Link>
           </motion.div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {devices.map((device, index) => {
               const PlatformIcon = platformIcons[device.platform] || Laptop;
               const statusConfig = statusColors[device.status] || statusColors.inactive;
@@ -236,7 +215,7 @@ export default function DevicesPage() {
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-surface-elevated flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-xl bg-surface-elevated flex items-center justify-center">
                         <PlatformIcon className="w-6 h-6 text-gray-400" />
                       </div>
                       <div>
@@ -304,7 +283,7 @@ export default function DevicesPage() {
 
         {/* Info Card */}
         <motion.div
-          className="mt-8 bg-surface-card rounded-xl border border-white/5 p-6"
+          className="mt-8 bg-surface-card rounded-xl border border-white/5 p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
@@ -329,7 +308,6 @@ export default function DevicesPage() {
             </div>
           </div>
         </motion.div>
-      </main>
-    </div>
+    </DashboardLayout>
   );
 }

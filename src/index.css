@@ -1,59 +1,268 @@
 @import "tailwindcss";
 
+/* ParentShield Desktop App - Microsoft Fluent Design + Website Colors */
 @theme {
-  --color-primary: #4F46E5;
+  /* Primary - Cyan (Trust, Technology) - Matches Website */
+  --color-primary: #06B6D4;
+  --color-primary-50: #ECFEFF;
+  --color-primary-100: #CFFAFE;
+  --color-primary-200: #A5F3FC;
+  --color-primary-300: #67E8F9;
+  --color-primary-400: #22D3EE;
+  --color-primary-500: #06B6D4;
+  --color-primary-600: #0891B2;
+  --color-primary-700: #0E7490;
+  --color-primary-800: #155E75;
+  --color-primary-900: #164E63;
   --color-primary-foreground: #ffffff;
-  --color-secondary: #64748B;
+
+  /* Secondary - Blue (Security) */
+  --color-secondary: #3B82F6;
+  --color-secondary-400: #60A5FA;
+  --color-secondary-500: #3B82F6;
+  --color-secondary-600: #2563EB;
+  --color-secondary-700: #1D4ED8;
   --color-secondary-foreground: #ffffff;
-  --color-destructive: #DC2626;
+
+  /* Accent - Orange (Energy) */
+  --color-accent: #F97316;
+  --color-accent-400: #FB923C;
+  --color-accent-500: #F97316;
+  --color-accent-600: #EA580C;
+  --color-accent-foreground: #ffffff;
+
+  /* Destructive */
+  --color-destructive: #EF4444;
   --color-destructive-foreground: #ffffff;
-  --color-success: #059669;
+
+  /* Success */
+  --color-success: #10B981;
   --color-success-foreground: #ffffff;
+
+  /* Warning */
+  --color-warning: #F59E0B;
+  --color-warning-foreground: #ffffff;
+
+  /* Muted */
   --color-muted: #F1F5F9;
   --color-muted-foreground: #64748B;
-  --color-accent: #E0E7FF;
-  --color-accent-foreground: #3730A3;
-  --color-background: #F8FAFC;
-  --color-foreground: #0F172A;
-  --color-card: #ffffff;
-  --color-card-foreground: #1E293B;
-  --color-border: #E2E8F0;
-  --color-input: #E2E8F0;
-  --color-ring: #4F46E5;
-  --radius-lg: 0.75rem;
-  --radius-md: 0.5rem;
-  --radius-sm: 0.375rem;
+
+  /* Light Theme - Microsoft Fluent Mica Style */
+  --color-background: #F3F3F3;
+  --color-foreground: #1A1A1A;
+  --color-card: #FFFFFF;
+  --color-card-foreground: #1A1A1A;
+  --color-popover: #FFFFFF;
+  --color-popover-foreground: #1A1A1A;
+  --color-border: #E5E5E5;
+  --color-input: #E5E5E5;
+  --color-ring: #06B6D4;
+
+  /* Fluent Design Radii */
+  --radius-lg: 8px;
+  --radius-md: 6px;
+  --radius-sm: 4px;
+  --radius-xl: 12px;
+
+  /* Fluent Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.04), 0 4px 8px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.06);
+
+  /* Font */
+  --font-sans: 'Segoe UI Variable', 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif;
 }
 
+/* Dark Theme - Microsoft Fluent Mica Dark */
+.dark {
+  --color-background: #202020;
+  --color-foreground: #FFFFFF;
+  --color-card: #2D2D2D;
+  --color-card-foreground: #FFFFFF;
+  --color-popover: #2D2D2D;
+  --color-popover-foreground: #FFFFFF;
+  --color-primary: #22D3EE;
+  --color-primary-foreground: #000000;
+  --color-secondary: #60A5FA;
+  --color-secondary-foreground: #000000;
+  --color-muted: #3D3D3D;
+  --color-muted-foreground: #A1A1A1;
+  --color-accent: #FB923C;
+  --color-accent-foreground: #000000;
+  --color-destructive: #F87171;
+  --color-destructive-foreground: #000000;
+  --color-border: #404040;
+  --color-input: #404040;
+  --color-ring: #22D3EE;
+
+  /* Dark theme shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.15);
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.18);
+  --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.2), 0 8px 24px rgba(0, 0, 0, 0.22);
+}
+
+/* Base Styles */
 @layer base {
   * {
     @apply border-border;
   }
+
+  html {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
+
+  /* Fluent Design focus states */
+  *:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
 }
 
-/* Dark mode theme */
-.dark {
-  --color-background: #0F172A;
-  --color-foreground: #F1F5F9;
-  --color-card: #1E293B;
-  --color-card-foreground: #F1F5F9;
-  --color-primary: #6366F1;
-  --color-primary-foreground: #ffffff;
-  --color-secondary: #475569;
-  --color-secondary-foreground: #F1F5F9;
-  --color-success: #10B981;
-  --color-success-foreground: #ffffff;
-  --color-muted: #1E293B;
-  --color-muted-foreground: #94A3B8;
-  --color-accent: #312E81;
-  --color-accent-foreground: #C7D2FE;
-  --color-destructive: #EF4444;
-  --color-destructive-foreground: #ffffff;
-  --color-border: #334155;
-  --color-input: #334155;
-  --color-ring: #6366F1;
+/* Microsoft Fluent Mica Effect */
+.mica {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.7) 0%,
+    rgba(255, 255, 255, 0.5) 100%
+  );
+  backdrop-filter: blur(80px) saturate(150%);
+}
+
+.dark .mica {
+  background: linear-gradient(
+    180deg,
+    rgba(32, 32, 32, 0.8) 0%,
+    rgba(32, 32, 32, 0.6) 100%
+  );
+  backdrop-filter: blur(80px) saturate(150%);
+}
+
+/* Fluent Acrylic Effect */
+.acrylic {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+}
+
+.dark .acrylic {
+  background: rgba(45, 45, 45, 0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+}
+
+/* Fluent Card Hover Effect */
+.fluent-card {
+  transition: all 0.2s ease;
+  border: 1px solid var(--color-border);
+}
+
+.fluent-card:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary);
+}
+
+/* Custom scrollbar - Fluent style */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-muted-foreground);
+  border-radius: 4px;
+  opacity: 0.5;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-foreground);
+  opacity: 0.8;
+}
+
+/* Selection */
+::selection {
+  background: var(--color-primary);
+  color: white;
+}
+
+/* Smooth animations */
+@media (prefers-reduced-motion: no-preference) {
+  * {
+    transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+}
+
+/* Disable transitions for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Gradient utilities matching website */
+.bg-gradient-primary {
+  background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-secondary-500) 100%);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--color-primary-400) 0%, var(--color-secondary-400) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Fluent navigation rail style */
+.nav-rail {
+  background: var(--color-card);
+  border-right: 1px solid var(--color-border);
+}
+
+.nav-item {
+  @apply flex items-center gap-3 px-4 py-3 rounded-md transition-colors;
+}
+
+.nav-item:hover {
+  background: var(--color-muted);
+}
+
+.nav-item.active {
+  background: color-mix(in srgb, var(--color-primary) 15%, transparent);
+  color: var(--color-primary);
+}
+
+/* Status indicators */
+.status-active {
+  @apply bg-success text-success-foreground;
+}
+
+.status-warning {
+  @apply bg-warning text-warning-foreground;
+}
+
+.status-error {
+  @apply bg-destructive text-destructive-foreground;
+}
+
+/* Header style */
+.app-header {
+  @apply sticky top-0 z-50 border-b border-border;
+  background: var(--color-card);
+}
+
+.dark .app-header {
+  background: var(--color-card);
 }

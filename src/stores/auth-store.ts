@@ -1,6 +1,51 @@
 import { create } from "zustand";
 import { invoke } from "@tauri-apps/api/core";
 
+// Helper to extract error message from Tauri errors
+// Tauri can return errors in different formats depending on the error type
+function extractErrorMessage(error: unknown): string {
+  // If it's already a string, return it directly
+  if (typeof error === "string") {
+    return error;
+  }
+
+  // If it's an Error instance
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  // If it's an object, try to extract the message
+  if (typeof error === "object" && error !== null) {
+    const err = error as Record<string, unknown>;
+
+    // Common error message properties
+    if (typeof err.message === "string") return err.message;
+    if (typeof err.error === "string") return err.error;
+    if (typeof err.msg === "string") return err.msg;
+    if (typeof err.description === "string") return err.description;
+
+    // If error has a nested error object
+    if (typeof err.error === "object" && err.error !== null) {
+      const nested = err.error as Record<string, unknown>;
+      if (typeof nested.message === "string") return nested.message;
+    }
+
+    // Last resort: stringify but make it readable
+    try {
+      const str = JSON.stringify(error);
+      // If it's just an empty object or similar, provide a generic message
+      if (str === "{}" || str === "null") {
+        return "An unknown error occurred";
+      }
+      return str;
+    } catch {
+      return "An unknown error occurred";
+    }
+  }
+
+  return String(error);
+}
+
 interface AuthStatus {
   isConfigured: boolean;
   isAuthenticated: boolean;
@@ -9,6 +54,11 @@ interface AuthStatus {
 interface SetupResult {
   success: boolean;
   master_password: string | null;
+  error: string | null;
+}
+
+interface ChangePasswordResult {
+  success: boolean;
   error: string | null;
 }
 
@@ -24,7 +74,7 @@ interface AuthStore {
   completeSetup: () => void;
   login: (password: string) => Promise<boolean>;
   logout: () => void;
-  changePassword: (oldPassword: string, newPassword: string) => Promise<boolean>;
+  changePassword: (oldPassword: string, newPassword: string) => Promise<ChangePasswordResult>;
   resetWithMaster: (masterPassword: string, newPassword: string) => Promise<boolean>;
 }
 
@@ -44,7 +94,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
         isLoading: false,
       });
     } catch (error) {
-      set({ error: String(error), isLoading: false });
+      set({ error: extractErrorMessage(error), isLoading: false });
     }
   },
 
@@ -64,8 +114,9 @@ export const useAuthStore = create<AuthStore>((set) => ({
       }
       return result;
     } catch (error) {
-      set({ error: String(error), isLoading: false });
-      return { success: false, master_password: null, error: String(error) };
+      const errorMessage = extractErrorMessage(error);
+      set({ error: errorMessage, isLoading: false });
+      return { success: false, master_password: null, error: errorMessage };
     }
   },
 
@@ -84,7 +135,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
       }
       return isValid;
     } catch (error) {
-      set({ error: String(error), isLoading: false });
+      set({ error: extractErrorMessage(error), isLoading: false });
       return false;
     }
   },
@@ -97,14 +148,19 @@ export const useAuthStore = create<AuthStore>((set) => ({
     try {
       set({ isLoading: true, error: null });
       const success = await invoke<boolean>("change_password", {
-        oldPassword,
-        newPassword,
+        old_password: oldPassword,
+        new_password: newPassword,
       });
       set({ isLoading: false });
-      return success;
+      if (success) {
+        return { success: true, error: null };
+      } else {
+        return { success: false, error: "Current password is incorrect" };
+      }
     } catch (error) {
-      set({ error: String(error), isLoading: false });
-      return false;
+      const errorMessage = extractErrorMessage(error);
+      set({ error: errorMessage, isLoading: false });
+      return { success: false, error: errorMessage };
     }
   },
 
@@ -112,15 +168,15 @@ export const useAuthStore = create<AuthStore>((set) => ({
     try {
       set({ isLoading: true, error: null });
       const success = await invoke<boolean>("reset_with_master", {
-        masterPassword,
-        newPassword,
+        master_password: masterPassword,
+        new_password: newPassword,
       });
       if (success) {
         set({ isAuthenticated: true, isLoading: false });
       }
       return success;
     } catch (error) {
-      set({ error: String(error), isLoading: false });
+      set({ error: extractErrorMessage(error), isLoading: false });
       return false;
     }
   },

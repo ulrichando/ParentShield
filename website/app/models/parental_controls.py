@@ -176,11 +176,11 @@ class Alert(Base):
     )
 
     alert_type: Mapped[AlertType] = mapped_column(
-        Enum(AlertType, values_callable=lambda x: [e.value for e in x]),
+        Enum(AlertType, name='alerttype', create_constraint=False, native_enum=False),
         nullable=False
     )
     severity: Mapped[AlertSeverity] = mapped_column(
-        Enum(AlertSeverity, values_callable=lambda x: [e.value for e in x]),
+        Enum(AlertSeverity, name='alertseverity', create_constraint=False, native_enum=False),
         default=AlertSeverity.INFO,
         nullable=False
     )
@@ -232,3 +232,28 @@ class UserSettings(Base):
     user: Mapped["User"] = relationship("User", back_populates="settings")
 
 
+class SyncMetadata(Base):
+    """Track sync state per device/installation."""
+    __tablename__ = "sync_metadata"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    installation_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("installations.id", ondelete="CASCADE"),
+        nullable=False,
+        unique=True
+    )
+
+    # Sync timestamps
+    last_sync_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+    last_push_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    last_pull_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+    # Version tracking for conflict resolution
+    sync_version: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
+
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    # Relationships
+    installation: Mapped["Installation"] = relationship("Installation", back_populates="sync_metadata")

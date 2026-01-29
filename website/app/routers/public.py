@@ -4,16 +4,22 @@ These routes are accessible without authentication.
 """
 
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional
 
-from fastapi import APIRouter, Request, HTTPException, BackgroundTasks
+from fastapi import APIRouter, Request, HTTPException, BackgroundTasks, Depends
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
+from app.db.database import get_db
+from app.models.user import User
+from app.models.subscription import Subscription, SubscriptionStatus, PlanType, PLAN_CONFIG
+from app.models.transaction import Transaction, TransactionStatus
 
 # Initialize Stripe (optional)
 try:
@@ -257,7 +263,7 @@ async def success_page(request: Request, session_id: Optional[str] = None):
 
 
 @router.post("/webhook")
-async def stripe_webhook(request: Request):
+async def stripe_webhook(request: Request, db: AsyncSession = Depends(get_db)):
     """Handle Stripe webhooks"""
     if not STRIPE_ENABLED or stripe is None:
         return {"status": "stripe not configured"}
@@ -277,18 +283,126 @@ async def stripe_webhook(request: Request):
     # Handle events
     if event["type"] == "checkout.session.completed":
         session = event["data"]["object"]
-        print(f"Subscription created for: {session.get('customer_email')}")
-        # TODO: Create user and subscription in database
+        customer_email = session.get("customer_email")
+        stripe_customer_id = session.get("customer")
+        stripe_subscription_id = session.get("subscription")
+        plan = session.get("metadata", {}).get("plan", "pro")
+
+        print(f"Subscription created for: {customer_email}, plan: {plan}")
+
+        # Find user by email
+        result = await db.execute(
+            select(User).where(User.email == customer_email)
+        )
+        user = result.scalar_one_or_none()
+
+        if user:
+            # Determine plan config
+            plan_type = PlanType.PRO if plan == "pro" else PlanType.BASIC
+            plan_config = PLAN_CONFIG[plan_type]
+
+            # Check for existing subscription to upgrade (e.g., trial -> paid)
+            existing_result = await db.execute(
+                select(Subscription).where(
+                    Subscription.user_id == user.id
+                ).order_by(Subscription.created_at.desc())
+            )
+            existing_sub = existing_result.scalar_one_or_none()
+
+            if existing_sub:
+                # Upgrade existing subscription
+                existing_sub.status = SubscriptionStatus.ACTIVE
+                existing_sub.plan_name = plan_config["name"]
+                existing_sub.amount = plan_config["price"]
+                existing_sub.stripe_subscription_id = stripe_subscription_id
+                existing_sub.stripe_customer_id = stripe_customer_id
+                existing_sub.current_period_start = datetime.utcnow()
+                existing_sub.current_period_end = datetime.utcnow() + timedelta(days=30)
+                existing_sub.updated_at = datetime.utcnow()
+            else:
+                # Create new subscription
+                new_sub = Subscription(
+                    user_id=user.id,
+                    stripe_subscription_id=stripe_subscription_id,
+                    stripe_customer_id=stripe_customer_id,
+                    status=SubscriptionStatus.ACTIVE,
+                    plan_name=plan_config["name"],
+                    amount=plan_config["price"],
+                    current_period_start=datetime.utcnow(),
+                    current_period_end=datetime.utcnow() + timedelta(days=30),
+                )
+                db.add(new_sub)
+
+            await db.commit()
+        else:
+            print(f"Warning: No user found for email {customer_email}")
 
     elif event["type"] == "customer.subscription.deleted":
-        subscription = event["data"]["object"]
-        print(f"Subscription cancelled: {subscription['id']}")
-        # TODO: Update subscription status in database
+        subscription_data = event["data"]["object"]
+        stripe_sub_id = subscription_data["id"]
+        print(f"Subscription cancelled: {stripe_sub_id}")
+
+        result = await db.execute(
+            select(Subscription).where(
+                Subscription.stripe_subscription_id == stripe_sub_id
+            )
+        )
+        sub = result.scalar_one_or_none()
+        if sub:
+            sub.status = SubscriptionStatus.CANCELED
+            sub.canceled_at = datetime.utcnow()
+            sub.updated_at = datetime.utcnow()
+            await db.commit()
 
     elif event["type"] == "invoice.paid":
         invoice = event["data"]["object"]
+        stripe_sub_id = invoice.get("subscription")
         print(f"Invoice paid: {invoice['id']}")
-        # TODO: Create transaction record
+
+        result = await db.execute(
+            select(Subscription).where(
+                Subscription.stripe_subscription_id == stripe_sub_id
+            )
+        )
+        sub = result.scalar_one_or_none()
+
+        if sub:
+            # Update subscription period
+            sub.status = SubscriptionStatus.ACTIVE
+            sub.current_period_start = datetime.utcnow()
+            sub.current_period_end = datetime.utcnow() + timedelta(days=30)
+            sub.updated_at = datetime.utcnow()
+
+            # Create transaction record
+            transaction = Transaction(
+                user_id=sub.user_id,
+                subscription_id=sub.id,
+                stripe_payment_intent_id=invoice.get("payment_intent"),
+                stripe_invoice_id=invoice.get("id"),
+                amount=invoice.get("amount_paid", 0) / 100,  # Stripe uses cents
+                currency=(invoice.get("currency") or "usd").upper(),
+                status=TransactionStatus.SUCCEEDED,
+                description=f"Subscription payment - {sub.plan_name}",
+                invoice_url=invoice.get("hosted_invoice_url"),
+            )
+            db.add(transaction)
+            await db.commit()
+
+    elif event["type"] == "invoice.payment_failed":
+        invoice = event["data"]["object"]
+        stripe_sub_id = invoice.get("subscription")
+        print(f"Invoice payment failed: {invoice['id']}")
+
+        result = await db.execute(
+            select(Subscription).where(
+                Subscription.stripe_subscription_id == stripe_sub_id
+            )
+        )
+        sub = result.scalar_one_or_none()
+        if sub:
+            sub.status = SubscriptionStatus.PAST_DUE
+            sub.updated_at = datetime.utcnow()
+            await db.commit()
 
     return {"status": "success"}
 

@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
 
 from app.models import User, UserRole, EmailVerificationToken, PasswordResetToken, RefreshToken
+from app.models.subscription import Subscription, SubscriptionStatus
 from app.schemas.auth import RegisterRequest, Token
 from app.core.security import (
     get_password_hash,
@@ -36,10 +37,22 @@ class AuthService:
             first_name=data.first_name,
             last_name=data.last_name,
             role=UserRole.CUSTOMER,
-            is_verified=False,
+            is_verified=True,
         )
         db.add(user)
         await db.flush()
+
+        # Create 7-day free trial subscription
+        trial_subscription = Subscription(
+            user_id=user.id,
+            status=SubscriptionStatus.TRIALING,
+            plan_name="Free Trial",
+            amount=0.00,
+            currency="USD",
+            current_period_start=datetime.utcnow(),
+            current_period_end=datetime.utcnow() + timedelta(days=7),
+        )
+        db.add(trial_subscription)
 
         # Create verification token
         token = generate_token()

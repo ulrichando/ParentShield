@@ -9,18 +9,39 @@ use once_cell::sync::Lazy;
 const API_BASE_URL: &str = "https://parentshield.app/api/v1/app";
 
 // License state (cached locally)
-static LICENSE_STATE: Lazy<Mutex<LicenseState>> = Lazy::new(|| {
+pub static LICENSE_STATE: Lazy<Mutex<LicenseState>> = Lazy::new(|| {
     Mutex::new(LicenseState::default())
 });
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LicenseState {
     pub access_token: Option<String>,
     pub user_id: Option<String>,
     pub plan: String,
+    pub status: String,           // "active", "trialing", "expired_trial", "past_due", "canceled", "none"
     pub features: Features,
     pub expires_at: Option<String>,
     pub last_checked: Option<String>,
+    pub is_locked: bool,
+    pub upgrade_url: Option<String>,
+    pub message: Option<String>,
+}
+
+impl Default for LicenseState {
+    fn default() -> Self {
+        Self {
+            access_token: None,
+            user_id: None,
+            plan: "none".to_string(),
+            status: "none".to_string(),
+            features: Features::default(),
+            expires_at: None,
+            last_checked: None,
+            is_locked: true,
+            upgrade_url: None,
+            message: None,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -42,8 +63,11 @@ pub struct LoginResponse {
     pub access_token: Option<String>,
     pub user_id: Option<String>,
     pub plan: Option<String>,
+    pub status: Option<String>,
+    pub is_locked: Option<bool>,
     pub features: Option<Features>,
     pub message: Option<String>,
+    pub upgrade_url: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -51,9 +75,12 @@ pub struct LoginResponse {
 pub struct LicenseCheckResponse {
     pub valid: bool,
     pub plan: String,
+    pub status: String,
+    pub is_locked: bool,
     pub expires_at: Option<String>,
     pub features: Features,
     pub message: Option<String>,
+    pub upgrade_url: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -99,7 +126,11 @@ pub async fn platform_login(email: String, password: String) -> Result<PlatformL
         state.access_token = login_response.access_token;
         state.user_id = login_response.user_id;
         state.plan = login_response.plan.clone().unwrap_or_else(|| "none".to_string());
+        state.status = login_response.status.clone().unwrap_or_else(|| "none".to_string());
+        state.is_locked = login_response.is_locked.unwrap_or(true);
         state.features = login_response.features.unwrap_or_default();
+        state.upgrade_url = login_response.upgrade_url.clone();
+        state.message = login_response.message.clone();
         state.last_checked = Some(chrono::Utc::now().to_rfc3339());
 
         // Save to local storage
@@ -151,8 +182,16 @@ pub async fn check_license() -> Result<LicenseState, String> {
                 // Update the state
                 let mut state = LICENSE_STATE.lock().map_err(|e| e.to_string())?;
                 state.plan = check_response.plan;
-                state.features = check_response.features;
+                state.status = check_response.status;
+                state.is_locked = check_response.is_locked;
+                state.features = if check_response.is_locked {
+                    Features::default()
+                } else {
+                    check_response.features
+                };
                 state.expires_at = check_response.expires_at;
+                state.upgrade_url = check_response.upgrade_url;
+                state.message = check_response.message;
                 state.last_checked = Some(chrono::Utc::now().to_rfc3339());
                 save_license_state(&state)?;
 
@@ -163,7 +202,10 @@ pub async fn check_license() -> Result<LicenseState, String> {
                 let mut state = LICENSE_STATE.lock().map_err(|e| e.to_string())?;
                 state.access_token = None;
                 state.plan = "none".to_string();
+                state.status = "none".to_string();
+                state.is_locked = true;
                 state.features = Features::default();
+                state.message = Some("Session expired. Please login again.".to_string());
                 save_license_state(&state)?;
                 return Ok(state.clone());
             }

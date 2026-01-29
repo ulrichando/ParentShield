@@ -81,15 +81,15 @@ export function Schedule({ onBack }: SchedulePageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700">
+      <header className="app-header">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={onBack}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-xl font-semibold">Schedule</h1>
+            <h1 className="text-xl font-semibold text-foreground">Schedule</h1>
             <p className="text-sm text-muted-foreground">Set blocking time windows</p>
           </div>
         </div>
@@ -97,7 +97,7 @@ export function Schedule({ onBack }: SchedulePageProps) {
 
       <main className="max-w-5xl mx-auto px-4 py-6 space-y-6">
         {/* Preset Templates */}
-        <Card>
+        <Card className="fluent-card">
           <CardHeader>
             <CardTitle className="text-lg">Quick Templates</CardTitle>
             <CardDescription>Add a preset schedule</CardDescription>
@@ -109,7 +109,7 @@ export function Schedule({ onBack }: SchedulePageProps) {
               onClick={() => addPresetSchedule("school")}
               disabled={isLoading}
             >
-              <Clock className="h-4 w-4 mr-2" />
+              <Clock className="h-4 w-4 mr-2 text-primary" />
               School Hours
             </Button>
             <Button
@@ -118,7 +118,7 @@ export function Schedule({ onBack }: SchedulePageProps) {
               onClick={() => addPresetSchedule("bedtime")}
               disabled={isLoading}
             >
-              <Clock className="h-4 w-4 mr-2" />
+              <Clock className="h-4 w-4 mr-2 text-primary" />
               Bedtime
             </Button>
             <Button
@@ -127,7 +127,7 @@ export function Schedule({ onBack }: SchedulePageProps) {
               onClick={() => addPresetSchedule("weekend")}
               disabled={isLoading}
             >
-              <Clock className="h-4 w-4 mr-2" />
+              <Clock className="h-4 w-4 mr-2 text-primary" />
               Weekend Gaming
             </Button>
           </CardContent>
@@ -136,12 +136,12 @@ export function Schedule({ onBack }: SchedulePageProps) {
         {/* Schedule List */}
         <div className="space-y-4">
           {schedules.map((schedule) => (
-            <Card key={schedule.id}>
+            <Card key={schedule.id} className="fluent-card">
               <CardContent className="pt-6">
                 <div className="flex items-start justify-between">
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
-                      <h3 className="font-medium">{schedule.name}</h3>
+                      <h3 className="font-medium text-foreground">{schedule.name}</h3>
                       <Badge variant={schedule.blocking_enabled ? "default" : "secondary"}>
                         {schedule.blocking_enabled ? "Blocking ON" : "Blocking OFF"}
                       </Badge>
@@ -152,8 +152,8 @@ export function Schedule({ onBack }: SchedulePageProps) {
                           key={day}
                           className={`text-xs px-2 py-1 rounded ${
                             schedule.days.includes(i)
-                              ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300"
-                              : "bg-gray-100 text-gray-400 dark:bg-gray-800"
+                              ? "bg-primary/20 text-primary"
+                              : "bg-muted text-muted-foreground"
                           }`}
                         >
                           {day}
@@ -185,7 +185,7 @@ export function Schedule({ onBack }: SchedulePageProps) {
           ))}
 
           {schedules.length === 0 && !showAddForm && (
-            <Card>
+            <Card className="fluent-card">
               <CardContent className="pt-6 text-center text-muted-foreground">
                 No schedules yet. Add a template or create a custom schedule.
               </CardContent>
@@ -195,7 +195,7 @@ export function Schedule({ onBack }: SchedulePageProps) {
 
         {/* Add Schedule Form */}
         {showAddForm ? (
-          <Card>
+          <Card className="fluent-card">
             <CardHeader>
               <CardTitle className="text-lg">New Schedule</CardTitle>
             </CardHeader>
@@ -220,8 +220,8 @@ export function Schedule({ onBack }: SchedulePageProps) {
                       onClick={() => toggleDay(i)}
                       className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
                         newSchedule.days.includes(i)
-                          ? "bg-blue-600 text-white"
-                          : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted hover:bg-muted/80 text-muted-foreground"
                       }`}
                     >
                       {day}
