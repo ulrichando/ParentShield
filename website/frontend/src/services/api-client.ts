@@ -80,10 +80,10 @@ export async function apiRequest<T>(
   }
 
   const url = `${API_URL}${endpoint}`;
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
     Authorization: `Bearer ${accessToken}`,
-    ...options.headers,
+    ...(options.headers as Record<string, string>),
   };
 
   let response = await fetch(url, { ...options, headers });
