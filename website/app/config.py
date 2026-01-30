@@ -15,11 +15,17 @@ class Settings(BaseSettings):
     def async_database_url(self) -> str:
         """Convert DATABASE_URL to async format for SQLAlchemy."""
         url = self.database_url
-        # Render uses postgres:// but SQLAlchemy needs postgresql+asyncpg://
+        # Render/Fly uses postgres:// but SQLAlchemy needs postgresql+asyncpg://
         if url.startswith("postgres://"):
             url = url.replace("postgres://", "postgresql+asyncpg://", 1)
         elif url.startswith("postgresql://"):
             url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
+        # Remove sslmode parameter as asyncpg doesn't support it
+        if "?sslmode=" in url:
+            url = url.split("?sslmode=")[0]
+        elif "&sslmode=" in url:
+            import re
+            url = re.sub(r"[&?]sslmode=[^&]*", "", url)
         return url
 
     # JWT
