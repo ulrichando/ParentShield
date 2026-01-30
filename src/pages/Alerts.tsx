@@ -4,9 +4,6 @@ import {
   Bell,
   BellOff,
   CheckCheck,
-  AlertTriangle,
-  AlertCircle,
-  Info,
   Shield,
   Globe,
   Gamepad2,
@@ -14,7 +11,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TitleBar } from "@/components/TitleBar";
 import { useActivityStore, Alert } from "@/stores/activity-store";
@@ -35,17 +32,6 @@ function getAlertIcon(type: string) {
       return <Shield className="h-4 w-4" />;
     default:
       return <Bell className="h-4 w-4" />;
-  }
-}
-
-function getSeverityIcon(severity: string) {
-  switch (severity) {
-    case "critical":
-      return <AlertCircle className="h-4 w-4 text-destructive" />;
-    case "warning":
-      return <AlertTriangle className="h-4 w-4 text-warning" />;
-    default:
-      return <Info className="h-4 w-4 text-secondary" />;
   }
 }
 

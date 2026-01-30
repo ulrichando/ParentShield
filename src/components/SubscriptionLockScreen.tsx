@@ -9,19 +9,30 @@ import { useLicenseStore } from "@/stores/license-store";
 
 const PLANS = [
   {
+    name: "Trial",
+    price: "$0",
+    interval: "7 days",
+    features: [
+      "All Pro features",
+      "1 device",
+      "No credit card required",
+    ],
+    missing: [],
+  },
+  {
     name: "Basic",
     price: "$4.99",
     interval: "month",
     features: [
-      "Website blocking",
-      "Up to 30 blocked items",
-      "Basic tamper protection",
+      "3 devices",
+      "Website filtering",
+      "Basic time limits",
+      "Weekly reports",
     ],
     missing: [
-      "Game blocking",
-      "Web dashboard",
+      "Game & app blocking",
       "Activity reports",
-      "Schedules",
+      "Tamper protection",
     ],
   },
   {
@@ -30,13 +41,13 @@ const PLANS = [
     interval: "month",
     highlight: true,
     features: [
-      "Website blocking",
-      "Game blocking",
-      "Unlimited blocked items",
-      "Web dashboard",
+      "Unlimited devices",
+      "Game & app blocking",
+      "Advanced filtering",
+      "Screen time limits",
       "Activity reports",
-      "Schedules",
-      "Advanced tamper protection",
+      "Tamper protection",
+      "Priority support",
     ],
     missing: [],
   },
@@ -109,7 +120,7 @@ export function SubscriptionLockScreen() {
         </Card>
 
         {/* Plan Cards */}
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-3">
           {PLANS.map((plan) => (
             <Card
               key={plan.name}

@@ -79,8 +79,8 @@ const platformNames: Record<string, string> = {
 
 const platformRequirements: Record<string, string> = {
   windows: "Windows 10/11",
-  macos: "macOS 12+ (Monterey)",
-  linux: "Ubuntu 20.04+, Debian 11+, Fedora 36+",
+  macos: "macOS 12+",
+  linux: "Ubuntu 20.04+, Debian 11+",
 };
 
 export default function DownloadPage() {

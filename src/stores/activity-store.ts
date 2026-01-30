@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { apiService } from "@/services/api";
 
 export interface ActivityEvent {
   id: string;
@@ -41,7 +40,7 @@ interface ActivityState {
 // Generate a simple UUID
 const generateId = () => Math.random().toString(36).substring(2, 15);
 
-export const useActivityStore = create<ActivityState>((set, get) => ({
+export const useActivityStore = create<ActivityState>((set) => ({
   activities: [],
   alerts: [],
   isLoading: false,

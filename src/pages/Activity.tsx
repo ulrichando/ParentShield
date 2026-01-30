@@ -2,15 +2,11 @@ import { useEffect } from "react";
 import {
   ArrowLeft,
   Activity as ActivityIcon,
-  Shield,
-  Ban,
   Clock,
   AlertTriangle,
-  RefreshCw,
   Trash2,
   Globe,
   Gamepad2,
-  Bot,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -65,7 +61,7 @@ function formatTimestamp(timestamp: string) {
 }
 
 export function Activity({ onBack }: ActivityProps) {
-  const { activities, isLoading, clearActivities, addActivity } = useActivityStore();
+  const { activities, clearActivities, addActivity } = useActivityStore();
   const { recentlyBlocked } = useBlockingStore();
 
   // Convert recently blocked processes to activity events

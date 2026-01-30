@@ -55,34 +55,14 @@ interface PlanData {
 
 const PLANS: PlanData[] = [
   {
-    name: "Free Trial",
-    price: "$0",
-    interval: "7 days",
-    isFree: true,
-    features: [
-      "All Pro features included",
-      "Website blocking",
-      "Game blocking",
-      "Unlimited blocked items",
-      "Web dashboard access",
-      "Activity reports",
-      "Schedules",
-      "7-day trial period",
-    ],
-  },
-  {
     name: "Basic",
     price: "$4.99",
     interval: "month",
     features: [
-      "Website blocking only",
-      "Up to 30 blocked items",
-      "Basic tamper protection",
-      "1 device",
-      "No game blocking",
-      "No web dashboard",
-      "No activity reports",
-      "No schedules",
+      "3 devices",
+      "Website filtering",
+      "Basic time limits",
+      "Weekly reports",
     ],
   },
   {
@@ -91,14 +71,25 @@ const PLANS: PlanData[] = [
     interval: "month",
     highlight: true,
     features: [
-      "Website blocking",
-      "Game blocking",
-      "Unlimited blocked items",
-      "Web dashboard",
+      "Unlimited devices",
+      "Game & app blocking",
+      "Advanced filtering",
+      "Screen time limits",
       "Activity reports",
-      "Schedules",
-      "Advanced tamper protection",
-      "Up to 5 devices",
+      "Tamper protection",
+      "Priority support",
+    ],
+  },
+  {
+    name: "Trial",
+    price: "$0",
+    interval: "7 days",
+    isFree: true,
+    features: [
+      "All Pro features",
+      "7-day access",
+      "No credit card required",
+      "1 device",
     ],
   },
 ];
@@ -115,6 +106,26 @@ function getDaysRemaining(endDate: string): number {
   const end = new Date(endDate);
   const now = new Date();
   return Math.max(0, Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+}
+
+interface CountdownTime {
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+}
+
+function getTimeRemaining(endDate: string): CountdownTime {
+  const end = new Date(endDate);
+  const now = new Date();
+  const diff = Math.max(0, end.getTime() - now.getTime());
+
+  return {
+    days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+    hours: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+    minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
+    seconds: Math.floor((diff % (1000 * 60)) / 1000),
+  };
 }
 
 function getStatusConfig(status: string) {
@@ -144,6 +155,7 @@ export default function BillingPage() {
   const [showCloseAccountModal, setShowCloseAccountModal] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const hasFetched = useRef(false);
+  const [countdown, setCountdown] = useState<CountdownTime>({ days: 7, hours: 0, minutes: 0, seconds: 0 });
 
   const fetchData = async () => {
     const token = localStorage.getItem("access_token");
@@ -232,6 +244,20 @@ export default function BillingPage() {
       fetchData();
     }
   }, [authLoading]);
+
+  // Countdown timer effect
+  useEffect(() => {
+    if (!subscription?.current_period_end) return;
+
+    const updateCountdown = () => {
+      setCountdown(getTimeRemaining(subscription.current_period_end!));
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+
+    return () => clearInterval(interval);
+  }, [subscription?.current_period_end]);
 
   if (authLoading) {
     return (
@@ -351,24 +377,30 @@ export default function BillingPage() {
                       <p className="text-sm text-blue-300 mb-3 text-center">
                         Your 7-day free trial will start when you install the app.
                       </p>
-                      <div className="flex items-center justify-center gap-3">
+                      <div className="flex items-center justify-center gap-2">
                         <div className="text-center">
-                          <div className="bg-blue-500/20 px-4 py-2 min-w-15">
+                          <div className="bg-blue-500/20 px-3 py-2 min-w-14">
                             <p className="text-2xl font-bold text-blue-400">7</p>
                           </div>
                           <p className="text-xs text-neutral-500 mt-1">Days</p>
                         </div>
                         <div className="text-center">
-                          <div className="bg-blue-500/20 px-4 py-2 min-w-15">
-                            <p className="text-2xl font-bold text-blue-400">0</p>
+                          <div className="bg-blue-500/20 px-3 py-2 min-w-14">
+                            <p className="text-2xl font-bold text-blue-400">00</p>
                           </div>
                           <p className="text-xs text-neutral-500 mt-1">Hours</p>
                         </div>
                         <div className="text-center">
-                          <div className="bg-blue-500/20 px-4 py-2 min-w-15">
-                            <p className="text-2xl font-bold text-blue-400">0</p>
+                          <div className="bg-blue-500/20 px-3 py-2 min-w-14">
+                            <p className="text-2xl font-bold text-blue-400">00</p>
                           </div>
-                          <p className="text-xs text-neutral-500 mt-1">Minutes</p>
+                          <p className="text-xs text-neutral-500 mt-1">Min</p>
+                        </div>
+                        <div className="text-center">
+                          <div className="bg-blue-500/20 px-3 py-2 min-w-14">
+                            <p className="text-2xl font-bold text-blue-400">00</p>
+                          </div>
+                          <p className="text-xs text-neutral-500 mt-1">Sec</p>
                         </div>
                       </div>
                       <p className="text-xs text-neutral-500 mt-3 text-center">
@@ -377,27 +409,33 @@ export default function BillingPage() {
                     </>
                   ) : (daysRemaining !== null && daysRemaining > 0) || !subscription ? (
                     <>
-                      <p className="text-sm text-blue-300 mb-3">
+                      <p className="text-sm text-blue-300 mb-3 text-center">
                         You&apos;re on a 7-day free trial with access to all features.
                       </p>
-                      <div className="flex items-center justify-center gap-3">
+                      <div className="flex items-center justify-center gap-2">
                         <div className="text-center">
-                          <div className="bg-blue-500/20 px-4 py-2 min-w-15">
-                            <p className="text-2xl font-bold text-blue-400">{daysRemaining ?? 7}</p>
+                          <div className="bg-blue-500/20 px-3 py-2 min-w-14">
+                            <p className="text-2xl font-bold text-blue-400">{countdown.days}</p>
                           </div>
                           <p className="text-xs text-neutral-500 mt-1">Days</p>
                         </div>
                         <div className="text-center">
-                          <div className="bg-blue-500/20 px-4 py-2 min-w-15">
-                            <p className="text-2xl font-bold text-blue-400">0</p>
+                          <div className="bg-blue-500/20 px-3 py-2 min-w-14">
+                            <p className="text-2xl font-bold text-blue-400">{countdown.hours.toString().padStart(2, '0')}</p>
                           </div>
                           <p className="text-xs text-neutral-500 mt-1">Hours</p>
                         </div>
                         <div className="text-center">
-                          <div className="bg-blue-500/20 px-4 py-2 min-w-15">
-                            <p className="text-2xl font-bold text-blue-400">0</p>
+                          <div className="bg-blue-500/20 px-3 py-2 min-w-14">
+                            <p className="text-2xl font-bold text-blue-400">{countdown.minutes.toString().padStart(2, '0')}</p>
                           </div>
-                          <p className="text-xs text-neutral-500 mt-1">Minutes</p>
+                          <p className="text-xs text-neutral-500 mt-1">Min</p>
+                        </div>
+                        <div className="text-center">
+                          <div className="bg-blue-500/20 px-3 py-2 min-w-14">
+                            <p className="text-2xl font-bold text-blue-400">{countdown.seconds.toString().padStart(2, '0')}</p>
+                          </div>
+                          <p className="text-xs text-neutral-500 mt-1">Sec</p>
                         </div>
                       </div>
                     </>

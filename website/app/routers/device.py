@@ -81,7 +81,7 @@ async def get_available_downloads():
     Checks the filesystem to see which builds are actually available.
     Used by frontend to show/hide download options.
     """
-    version = "0.2.0"
+    version = "0.1.0"
 
     # Define all possible downloads
     downloads = {

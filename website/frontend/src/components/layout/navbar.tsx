@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Sun, Moon } from "lucide-react";
+import { Menu, X, Sun, Moon, ShieldCheck } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 
 const navLinks = [
@@ -38,7 +38,10 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-neutral-900 dark:bg-white rounded-lg flex items-center justify-center">
+              <ShieldCheck className="w-5 h-5 text-white dark:text-neutral-900" />
+            </div>
             <span className="text-xl font-light tracking-tight text-neutral-900 dark:text-white">
               Parent<span className="font-semibold">Shield</span>
             </span>
