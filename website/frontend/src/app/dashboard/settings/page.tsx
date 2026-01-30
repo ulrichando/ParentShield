@@ -182,7 +182,7 @@ export default function SettingsPage() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-6 h-6 text-primary-500 animate-spin" />
+          <Loader2 className="w-6 h-6 text-neutral-900 dark:text-white animate-spin" />
         </div>
       </DashboardLayout>
     );
@@ -190,29 +190,30 @@ export default function SettingsPage() {
 
   return (
     <DashboardLayout>
-      {/* Page Header */}
+      {/* Editorial Page Header */}
       <motion.div
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5"
+        className="mb-8"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <div>
-          <h1 className="text-lg md:text-xl font-bold text-white mb-2 flex items-center gap-3">
-            <Settings className="w-5 h-5 text-gray-400" />
+        <p className="text-xs uppercase tracking-widest text-neutral-500 dark:text-neutral-400 mb-2">
+          Account
+        </p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <h1 className="text-2xl md:text-3xl font-light text-neutral-900 dark:text-white">
             Settings
           </h1>
-          <p className="text-gray-400">Manage your account and notification preferences.</p>
+          <Button size="sm" onClick={saveSettings} disabled={!hasChanges || isSaving}>
+            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            Save Changes
+          </Button>
         </div>
-        <Button size="sm" onClick={saveSettings} disabled={!hasChanges || isSaving}>
-          {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-          Save Changes
-        </Button>
       </motion.div>
 
       {error && (
         <motion.div
-          className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-6"
+          className="bg-red-500/10 border border-red-500/20 p-4 mb-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
@@ -222,7 +223,7 @@ export default function SettingsPage() {
 
       {success && (
         <motion.div
-          className="bg-green-500/10 border border-green-500/20 rounded-xl p-4 mb-6"
+          className="bg-green-500/10 border border-green-500/20 p-4 mb-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
@@ -232,48 +233,48 @@ export default function SettingsPage() {
 
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-6 h-6 text-primary-500 animate-spin" />
+          <Loader2 className="w-6 h-6 text-neutral-900 dark:text-white animate-spin" />
         </div>
       ) : settings ? (
         <div className="space-y-4">
           {/* Profile Section */}
           <motion.div
-            className="bg-surface-card rounded-xl border border-white/5 p-5"
+            className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-5"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
             <div className="flex items-center gap-3 mb-6">
-              <User className="w-5 h-5 text-primary-400" />
-              <h2 className="text-base font-semibold text-white">Profile</h2>
+              <User className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
+              <h2 className="text-base font-semibold text-neutral-900 dark:text-white">Profile</h2>
             </div>
 
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">Email</label>
+                  <label className="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2">Email</label>
                   <input
                     type="email"
                     value={profile?.email || user?.email || ""}
                     disabled
-                    className="w-full bg-surface-elevated border border-white/10 rounded-lg px-4 py-2.5 text-gray-400 cursor-not-allowed"
+                    className="w-full bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 px-4 py-2.5 text-neutral-500 dark:text-neutral-400 cursor-not-allowed"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">Name</label>
+                  <label className="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2">Name</label>
                   <input
                     type="text"
                     value={`${profile?.first_name || ""} ${profile?.last_name || ""}`.trim() || "Not set"}
                     disabled
-                    className="w-full bg-surface-elevated border border-white/10 rounded-lg px-4 py-2.5 text-gray-400 cursor-not-allowed"
+                    className="w-full bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 px-4 py-2.5 text-neutral-500 dark:text-neutral-400 cursor-not-allowed"
                   />
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-white/5">
+              <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
                 <button
                   onClick={() => setShowPasswordForm(!showPasswordForm)}
-                  className="flex items-center gap-2 text-primary-400 hover:text-primary-300 transition-colors"
+                  className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
                 >
                   <Key className="w-4 h-4" />
                   Change Password
@@ -286,7 +287,7 @@ export default function SettingsPage() {
                     animate={{ opacity: 1, height: "auto" }}
                   >
                     <div>
-                      <label className="block text-sm font-medium text-gray-400 mb-2">
+                      <label className="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2">
                         Current Password
                       </label>
                       <input
@@ -295,12 +296,12 @@ export default function SettingsPage() {
                         onChange={(e) =>
                           setPasswordData({ ...passwordData, current_password: e.target.value })
                         }
-                        className="w-full bg-surface-elevated border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary-500"
+                        className="w-full bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 px-4 py-2.5 text-neutral-900 dark:text-white focus:outline-none focus:border-neutral-900 dark:focus:border-white"
                       />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-2">
+                        <label className="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2">
                           New Password
                         </label>
                         <input
@@ -309,11 +310,11 @@ export default function SettingsPage() {
                           onChange={(e) =>
                             setPasswordData({ ...passwordData, new_password: e.target.value })
                           }
-                          className="w-full bg-surface-elevated border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary-500"
+                          className="w-full bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 px-4 py-2.5 text-neutral-900 dark:text-white focus:outline-none focus:border-neutral-900 dark:focus:border-white"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-2">
+                        <label className="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2">
                           Confirm Password
                         </label>
                         <input
@@ -322,7 +323,7 @@ export default function SettingsPage() {
                           onChange={(e) =>
                             setPasswordData({ ...passwordData, confirm_password: e.target.value })
                           }
-                          className="w-full bg-surface-elevated border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary-500"
+                          className="w-full bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 px-4 py-2.5 text-neutral-900 dark:text-white focus:outline-none focus:border-neutral-900 dark:focus:border-white"
                         />
                       </div>
                     </div>
@@ -345,14 +346,14 @@ export default function SettingsPage() {
 
           {/* Email Notifications */}
           <motion.div
-            className="bg-surface-card rounded-xl border border-white/5 p-5"
+            className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-5"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
             <div className="flex items-center gap-3 mb-6">
-              <Mail className="w-5 h-5 text-primary-400" />
-              <h2 className="text-base font-semibold text-white">Email Notifications</h2>
+              <Mail className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
+              <h2 className="text-base font-semibold text-neutral-900 dark:text-white">Email Notifications</h2>
             </div>
 
             <div className="space-y-1">
@@ -361,19 +362,19 @@ export default function SettingsPage() {
                 { key: "email_weekly_report", label: "Weekly Report", description: "Get a weekly summary of device activity" },
                 { key: "email_security_alerts", label: "Security Alerts", description: "Important security notifications" },
               ].map((item) => (
-                <div key={item.key} className="flex items-center justify-between py-3 border-b border-white/5 last:border-0">
+                <div key={item.key} className="flex items-center justify-between py-3 border-b border-neutral-200 dark:border-neutral-800 last:border-0">
                   <div>
-                    <h4 className="font-medium text-white">{item.label}</h4>
-                    <p className="text-sm text-gray-500">{item.description}</p>
+                    <h4 className="font-medium text-neutral-900 dark:text-white">{item.label}</h4>
+                    <p className="text-sm text-neutral-500">{item.description}</p>
                   </div>
                   <button
                     onClick={() => updateSetting(item.key as keyof UserSettings, !settings[item.key as keyof UserSettings])}
-                    className="text-primary-400 hover:text-primary-300 transition-colors"
+                    className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
                   >
                     {settings[item.key as keyof UserSettings] ? (
                       <ToggleRight className="w-8 h-8" />
                     ) : (
-                      <ToggleLeft className="w-8 h-8 text-gray-500" />
+                      <ToggleLeft className="w-8 h-8 text-neutral-500" />
                     )}
                   </button>
                 </div>
@@ -383,14 +384,14 @@ export default function SettingsPage() {
 
           {/* Alert Preferences */}
           <motion.div
-            className="bg-surface-card rounded-xl border border-white/5 p-5"
+            className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-5"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
             <div className="flex items-center gap-3 mb-6">
-              <Bell className="w-5 h-5 text-primary-400" />
-              <h2 className="text-base font-semibold text-white">Alert Preferences</h2>
+              <Bell className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
+              <h2 className="text-base font-semibold text-neutral-900 dark:text-white">Alert Preferences</h2>
             </div>
 
             <div className="space-y-1">
@@ -400,19 +401,19 @@ export default function SettingsPage() {
                 { key: "alert_screen_time", label: "Screen Time", description: "Alert when screen time limits are reached" },
                 { key: "alert_tamper_attempts", label: "Tamper Attempts", description: "Alert when someone tries to disable the app" },
               ].map((item) => (
-                <div key={item.key} className="flex items-center justify-between py-3 border-b border-white/5 last:border-0">
+                <div key={item.key} className="flex items-center justify-between py-3 border-b border-neutral-200 dark:border-neutral-800 last:border-0">
                   <div>
-                    <h4 className="font-medium text-white">{item.label}</h4>
-                    <p className="text-sm text-gray-500">{item.description}</p>
+                    <h4 className="font-medium text-neutral-900 dark:text-white">{item.label}</h4>
+                    <p className="text-sm text-neutral-500">{item.description}</p>
                   </div>
                   <button
                     onClick={() => updateSetting(item.key as keyof UserSettings, !settings[item.key as keyof UserSettings])}
-                    className="text-primary-400 hover:text-primary-300 transition-colors"
+                    className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
                   >
                     {settings[item.key as keyof UserSettings] ? (
                       <ToggleRight className="w-8 h-8" />
                     ) : (
-                      <ToggleLeft className="w-8 h-8 text-gray-500" />
+                      <ToggleLeft className="w-8 h-8 text-neutral-500" />
                     )}
                   </button>
                 </div>
@@ -422,24 +423,24 @@ export default function SettingsPage() {
 
           {/* Timezone */}
           <motion.div
-            className="bg-surface-card rounded-xl border border-white/5 p-5"
+            className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-5"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
             <div className="flex items-center gap-3 mb-6">
-              <Clock className="w-5 h-5 text-primary-400" />
-              <h2 className="text-base font-semibold text-white">Timezone</h2>
+              <Clock className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
+              <h2 className="text-base font-semibold text-neutral-900 dark:text-white">Timezone</h2>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">
+              <label className="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2">
                 Your Timezone
               </label>
               <select
                 value={settings.timezone}
                 onChange={(e) => updateSetting("timezone", e.target.value)}
-                className="w-full md:w-64 bg-surface-elevated border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary-500"
+                className="w-full md:w-64 bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 px-4 py-2.5 text-neutral-900 dark:text-white focus:outline-none focus:border-neutral-900 dark:focus:border-white"
               >
                 {TIMEZONES.map((tz) => (
                   <option key={tz} value={tz}>
@@ -447,7 +448,7 @@ export default function SettingsPage() {
                   </option>
                 ))}
               </select>
-              <p className="text-sm text-gray-500 mt-2">
+              <p className="text-sm text-neutral-500 mt-2">
                 Used for scheduling and activity reports.
               </p>
             </div>
@@ -457,17 +458,17 @@ export default function SettingsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Subscription Link */}
             <motion.div
-              className="bg-surface-card rounded-xl border border-white/5 p-5"
+              className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-5"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
             >
               <div className="flex items-center gap-3 mb-3">
-                <CreditCard className="w-5 h-5 text-primary-400" />
-                <h2 className="text-base font-semibold text-white">Subscription</h2>
+                <CreditCard className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
+                <h2 className="text-base font-semibold text-neutral-900 dark:text-white">Subscription</h2>
               </div>
 
-              <p className="text-gray-500 text-sm mb-4">
+              <p className="text-neutral-500 text-sm mb-4">
                 Manage your subscription, billing, and payment methods.
               </p>
 
@@ -481,17 +482,17 @@ export default function SettingsPage() {
 
             {/* API Link */}
             <motion.div
-              className="bg-surface-card rounded-xl border border-white/5 p-5"
+              className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-5"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
             >
               <div className="flex items-center gap-3 mb-3">
-                <Code className="w-5 h-5 text-primary-400" />
-                <h2 className="text-base font-semibold text-white">API & Integrations</h2>
+                <Code className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
+                <h2 className="text-base font-semibold text-neutral-900 dark:text-white">API & Integrations</h2>
               </div>
 
-              <p className="text-gray-500 text-sm mb-4">
+              <p className="text-neutral-500 text-sm mb-4">
                 Manage API keys and webhooks for programmatic access.
               </p>
 

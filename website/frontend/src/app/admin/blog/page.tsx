@@ -179,46 +179,49 @@ export default function AdminBlogPage() {
 
   if (isLoading || !user) {
     return (
-      <div className="min-h-screen bg-surface-base flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#FAFAFA] dark:bg-neutral-950 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-neutral-900 dark:border-white border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-surface-base">
+    <div className="min-h-screen bg-[#FAFAFA] dark:bg-neutral-950">
       <AdminSidebar activePage="blog" user={user} />
 
       <main className="lg:ml-52 pt-14 lg:pt-6">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 py-4 md:py-6">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-5">
-            <div>
-              <h1 className="text-lg font-bold text-white mb-0.5">Blog Management</h1>
-              <p className="text-sm text-gray-400">Create and manage blog posts</p>
+          {/* Editorial Page Header */}
+          <header className="mb-8 pb-6 border-b border-neutral-200 dark:border-neutral-800">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-widest text-neutral-500 mb-2">Content Management</p>
+                <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Blog Management</h1>
+                <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">Create and manage blog posts</p>
+              </div>
+              <Button size="sm" onClick={() => { setShowForm(true); setEditingPost(null); }}>
+                <Plus className="w-4 h-4 mr-1" />
+                New Post
+              </Button>
             </div>
-            <Button size="sm" onClick={() => { setShowForm(true); setEditingPost(null); }}>
-              <Plus className="w-4 h-4 mr-1" />
-              New Post
-            </Button>
-          </div>
+          </header>
 
           {/* Search & Filter */}
           <div className="flex flex-col sm:flex-row gap-3 mb-5">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search posts..."
-                className="w-full bg-surface-card border border-white/10 rounded-lg py-2 pl-10 pr-4 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-primary-500"
+                className="w-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 py-2 pl-10 pr-4 text-sm text-neutral-900 dark:text-white placeholder-neutral-500 focus:outline-none focus:border-neutral-900 dark:focus:border-white"
               />
             </div>
             <select
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
-              className="bg-surface-card border border-white/10 rounded-lg py-2 px-3 text-sm text-white focus:outline-none focus:border-primary-500"
+              className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 py-2 px-3 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-neutral-900 dark:focus:border-white"
             >
               <option value="all">All Categories</option>
               {CATEGORIES.map(cat => (
@@ -236,17 +239,17 @@ export default function AdminBlogPage() {
               onClick={() => setShowForm(false)}
             >
               <motion.div
-                className="bg-surface-card rounded-xl border border-white/5 p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+                className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
                 initial={{ scale: 0.95 }}
                 animate={{ scale: 1 }}
                 onClick={(e) => e.stopPropagation()}
               >
-                <h2 className="text-lg font-semibold text-white mb-4">
+                <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">
                   {editingPost ? "Edit Post" : "New Blog Post"}
                 </h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
-                    <label className="text-sm text-gray-400">Title</label>
+                    <label className="text-sm text-neutral-500 dark:text-neutral-400">Title</label>
                     <input
                       type="text"
                       value={formData.title}
@@ -255,27 +258,27 @@ export default function AdminBlogPage() {
                         title: e.target.value,
                         slug: formData.slug || generateSlug(e.target.value)
                       })}
-                      className="w-full bg-surface-base border border-white/10 rounded-lg py-2 px-3 text-sm text-white mt-1"
+                      className="w-full bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 py-2 px-3 text-sm text-neutral-900 dark:text-white mt-1 focus:outline-none focus:border-neutral-900 dark:focus:border-white"
                       required
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-gray-400">Slug</label>
+                    <label className="text-sm text-neutral-500 dark:text-neutral-400">Slug</label>
                     <input
                       type="text"
                       value={formData.slug}
                       onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                      className="w-full bg-surface-base border border-white/10 rounded-lg py-2 px-3 text-sm text-white mt-1"
+                      className="w-full bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 py-2 px-3 text-sm text-neutral-900 dark:text-white mt-1 focus:outline-none focus:border-neutral-900 dark:focus:border-white"
                       placeholder="auto-generated-from-title"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-sm text-gray-400">Category</label>
+                      <label className="text-sm text-neutral-500 dark:text-neutral-400">Category</label>
                       <select
                         value={formData.category}
                         onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                        className="w-full bg-surface-base border border-white/10 rounded-lg py-2 px-3 text-sm text-white mt-1"
+                        className="w-full bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 py-2 px-3 text-sm text-neutral-900 dark:text-white mt-1 focus:outline-none focus:border-neutral-900 dark:focus:border-white"
                       >
                         {CATEGORIES.map(cat => (
                           <option key={cat} value={cat}>{cat}</option>
@@ -283,34 +286,34 @@ export default function AdminBlogPage() {
                       </select>
                     </div>
                     <div>
-                      <label className="text-sm text-gray-400">Read Time</label>
+                      <label className="text-sm text-neutral-500 dark:text-neutral-400">Read Time</label>
                       <input
                         type="text"
                         value={formData.read_time}
                         onChange={(e) => setFormData({ ...formData, read_time: e.target.value })}
-                        className="w-full bg-surface-base border border-white/10 rounded-lg py-2 px-3 text-sm text-white mt-1"
+                        className="w-full bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 py-2 px-3 text-sm text-neutral-900 dark:text-white mt-1 focus:outline-none focus:border-neutral-900 dark:focus:border-white"
                         placeholder="5 min read"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm text-gray-400">Excerpt</label>
+                    <label className="text-sm text-neutral-500 dark:text-neutral-400">Excerpt</label>
                     <textarea
                       value={formData.excerpt}
                       onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
                       rows={2}
-                      className="w-full bg-surface-base border border-white/10 rounded-lg py-2 px-3 text-sm text-white mt-1"
+                      className="w-full bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 py-2 px-3 text-sm text-neutral-900 dark:text-white mt-1 focus:outline-none focus:border-neutral-900 dark:focus:border-white"
                       placeholder="Brief summary of the post..."
                       required
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-gray-400">Content (Markdown supported)</label>
+                    <label className="text-sm text-neutral-500 dark:text-neutral-400">Content (Markdown supported)</label>
                     <textarea
                       value={formData.content}
                       onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                       rows={10}
-                      className="w-full bg-surface-base border border-white/10 rounded-lg py-2 px-3 text-sm text-white mt-1 font-mono"
+                      className="w-full bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 py-2 px-3 text-sm text-neutral-900 dark:text-white mt-1 font-mono focus:outline-none focus:border-neutral-900 dark:focus:border-white"
                       required
                     />
                   </div>
@@ -321,9 +324,8 @@ export default function AdminBlogPage() {
                         id="featured"
                         checked={formData.featured}
                         onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                        className="rounded"
                       />
-                      <label htmlFor="featured" className="text-sm text-gray-400">Featured post</label>
+                      <label htmlFor="featured" className="text-sm text-neutral-500 dark:text-neutral-400">Featured post</label>
                     </div>
                     <div className="flex items-center gap-2">
                       <input
@@ -331,9 +333,8 @@ export default function AdminBlogPage() {
                         id="is_published"
                         checked={formData.is_published}
                         onChange={(e) => setFormData({ ...formData, is_published: e.target.checked })}
-                        className="rounded"
                       />
-                      <label htmlFor="is_published" className="text-sm text-gray-400">Publish immediately</label>
+                      <label htmlFor="is_published" className="text-sm text-neutral-500 dark:text-neutral-400">Publish immediately</label>
                     </div>
                   </div>
                   {formError && (
@@ -354,29 +355,29 @@ export default function AdminBlogPage() {
 
           {/* Stats */}
           <div className="grid grid-cols-3 gap-3 mb-5">
-            <div className="bg-surface-card rounded-xl border border-white/5 p-4">
-              <p className="text-2xl font-bold text-white">{posts.length}</p>
-              <p className="text-xs text-gray-500">Total Posts</p>
+            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4">
+              <p className="text-2xl font-bold text-neutral-900 dark:text-white">{posts.length}</p>
+              <p className="text-xs text-neutral-500">Total Posts</p>
             </div>
-            <div className="bg-surface-card rounded-xl border border-white/5 p-4">
-              <p className="text-2xl font-bold text-green-400">{posts.filter(p => p.is_published).length}</p>
-              <p className="text-xs text-gray-500">Published</p>
+            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4">
+              <p className="text-2xl font-bold text-green-600 dark:text-green-400">{posts.filter(p => p.is_published).length}</p>
+              <p className="text-xs text-neutral-500">Published</p>
             </div>
-            <div className="bg-surface-card rounded-xl border border-white/5 p-4">
-              <p className="text-2xl font-bold text-yellow-400">{posts.filter(p => !p.is_published).length}</p>
-              <p className="text-xs text-gray-500">Drafts</p>
+            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4">
+              <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{posts.filter(p => !p.is_published).length}</p>
+              <p className="text-xs text-neutral-500">Drafts</p>
             </div>
           </div>
 
           {/* Posts List */}
           {postsLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-6 h-6 text-gray-500 animate-spin" />
+              <Loader2 className="w-6 h-6 text-neutral-500 animate-spin" />
             </div>
           ) : filteredPosts.length === 0 ? (
-            <div className="bg-surface-card rounded-xl border border-white/5 p-8 text-center">
-              <FileText className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-              <p className="text-gray-400">No blog posts yet</p>
+            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-8 text-center">
+              <FileText className="w-12 h-12 text-neutral-400 dark:text-neutral-600 mx-auto mb-3" />
+              <p className="text-neutral-500 dark:text-neutral-400">No blog posts yet</p>
               <Button size="sm" className="mt-4" onClick={() => setShowForm(true)}>
                 Write First Post
               </Button>
@@ -386,21 +387,21 @@ export default function AdminBlogPage() {
               {filteredPosts.map((post) => (
                 <motion.div
                   key={post.id}
-                  className="bg-surface-card rounded-xl border border-white/5 p-4"
-                  whileHover={{ borderColor: "rgba(6, 182, 212, 0.3)" }}
+                  className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4"
+                  whileHover={{ borderColor: "rgba(115, 115, 115, 0.5)" }}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-medium text-white">{post.title}</h3>
+                        <h3 className="font-medium text-neutral-900 dark:text-white">{post.title}</h3>
                         {post.featured && (
-                          <span className="px-2 py-0.5 rounded text-xs bg-yellow-500/20 text-yellow-400">Featured</span>
+                          <span className="px-2 py-0.5 text-xs bg-yellow-100 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-400">Featured</span>
                         )}
-                        <span className={`px-2 py-0.5 rounded text-xs ${post.is_published ? "bg-green-500/20 text-green-400" : "bg-gray-500/20 text-gray-400"}`}>
+                        <span className={`px-2 py-0.5 text-xs ${post.is_published ? "bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400" : "bg-neutral-100 dark:bg-neutral-500/20 text-neutral-600 dark:text-neutral-400"}`}>
                           {post.is_published ? "Published" : "Draft"}
                         </span>
                       </div>
-                      <div className="flex items-center gap-4 text-sm text-gray-400 mb-2">
+                      <div className="flex items-center gap-4 text-sm text-neutral-500 dark:text-neutral-400 mb-2">
                         <span className="flex items-center gap-1">
                           <Tag className="w-3.5 h-3.5" />
                           {post.category}
@@ -418,7 +419,7 @@ export default function AdminBlogPage() {
                           {post.views_count} views
                         </span>
                       </div>
-                      <p className="text-sm text-gray-500 line-clamp-2">{post.excerpt}</p>
+                      <p className="text-sm text-neutral-500 line-clamp-2">{post.excerpt}</p>
                     </div>
                     <div className="flex items-center gap-2 ml-4">
                       <Button
@@ -433,7 +434,7 @@ export default function AdminBlogPage() {
                         <Pencil className="w-4 h-4" />
                       </Button>
                       <Button variant="ghost" size="sm" onClick={() => handleDelete(post.id)}>
-                        <Trash2 className="w-4 h-4 text-red-400" />
+                        <Trash2 className="w-4 h-4 text-red-500 dark:text-red-400" />
                       </Button>
                     </div>
                   </div>

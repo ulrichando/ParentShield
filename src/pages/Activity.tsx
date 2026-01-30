@@ -104,10 +104,10 @@ export function Activity({ onBack }: ActivityProps) {
     <div className="h-full flex flex-col bg-background overflow-hidden">
       <TitleBar>
         <div className="flex items-center px-3 gap-2 h-full">
-          <Button variant="ghost" size="sm" onClick={onBack} className="h-6 w-6 p-0 rounded">
+          <Button variant="ghost" size="sm" onClick={onBack} className="h-6 w-6 p-0">
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <div className="w-5 h-5 bg-gradient-primary rounded flex items-center justify-center">
+          <div className="w-5 h-5 bg-gradient-primary flex items-center justify-center">
             <ActivityIcon className="h-3 w-3 text-white" />
           </div>
           <span className="text-xs font-semibold">Activity</span>
@@ -118,19 +118,19 @@ export function Activity({ onBack }: ActivityProps) {
         <div className="max-w-3xl mx-auto px-4 py-6 space-y-4">
           {/* Stats Cards */}
           <div className="grid grid-cols-3 gap-3">
-            <Card className="rounded-lg">
+            <Card className="rounded-none">
               <CardContent className="py-3 px-4 text-center">
                 <div className="text-2xl font-bold text-primary">{todayActivities.length}</div>
                 <div className="text-xs text-muted-foreground">Events Today</div>
               </CardContent>
             </Card>
-            <Card className="rounded-lg">
+            <Card className="rounded-none">
               <CardContent className="py-3 px-4 text-center">
                 <div className="text-2xl font-bold text-destructive">{blockedToday}</div>
                 <div className="text-xs text-muted-foreground">Blocked Today</div>
               </CardContent>
             </Card>
-            <Card className="rounded-lg">
+            <Card className="rounded-none">
               <CardContent className="py-3 px-4 text-center">
                 <div className="text-2xl font-bold text-warning">{warningsToday}</div>
                 <div className="text-xs text-muted-foreground">Warnings</div>
@@ -139,7 +139,7 @@ export function Activity({ onBack }: ActivityProps) {
           </div>
 
           {/* Activity Feed */}
-          <Card className="rounded-lg">
+          <Card className="rounded-none">
             <CardHeader className="pb-2 pt-3 px-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -153,7 +153,7 @@ export function Activity({ onBack }: ActivityProps) {
                     variant="ghost"
                     size="sm"
                     onClick={clearActivities}
-                    className="h-7 text-xs rounded"
+                    className="h-7 text-xs"
                     disabled={activities.length === 0}
                   >
                     <Trash2 className="h-3 w-3 mr-1" />
@@ -174,7 +174,7 @@ export function Activity({ onBack }: ActivityProps) {
                   {activities.map((activity) => (
                     <div
                       key={activity.id}
-                      className={`flex items-start gap-3 p-3 rounded-lg border ${getSeverityColor(activity.severity)}`}
+                      className={`flex items-start gap-3 p-3 border ${getSeverityColor(activity.severity)}`}
                     >
                       <div className="mt-0.5">
                         {getActivityIcon(activity.type)}
@@ -184,7 +184,7 @@ export function Activity({ onBack }: ActivityProps) {
                           <span className="text-sm font-medium">{activity.title}</span>
                           <Badge
                             variant="outline"
-                            className={`text-caption-2 px-1.5 py-0 h-4 rounded ${
+                            className={`text-caption-2 px-1.5 py-0 h-4 rounded-none ${
                               activity.severity === "critical"
                                 ? "border-destructive/50 text-destructive"
                                 : activity.severity === "warning"

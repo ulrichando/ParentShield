@@ -31,22 +31,22 @@ interface StatCardProps {
 function StatCard({ title, value, icon: Icon, color, loading }: StatCardProps) {
   return (
     <motion.div
-      className="bg-surface-card rounded-xl border border-white/5 p-4"
-      whileHover={{ y: -2, boxShadow: "0 0 20px rgba(6, 182, 212, 0.1)" }}
+      className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4"
+      whileHover={{ y: -2, boxShadow: "0 0 20px rgba(0, 0, 0, 0.08)" }}
     >
       <div className="flex items-start justify-between mb-2">
-        <div className={`w-9 h-9 rounded-lg ${color} flex items-center justify-center`}>
-          <Icon className="w-4 h-4 text-white" />
+        <div className={`w-9 h-9 ${color} flex items-center justify-center`}>
+          <Icon className="w-4 h-4 text-white dark:text-neutral-900" />
         </div>
       </div>
       {loading ? (
         <div className="h-7 flex items-center">
-          <Loader2 className="w-4 h-4 text-gray-500 animate-spin" />
+          <Loader2 className="w-4 h-4 text-neutral-500 animate-spin" />
         </div>
       ) : (
-        <p className="text-xl font-bold text-white mb-0.5">{value}</p>
+        <p className="text-xl font-bold text-neutral-900 dark:text-white mb-0.5">{value}</p>
       )}
-      <p className="text-xs text-gray-500">{title}</p>
+      <p className="text-xs text-neutral-500">{title}</p>
     </motion.div>
   );
 }
@@ -78,23 +78,24 @@ export default function AdminDashboardPage() {
 
   if (isLoading || !user) {
     return (
-      <div className="min-h-screen bg-surface-base flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#FAFAFA] dark:bg-neutral-950 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-neutral-900 dark:border-white border-t-transparent animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-surface-base">
+    <div className="min-h-screen bg-[#FAFAFA] dark:bg-neutral-950">
       <AdminSidebar activePage="dashboard" user={user} />
 
       <main className="lg:ml-52 pt-14 lg:pt-6">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 py-4 md:py-6">
-        {/* Header */}
+        {/* Editorial Header */}
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h1 className="text-lg font-bold text-white mb-0.5">Admin Dashboard</h1>
-            <p className="text-sm text-gray-400">Overview of ParentShield platform</p>
+            <p className="text-xs uppercase tracking-widest text-neutral-500 dark:text-neutral-400 mb-2">Dashboard</p>
+            <h1 className="text-2xl font-light text-neutral-900 dark:text-white mb-0.5">Admin Dashboard</h1>
+            <p className="text-sm text-neutral-500 dark:text-neutral-400">Overview of ParentShield platform</p>
           </div>
           <Button variant="secondary" size="sm">
             <Bell className="w-3.5 h-3.5" />
@@ -104,7 +105,7 @@ export default function AdminDashboardPage() {
 
         {/* Stats Error */}
         {statsError && (
-          <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-3 py-2 rounded-lg mb-5 text-sm">
+          <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-3 py-2 mb-5 text-sm">
             {statsError}
           </div>
         )}
@@ -115,28 +116,28 @@ export default function AdminDashboardPage() {
             title="Total Customers"
             value={stats?.total_customers.toLocaleString() || "0"}
             icon={Users}
-            color="bg-blue-500"
+            color="bg-neutral-900 dark:bg-white"
             loading={statsLoading}
           />
           <StatCard
             title="Active Subscriptions"
             value={stats?.active_subscriptions.toLocaleString() || "0"}
             icon={CreditCard}
-            color="bg-green-500"
+            color="bg-neutral-900 dark:bg-white"
             loading={statsLoading}
           />
           <StatCard
             title="Monthly Revenue"
             value={`$${stats?.revenue_this_month.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "0.00"}`}
             icon={DollarSign}
-            color="bg-purple-500"
+            color="bg-neutral-900 dark:bg-white"
             loading={statsLoading}
           />
           <StatCard
             title="New Customers Today"
             value={stats?.new_customers_today.toLocaleString() || "0"}
             icon={UserPlus}
-            color="bg-orange-500"
+            color="bg-neutral-900 dark:bg-white"
             loading={statsLoading}
           />
         </div>
@@ -147,21 +148,21 @@ export default function AdminDashboardPage() {
             title="Total Downloads"
             value={stats?.total_downloads.toLocaleString() || "0"}
             icon={Download}
-            color="bg-cyan-500"
+            color="bg-neutral-900 dark:bg-white"
             loading={statsLoading}
           />
           <StatCard
             title="Total Installations"
             value={stats?.total_installations.toLocaleString() || "0"}
             icon={Monitor}
-            color="bg-indigo-500"
+            color="bg-neutral-900 dark:bg-white"
             loading={statsLoading}
           />
           <StatCard
             title="Active Devices"
             value={stats?.active_installations.toLocaleString() || "0"}
             icon={Activity}
-            color="bg-emerald-500"
+            color="bg-neutral-900 dark:bg-white"
             loading={statsLoading}
           />
         </div>
@@ -169,12 +170,12 @@ export default function AdminDashboardPage() {
         {/* Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Summary Cards */}
-          <div className="bg-surface-card rounded-xl border border-white/5 p-4">
-            <h2 className="text-sm font-semibold text-white mb-3">Revenue Summary</h2>
+          <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4">
+            <h2 className="text-sm font-semibold text-neutral-900 dark:text-white mb-3">Revenue Summary</h2>
             <div className="space-y-3">
-              <div className="flex items-center justify-between py-2 border-b border-white/5">
-                <span className="text-sm text-gray-400">Today</span>
-                <span className="text-sm text-white font-medium">
+              <div className="flex items-center justify-between py-2 border-b border-neutral-200 dark:border-neutral-800">
+                <span className="text-sm text-neutral-500 dark:text-neutral-400">Today</span>
+                <span className="text-sm text-neutral-900 dark:text-white font-medium">
                   {statsLoading ? (
                     <Loader2 className="w-3 h-3 animate-spin" />
                   ) : (
@@ -182,9 +183,9 @@ export default function AdminDashboardPage() {
                   )}
                 </span>
               </div>
-              <div className="flex items-center justify-between py-2 border-b border-white/5">
-                <span className="text-sm text-gray-400">This Month</span>
-                <span className="text-sm text-white font-medium">
+              <div className="flex items-center justify-between py-2 border-b border-neutral-200 dark:border-neutral-800">
+                <span className="text-sm text-neutral-500 dark:text-neutral-400">This Month</span>
+                <span className="text-sm text-neutral-900 dark:text-white font-medium">
                   {statsLoading ? (
                     <Loader2 className="w-3 h-3 animate-spin" />
                   ) : (
@@ -193,8 +194,8 @@ export default function AdminDashboardPage() {
                 </span>
               </div>
               <div className="flex items-center justify-between py-2">
-                <span className="text-sm text-gray-400">All Time</span>
-                <span className="text-sm text-white font-medium">
+                <span className="text-sm text-neutral-500 dark:text-neutral-400">All Time</span>
+                <span className="text-sm text-neutral-900 dark:text-white font-medium">
                   {statsLoading ? (
                     <Loader2 className="w-3 h-3 animate-spin" />
                   ) : (
@@ -206,12 +207,12 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* Customer Growth */}
-          <div className="bg-surface-card rounded-xl border border-white/5 p-4">
-            <h2 className="text-sm font-semibold text-white mb-3">Customer Growth</h2>
+          <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4">
+            <h2 className="text-sm font-semibold text-neutral-900 dark:text-white mb-3">Customer Growth</h2>
             <div className="space-y-3">
-              <div className="flex items-center justify-between py-2 border-b border-white/5">
-                <span className="text-sm text-gray-400">New Today</span>
-                <span className="text-sm text-white font-medium">
+              <div className="flex items-center justify-between py-2 border-b border-neutral-200 dark:border-neutral-800">
+                <span className="text-sm text-neutral-500 dark:text-neutral-400">New Today</span>
+                <span className="text-sm text-neutral-900 dark:text-white font-medium">
                   {statsLoading ? (
                     <Loader2 className="w-3 h-3 animate-spin" />
                   ) : (
@@ -219,9 +220,9 @@ export default function AdminDashboardPage() {
                   )}
                 </span>
               </div>
-              <div className="flex items-center justify-between py-2 border-b border-white/5">
-                <span className="text-sm text-gray-400">New This Month</span>
-                <span className="text-sm text-white font-medium">
+              <div className="flex items-center justify-between py-2 border-b border-neutral-200 dark:border-neutral-800">
+                <span className="text-sm text-neutral-500 dark:text-neutral-400">New This Month</span>
+                <span className="text-sm text-neutral-900 dark:text-white font-medium">
                   {statsLoading ? (
                     <Loader2 className="w-3 h-3 animate-spin" />
                   ) : (
@@ -230,8 +231,8 @@ export default function AdminDashboardPage() {
                 </span>
               </div>
               <div className="flex items-center justify-between py-2">
-                <span className="text-sm text-gray-400">Total Customers</span>
-                <span className="text-sm text-white font-medium">
+                <span className="text-sm text-neutral-500 dark:text-neutral-400">Total Customers</span>
+                <span className="text-sm text-neutral-900 dark:text-white font-medium">
                   {statsLoading ? (
                     <Loader2 className="w-3 h-3 animate-spin" />
                   ) : (

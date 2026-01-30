@@ -142,7 +142,7 @@ export default function ScreenTimePage() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-6 h-6 text-primary-500 animate-spin" />
+          <Loader2 className="w-6 h-6 text-neutral-900 dark:text-white animate-spin" />
         </div>
       </DashboardLayout>
     );
@@ -150,19 +150,19 @@ export default function ScreenTimePage() {
 
   return (
     <DashboardLayout>
-      {/* Page Header */}
+      {/* Editorial Page Header */}
       <motion.div
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5"
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
         <div>
-          <h1 className="text-lg md:text-base font-bold text-white mb-2 flex items-center gap-3">
-            <Clock className="w-5 h-5 text-primary-400" />
+          <p className="text-xs uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-2">Settings</p>
+          <h1 className="text-2xl md:text-3xl font-light text-neutral-900 dark:text-white mb-2">
             Screen Time
           </h1>
-          <p className="text-gray-400">Set daily time limits for device usage.</p>
+          <p className="text-neutral-500 dark:text-neutral-400">Set daily time limits for device usage.</p>
         </div>
         <div className="flex gap-3">
           <Button
@@ -189,11 +189,11 @@ export default function ScreenTimePage() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.1 }}
         >
-          <label className="block text-sm font-medium text-gray-400 mb-2">Select Device</label>
+          <label className="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2">Select Device</label>
           <select
             value={selectedDevice || ""}
             onChange={(e) => setSelectedDevice(e.target.value)}
-            className="w-full md:w-64 bg-surface-card border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500"
+            className="w-full md:w-64 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 px-4 py-2 text-neutral-900 dark:text-white focus:outline-none focus:border-neutral-900 dark:focus:border-white"
           >
             {devices.map((device) => (
               <option key={device.id} value={device.id}>
@@ -206,7 +206,7 @@ export default function ScreenTimePage() {
 
       {error && (
         <motion.div
-          className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-5"
+          className="bg-red-500/10 border border-red-500/20 p-4 mb-5"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
@@ -216,15 +216,15 @@ export default function ScreenTimePage() {
 
       {devices.length === 0 ? (
         <motion.div
-          className="bg-surface-card rounded-2xl border border-white/5 p-8 text-center"
+          className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-8 text-center"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <div className="w-10 h-10 mx-auto rounded-full bg-surface-elevated flex items-center justify-center mb-6">
-            <Laptop className="w-8 h-8 text-gray-500" />
+          <div className="w-10 h-10 mx-auto bg-[#FAFAFA] dark:bg-neutral-800 flex items-center justify-center mb-6">
+            <Laptop className="w-8 h-8 text-neutral-500" />
           </div>
-          <h2 className="text-base font-bold text-white mb-2">No Devices Found</h2>
-          <p className="text-gray-400 text-sm mb-4 max-w-md mx-auto">
+          <h2 className="text-base font-bold text-neutral-900 dark:text-white mb-2">No Devices Found</h2>
+          <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-4 max-w-md mx-auto">
             You need to have at least one active device to configure screen time limits.
           </p>
           <Link href="/dashboard/download">
@@ -236,32 +236,32 @@ export default function ScreenTimePage() {
         </motion.div>
       ) : isLoading ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-6 h-6 text-primary-500 animate-spin" />
+          <Loader2 className="w-6 h-6 text-neutral-900 dark:text-white animate-spin" />
         </div>
       ) : config ? (
         <div className="space-y-3">
           {/* Enable/Disable Toggle */}
           <motion.div
-            className="bg-surface-card rounded-xl border border-white/5 p-4"
+            className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-semibold text-white">Enable Screen Time Limits</h3>
-                <p className="text-xs text-gray-400">
+                <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">Enable Screen Time Limits</h3>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400">
                   Turn on to enforce daily usage limits on this device.
                 </p>
               </div>
               <button
                 onClick={() => updateConfig("is_enabled", !config.is_enabled)}
-                className="text-primary-400 hover:text-primary-300 transition-colors"
+                className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
               >
                 {config.is_enabled ? (
                   <ToggleRight className="w-8 h-8" />
                 ) : (
-                  <ToggleLeft className="w-8 h-8 text-gray-500" />
+                  <ToggleLeft className="w-8 h-8 text-neutral-500" />
                 )}
               </button>
             </div>
@@ -269,21 +269,21 @@ export default function ScreenTimePage() {
 
           {/* Daily Limits */}
           <motion.div
-            className={`bg-surface-card rounded-xl border border-white/5 p-4 ${
+            className={`bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4 ${
               !config.is_enabled ? "opacity-50" : ""
             }`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <h3 className="text-sm font-semibold text-white mb-4">Daily Time Limits</h3>
-            <p className="text-sm text-gray-400 text-sm mb-4">
+            <h3 className="text-sm font-semibold text-neutral-900 dark:text-white mb-4">Daily Time Limits</h3>
+            <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
               Set maximum screen time for each day. Use 0 for unlimited.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {DAYS.map((day) => (
-                <div key={day.key} className="flex items-center justify-between py-3 px-4 bg-surface-elevated rounded-lg">
-                  <span className="text-white font-medium">{day.label}</span>
+                <div key={day.key} className="flex items-center justify-between py-3 px-4 bg-[#FAFAFA] dark:bg-neutral-800">
+                  <span className="text-neutral-900 dark:text-white font-medium">{day.label}</span>
                   <div className="flex items-center gap-3">
                     <input
                       type="range"
@@ -293,9 +293,9 @@ export default function ScreenTimePage() {
                       value={config[day.key as keyof ScreenTimeConfig] as number}
                       onChange={(e) => updateConfig(day.key, parseInt(e.target.value))}
                       disabled={!config.is_enabled}
-                      className="w-24 accent-primary-500"
+                      className="w-24 accent-neutral-900 dark:accent-white"
                     />
-                    <span className="text-sm text-gray-400 w-20 text-right">
+                    <span className="text-sm text-neutral-500 dark:text-neutral-400 w-20 text-right">
                       {formatMinutes(config[day.key as keyof ScreenTimeConfig] as number)}
                     </span>
                   </div>
@@ -306,36 +306,36 @@ export default function ScreenTimePage() {
 
           {/* Time Window */}
           <motion.div
-            className={`bg-surface-card rounded-xl border border-white/5 p-4 ${
+            className={`bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4 ${
               !config.is_enabled ? "opacity-50" : ""
             }`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <h3 className="text-sm font-semibold text-white mb-4">Allowed Time Window</h3>
-            <p className="text-sm text-gray-400 text-sm mb-4">
+            <h3 className="text-sm font-semibold text-neutral-900 dark:text-white mb-4">Allowed Time Window</h3>
+            <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
               Optionally restrict usage to specific hours. Leave empty for no restrictions.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">Start Time</label>
+                <label className="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2">Start Time</label>
                 <input
                   type="time"
                   value={config.allowed_start_time || ""}
                   onChange={(e) => updateConfig("allowed_start_time", e.target.value || null)}
                   disabled={!config.is_enabled}
-                  className="w-full bg-surface-elevated border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500"
+                  className="w-full bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 px-4 py-2 text-neutral-900 dark:text-white focus:outline-none focus:border-neutral-900 dark:focus:border-white"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">End Time</label>
+                <label className="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2">End Time</label>
                 <input
                   type="time"
                   value={config.allowed_end_time || ""}
                   onChange={(e) => updateConfig("allowed_end_time", e.target.value || null)}
                   disabled={!config.is_enabled}
-                  className="w-full bg-surface-elevated border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500"
+                  className="w-full bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 px-4 py-2 text-neutral-900 dark:text-white focus:outline-none focus:border-neutral-900 dark:focus:border-white"
                 />
               </div>
             </div>
@@ -343,15 +343,15 @@ export default function ScreenTimePage() {
 
           {/* Grace Period */}
           <motion.div
-            className={`bg-surface-card rounded-xl border border-white/5 p-4 ${
+            className={`bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4 ${
               !config.is_enabled ? "opacity-50" : ""
             }`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
           >
-            <h3 className="text-sm font-semibold text-white mb-4">Grace Period</h3>
-            <p className="text-sm text-gray-400 text-sm mb-4">
+            <h3 className="text-sm font-semibold text-neutral-900 dark:text-white mb-4">Grace Period</h3>
+            <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
               Allow a warning period before enforcing limits.
             </p>
             <div className="flex items-center gap-4">
@@ -363,9 +363,9 @@ export default function ScreenTimePage() {
                 value={config.grace_period}
                 onChange={(e) => updateConfig("grace_period", parseInt(e.target.value))}
                 disabled={!config.is_enabled}
-                className="flex-1 accent-primary-500"
+                className="flex-1 accent-neutral-900 dark:accent-white"
               />
-              <span className="text-white font-medium w-24 text-right">
+              <span className="text-neutral-900 dark:text-white font-medium w-24 text-right">
                 {config.grace_period} minutes
               </span>
             </div>

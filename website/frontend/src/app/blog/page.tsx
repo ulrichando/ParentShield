@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Calendar, Clock, ArrowRight, Tag } from "lucide-react";
+import { Calendar, Clock, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
@@ -64,32 +64,37 @@ export default function BlogPage() {
   const regularPosts = posts.filter((p) => !p.featured);
 
   return (
-    <main className="min-h-screen bg-surface-base flex flex-col">
+    <main className="min-h-screen bg-white dark:bg-neutral-950 flex flex-col">
       <Navbar />
 
       <section className="pt-32 pb-20 px-6">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <motion.div
-            className="text-center mb-12"
+            className="mb-16"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Blog</h1>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+            <p className="text-xs uppercase tracking-[0.3em] text-neutral-400 dark:text-neutral-500 mb-4">
+              Blog
+            </p>
+            <h1 className="text-4xl md:text-5xl font-light text-neutral-900 dark:text-white mb-4">
+              Insights & <span className="italic">resources.</span>
+            </h1>
+            <p className="text-lg text-neutral-500 dark:text-neutral-400 max-w-xl">
               Tips, insights, and resources for raising digitally healthy children.
             </p>
           </motion.div>
 
           {/* Categories */}
-          <div className="flex flex-wrap justify-center gap-3 mb-12">
+          <div className="flex flex-wrap gap-3 mb-12">
             {categories.map((cat) => (
               <button
                 key={cat}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                className={`px-4 py-2 text-sm font-medium transition-colors ${
                   cat === "All"
-                    ? "bg-primary-600 text-white"
-                    : "bg-surface-card text-gray-400 hover:text-white hover:bg-surface-elevated"
+                    ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900"
+                    : "bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700"
                 }`}
               >
                 {cat}
@@ -100,25 +105,25 @@ export default function BlogPage() {
           {/* Featured Post */}
           {featuredPost && (
             <motion.div
-              className="bg-surface-card/50 rounded-2xl border border-white/5 overflow-hidden mb-12"
+              className="border border-neutral-200 dark:border-neutral-800 mb-12"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
             >
               <div className="md:flex">
-                <div className="md:w-1/2 aspect-video bg-linear-to-br from-primary-600/20 to-secondary-600/20 flex items-center justify-center">
+                <div className="md:w-1/2 aspect-video bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
                   <span className="text-6xl">📱</span>
                 </div>
                 <div className="md:w-1/2 p-8 flex flex-col justify-center">
                   <div className="flex items-center gap-3 mb-4">
-                    <span className="bg-primary-600/20 text-primary-400 px-3 py-1 rounded-full text-xs font-medium">
+                    <span className="text-xs uppercase tracking-wider text-neutral-900 dark:text-white font-medium">
                       Featured
                     </span>
-                    <span className="text-gray-500 text-sm">{featuredPost.category}</span>
+                    <span className="text-xs text-neutral-400 dark:text-neutral-500">{featuredPost.category}</span>
                   </div>
-                  <h2 className="text-2xl font-bold text-white mb-3">{featuredPost.title}</h2>
-                  <p className="text-gray-400 mb-4">{featuredPost.excerpt}</p>
-                  <div className="flex items-center gap-4 text-sm text-gray-500 mb-6">
+                  <h2 className="text-2xl font-light text-neutral-900 dark:text-white mb-3">{featuredPost.title}</h2>
+                  <p className="text-neutral-500 dark:text-neutral-400 mb-4">{featuredPost.excerpt}</p>
+                  <div className="flex items-center gap-4 text-sm text-neutral-400 dark:text-neutral-500 mb-6">
                     <span className="flex items-center gap-1">
                       <Calendar className="w-4 h-4" />
                       {featuredPost.date}
@@ -130,10 +135,10 @@ export default function BlogPage() {
                   </div>
                   <Link
                     href="#"
-                    className="inline-flex items-center text-primary-400 hover:text-primary-300 font-medium"
+                    className="inline-flex items-center text-neutral-900 dark:text-white hover:gap-3 gap-2 transition-all font-medium text-sm"
                   >
                     Read Article
-                    <ArrowRight className="w-4 h-4 ml-2" />
+                    <ArrowRight className="w-4 h-4" />
                   </Link>
                 </div>
               </div>
@@ -141,26 +146,21 @@ export default function BlogPage() {
           )}
 
           {/* Posts Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-neutral-200 dark:bg-neutral-800">
             {regularPosts.map((post, i) => (
               <motion.article
                 key={post.title}
-                className="bg-surface-card/50 rounded-2xl border border-white/5 overflow-hidden hover:border-primary-500/30 transition-colors"
+                className="bg-white dark:bg-neutral-950 p-8 group"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 + i * 0.05 }}
               >
-                <div className="aspect-video bg-linear-to-br from-primary-600/10 to-secondary-600/10 flex items-center justify-center">
-                  <Tag className="w-8 h-8 text-gray-600" />
-                </div>
-                <div className="p-6">
-                  <span className="text-xs text-primary-400 font-medium">{post.category}</span>
-                  <h3 className="text-lg font-semibold text-white mt-2 mb-2 line-clamp-2">{post.title}</h3>
-                  <p className="text-gray-500 text-sm mb-4 line-clamp-2">{post.excerpt}</p>
-                  <div className="flex items-center justify-between text-xs text-gray-500">
-                    <span>{post.date}</span>
-                    <span>{post.readTime}</span>
-                  </div>
+                <span className="text-xs text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">{post.category}</span>
+                <h3 className="text-lg font-medium text-neutral-900 dark:text-white mt-3 mb-3 group-hover:underline">{post.title}</h3>
+                <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-4 line-clamp-2">{post.excerpt}</p>
+                <div className="flex items-center justify-between text-xs text-neutral-400 dark:text-neutral-500">
+                  <span>{post.date}</span>
+                  <span>{post.readTime}</span>
                 </div>
               </motion.article>
             ))}
@@ -168,7 +168,7 @@ export default function BlogPage() {
 
           {/* Load More */}
           <div className="text-center mt-12">
-            <button className="px-6 py-3 bg-surface-card border border-white/10 rounded-xl text-white hover:bg-surface-elevated transition-colors">
+            <button className="px-8 py-4 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-sm font-medium tracking-wide hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors">
               Load More Articles
             </button>
           </div>

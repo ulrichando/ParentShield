@@ -193,7 +193,7 @@ export default function AlertsPage() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-6 h-6 text-primary-500 animate-spin" />
+          <Loader2 className="w-6 h-6 text-neutral-900 dark:text-white animate-spin" />
         </div>
       </DashboardLayout>
     );
@@ -209,16 +209,16 @@ export default function AlertsPage() {
           transition={{ duration: 0.5 }}
         >
           <div>
-            <h1 className="text-lg md:text-base font-bold text-white mb-2 flex items-center gap-3">
-              <Bell className="w-5 h-5 text-yellow-400" />
-              Alerts
+            <p className="text-xs uppercase tracking-[0.2em] text-neutral-400 dark:text-neutral-500 mb-2">Alerts</p>
+            <h1 className="text-2xl font-light text-neutral-900 dark:text-white flex items-center gap-3">
+              Notifications
               {unreadCount > 0 && (
-                <span className="text-sm bg-red-500 text-white px-2 py-1 rounded-full">
+                <span className="text-sm bg-red-500 text-white dark:text-neutral-900 px-2 py-1">
                   {unreadCount} new
                 </span>
               )}
             </h1>
-            <p className="text-gray-400">View notifications and alerts from your devices.</p>
+            <p className="text-neutral-500 dark:text-neutral-400 mt-2">View notifications and alerts from your devices.</p>
           </div>
           <div className="flex gap-3">
             <Button
@@ -255,16 +255,16 @@ export default function AlertsPage() {
           transition={{ delay: 0.1 }}
         >
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-2">Filter</label>
+            <label className="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2">Filter</label>
             <div className="flex gap-2">
               {(["all", "unread"] as const).map((f) => (
                 <button
                   key={f}
                   onClick={() => setFilter(f)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`px-4 py-2 text-sm font-medium transition-colors ${
                     filter === f
-                      ? "bg-primary-500 text-white"
-                      : "bg-surface-card text-gray-400 hover:text-white"
+                      ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900"
+                      : "bg-white dark:bg-neutral-900 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
                   }`}
                 >
                   {f === "all" ? "All Alerts" : "Unread"}
@@ -275,11 +275,11 @@ export default function AlertsPage() {
 
           {devices.length > 0 && (
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">Device</label>
+              <label className="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2">Device</label>
               <select
                 value={selectedDevice}
                 onChange={(e) => setSelectedDevice(e.target.value)}
-                className="w-full md:w-48 bg-surface-card border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500"
+                className="w-full md:w-48 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 px-4 py-2 text-neutral-900 dark:text-white focus:outline-none focus:border-neutral-900 dark:focus:border-white"
               >
                 <option value="all">All Devices</option>
                 {devices.map((device) => (
@@ -294,7 +294,7 @@ export default function AlertsPage() {
 
         {error && (
           <motion.div
-            className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-5"
+            className="bg-red-500/10 border border-red-500/20 p-4 mb-5"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
@@ -304,19 +304,19 @@ export default function AlertsPage() {
 
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-6 h-6 text-primary-500 animate-spin" />
+            <Loader2 className="w-6 h-6 text-neutral-900 dark:text-white animate-spin" />
           </div>
         ) : alerts.length === 0 ? (
           <motion.div
-            className="bg-surface-card rounded-2xl border border-white/5 p-8 text-center"
+            className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-8 text-center"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <div className="w-10 h-10 mx-auto rounded-full bg-surface-elevated flex items-center justify-center mb-6">
-              <Bell className="w-8 h-8 text-gray-500" />
+            <div className="w-10 h-10 mx-auto bg-[#FAFAFA] dark:bg-neutral-800 flex items-center justify-center mb-6">
+              <Bell className="w-8 h-8 text-neutral-500" />
             </div>
-            <h2 className="text-base font-bold text-white mb-2">No Alerts</h2>
-            <p className="text-gray-400 max-w-md mx-auto">
+            <h2 className="text-base font-bold text-neutral-900 dark:text-white mb-2">No Alerts</h2>
+            <p className="text-neutral-500 dark:text-neutral-400 max-w-md mx-auto">
               {filter === "unread"
                 ? "You have no unread alerts. Great job keeping up!"
                 : "No alerts have been generated yet. Alerts will appear here when blocked content is accessed or limits are reached."}
@@ -331,8 +331,8 @@ export default function AlertsPage() {
               return (
                 <motion.div
                   key={alert.id}
-                  className={`bg-surface-card rounded-xl border p-4 ${
-                    alert.is_read ? "border-white/5" : colors.border
+                  className={`bg-white dark:bg-neutral-900 border p-4 ${
+                    alert.is_read ? "border-neutral-200 dark:border-neutral-800" : colors.border
                   } ${!alert.is_read ? colors.bg : ""} transition-all`}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -340,7 +340,7 @@ export default function AlertsPage() {
                 >
                   <div className="flex items-start gap-4">
                     <div
-                      className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${colors.bg}`}
+                      className={`w-10 h-10 flex items-center justify-center shrink-0 ${colors.bg}`}
                     >
                       <Icon className={`w-5 h-5 ${colors.text}`} />
                     </div>
@@ -348,11 +348,11 @@ export default function AlertsPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-4">
                         <div>
-                          <h3 className={`font-medium ${alert.is_read ? "text-gray-300" : "text-white"}`}>
+                          <h3 className={`font-medium ${alert.is_read ? "text-neutral-600 dark:text-neutral-300" : "text-neutral-900 dark:text-white"}`}>
                             {alert.title}
                           </h3>
-                          <p className="text-xs text-gray-400">{alert.message}</p>
-                          <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+                          <p className="text-xs text-neutral-500 dark:text-neutral-400">{alert.message}</p>
+                          <div className="flex items-center gap-3 mt-2 text-xs text-neutral-500">
                             {alert.device_name && (
                               <>
                                 <span className="flex items-center gap-1">
@@ -371,7 +371,7 @@ export default function AlertsPage() {
                             <button
                               onClick={() => markAsRead(alert.id)}
                               disabled={actionLoading === alert.id}
-                              className="p-2 rounded-lg text-gray-500 hover:text-primary-400 hover:bg-primary-500/10 transition-colors disabled:opacity-50"
+                              className="p-2 text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors disabled:opacity-50"
                               title="Mark as read"
                             >
                               {actionLoading === alert.id ? (
@@ -384,7 +384,7 @@ export default function AlertsPage() {
                           <button
                             onClick={() => dismissAlert(alert.id)}
                             disabled={actionLoading === alert.id}
-                            className="p-2 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50"
+                            className="p-2 text-neutral-500 hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50"
                             title="Dismiss"
                           >
                             {actionLoading === alert.id ? (

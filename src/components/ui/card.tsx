@@ -1,7 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-// Fluent 2 Card - uses 8px radius (large) and subtle shadow
+// Editorial flat style Card - no border radius
 const Card = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
@@ -9,7 +9,7 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "rounded-lg border bg-card text-card-foreground shadow-2",
+      "rounded-none border bg-card text-card-foreground shadow-2",
       className
     )}
     {...props}

@@ -30,6 +30,8 @@ async def lifespan(app: FastAPI):
     async with async_session_maker() as db:
         # Startup: Create admin user if not exists
         await AuthService.create_admin(db)
+        # Create demo customer accounts
+        await AuthService.create_demo_customers(db)
         # Auto-verify all unverified users (email verification not yet functional)
         await db.execute(
             update(User).where(User.is_verified == False).values(is_verified=True)

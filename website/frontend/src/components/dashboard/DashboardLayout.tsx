@@ -19,9 +19,11 @@ import {
   X,
   CreditCard,
   Code,
+  Sun,
+  Moon,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useCustomerAuth } from "@/hooks/useCustomerAuth";
+import { useTheme } from "@/components/theme-provider";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -43,28 +45,45 @@ const navItems = [
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
   const { user, logout } = useCustomerAuth();
+  const { theme, toggleTheme, mounted } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-surface-base">
+    <div className="min-h-screen bg-[#FAFAFA] dark:bg-neutral-950">
       {/* Mobile Header */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-surface-card border-b border-white/5 px-4 py-3 flex items-center justify-between">
+      <header className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-            <Shield className="w-4 h-4 text-white" />
+          <div className="w-8 h-8 bg-neutral-900 dark:bg-white rounded-lg flex items-center justify-center">
+            <Shield className="w-4 h-4 text-white dark:text-neutral-900" />
           </div>
-          <span className="text-lg font-bold text-white">ParentShield</span>
+          <span className="text-lg font-medium text-neutral-900 dark:text-white">ParentShield</span>
         </div>
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="p-2 hover:bg-white/5 rounded-lg transition-colors"
-        >
-          {mobileOpen ? (
-            <X className="w-6 h-6 text-gray-400" />
-          ) : (
-            <Menu className="w-6 h-6 text-gray-400" />
-          )}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleTheme}
+            className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg transition-colors"
+          >
+            {mounted ? (
+              theme === "dark" ? (
+                <Sun className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
+              ) : (
+                <Moon className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
+              )
+            ) : (
+              <div className="w-5 h-5" />
+            )}
+          </button>
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg transition-colors"
+          >
+            {mobileOpen ? (
+              <X className="w-6 h-6 text-neutral-600 dark:text-neutral-400" />
+            ) : (
+              <Menu className="w-6 h-6 text-neutral-600 dark:text-neutral-400" />
+            )}
+          </button>
+        </div>
       </header>
 
       {/* Mobile Overlay */}
@@ -77,16 +96,16 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
       {/* Sidebar */}
       <aside
-        className={`fixed left-0 top-0 h-full w-52 bg-surface-card border-r border-white/5 p-4 flex flex-col z-50 transform transition-transform duration-300 lg:translate-x-0 ${
+        className={`fixed left-0 top-0 h-full w-56 bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 p-5 flex flex-col z-50 transform transition-transform duration-300 lg:translate-x-0 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {/* Logo */}
-        <Link href="/dashboard" className="flex items-center gap-2 mb-6">
-          <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-            <Shield className="w-4 h-4 text-white" />
+        <Link href="/dashboard" className="flex items-center gap-3 mb-8">
+          <div className="w-9 h-9 bg-neutral-900 dark:bg-white rounded-lg flex items-center justify-center">
+            <Shield className="w-5 h-5 text-white dark:text-neutral-900" />
           </div>
-          <span className="text-base font-bold text-white">ParentShield</span>
+          <span className="text-lg font-medium text-neutral-900 dark:text-white">ParentShield</span>
         </Link>
 
         {/* Navigation */}
@@ -101,10 +120,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 key={item.label}
                 href={item.href}
                 onClick={() => setMobileOpen(false)}
-                className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all ${
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
                   isActive
-                    ? "bg-gradient-primary text-white"
-                    : "text-gray-400 hover:bg-white/5 hover:text-white"
+                    ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900"
+                    : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-white"
                 }`}
               >
                 <item.icon className="w-4 h-4" />
@@ -114,33 +133,56 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           })}
         </nav>
 
+        {/* Theme Toggle (Desktop) */}
+        <button
+          onClick={toggleTheme}
+          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-white transition-all mb-4"
+        >
+          {mounted ? (
+            theme === "dark" ? (
+              <>
+                <Sun className="w-4 h-4" />
+                Light Mode
+              </>
+            ) : (
+              <>
+                <Moon className="w-4 h-4" />
+                Dark Mode
+              </>
+            )
+          ) : (
+            <>
+              <div className="w-4 h-4" />
+              Theme
+            </>
+          )}
+        </button>
+
         {/* User */}
-        <div className="border-t border-white/5 pt-4">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-8 h-8 rounded-full bg-linear-to-br from-primary-400 to-secondary-500 flex items-center justify-center">
-              <User className="w-4 h-4 text-white" />
+        <div className="border-t border-neutral-200 dark:border-neutral-800 pt-4">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-9 h-9 rounded-full bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center">
+              <User className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-medium text-white truncate">
+              <p className="text-sm font-medium text-neutral-900 dark:text-white truncate">
                 {user?.first_name || "User"}
               </p>
-              <p className="text-[10px] text-gray-500 truncate">{user?.email}</p>
+              <p className="text-xs text-neutral-500 dark:text-neutral-500 truncate">{user?.email}</p>
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="w-full justify-start text-xs"
+          <button
             onClick={logout}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-white transition-all"
           >
-            <LogOut className="w-3.5 h-3.5" />
+            <LogOut className="w-4 h-4" />
             Sign Out
-          </Button>
+          </button>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="lg:ml-52 pt-16 lg:pt-6">
+      <main className="lg:ml-56 pt-16 lg:pt-6">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 py-4 md:py-6">
           {children}
         </div>

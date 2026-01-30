@@ -22,7 +22,7 @@ export function Card({
         "relative rounded-2xl p-6 border transition-all duration-300",
         "bg-surface-card border-white/5",
         featured &&
-          "border-primary-500/50 bg-gradient-to-b from-primary-500/10 to-transparent",
+          "border-primary-500/50 bg-linear-to-b from-primary-500/10 to-transparent",
         hover && "hover:border-primary-500/30 hover:shadow-xl",
         className
       )}
@@ -30,7 +30,7 @@ export function Card({
         hover
           ? {
               y: -4,
-              boxShadow: "0 0 40px rgba(6, 182, 212, 0.15)",
+              boxShadow: "0 0 40px rgba(0, 0, 0, 0.1)",
             }
           : undefined
       }

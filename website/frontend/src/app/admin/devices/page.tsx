@@ -68,10 +68,10 @@ const platformIcons: Record<string, React.ReactNode> = {
 };
 
 const statusColors: Record<string, string> = {
-  active: "bg-green-500/20 text-green-400",
-  inactive: "bg-yellow-500/20 text-yellow-400",
-  pending: "bg-blue-500/20 text-blue-400",
-  uninstalled: "bg-red-500/20 text-red-400",
+  active: "bg-green-500/20 text-green-600 dark:text-green-400",
+  inactive: "bg-yellow-500/20 text-yellow-600 dark:text-yellow-400",
+  pending: "bg-blue-500/20 text-blue-600 dark:text-blue-400",
+  uninstalled: "bg-red-500/20 text-red-600 dark:text-red-400",
 };
 
 export default function AdminDevicesPage() {
@@ -185,23 +185,23 @@ export default function AdminDevicesPage() {
 
   if (isLoading || !user) {
     return (
-      <div className="min-h-screen bg-surface-base flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#FAFAFA] dark:bg-neutral-950 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-neutral-900 dark:border-white border-t-transparent animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-surface-base">
+    <div className="min-h-screen bg-[#FAFAFA] dark:bg-neutral-950">
       <AdminSidebar activePage="devices" user={user} />
 
       <main className="lg:ml-52 pt-14 lg:pt-6">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 py-4 md:py-6">
-        <div className="flex items-center justify-between mb-5">
-          <div>
-            <h1 className="text-lg font-bold text-white mb-0.5">Devices & Downloads</h1>
-            <p className="text-gray-400">Monitor app downloads and installations</p>
-          </div>
+        {/* Editorial Page Header */}
+        <div className="border-b border-neutral-200 dark:border-neutral-800 pb-6 mb-8">
+          <p className="text-xs font-medium uppercase tracking-wider text-neutral-500 mb-2">Administration</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-neutral-900 dark:text-white mb-2 tracking-tight">Devices & Downloads</h1>
+          <p className="text-neutral-500 dark:text-neutral-400 text-lg">Monitor app downloads and installations</p>
         </div>
 
         {/* Stats Cards */}
@@ -210,63 +210,63 @@ export default function AdminDevicesPage() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-surface-card rounded-xl p-5 border border-white/5"
+              className="bg-white dark:bg-neutral-900 p-5 border border-neutral-200 dark:border-neutral-800"
             >
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                  <Download className="w-5 h-5 text-blue-400" />
+                <div className="w-10 h-10 bg-blue-500/20 flex items-center justify-center">
+                  <Download className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 </div>
-                <span className="text-gray-400 text-sm">Total Downloads</span>
+                <span className="text-neutral-500 dark:text-neutral-400 text-sm">Total Downloads</span>
               </div>
-              <p className="text-lg font-bold text-white">{stats.total_downloads.toLocaleString()}</p>
-              <p className="text-xs text-gray-500 mt-1">{stats.recent_downloads_30d} in last 30 days</p>
+              <p className="text-lg font-bold text-neutral-900 dark:text-white">{stats.total_downloads.toLocaleString()}</p>
+              <p className="text-xs text-neutral-500 mt-1">{stats.recent_downloads_30d} in last 30 days</p>
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="bg-surface-card rounded-xl p-5 border border-white/5"
+              className="bg-white dark:bg-neutral-900 p-5 border border-neutral-200 dark:border-neutral-800"
             >
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                  <Monitor className="w-5 h-5 text-purple-400" />
+                <div className="w-10 h-10 bg-purple-500/20 flex items-center justify-center">
+                  <Monitor className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                 </div>
-                <span className="text-gray-400 text-sm">Total Installations</span>
+                <span className="text-neutral-500 dark:text-neutral-400 text-sm">Total Installations</span>
               </div>
-              <p className="text-lg font-bold text-white">{stats.total_installations.toLocaleString()}</p>
+              <p className="text-lg font-bold text-neutral-900 dark:text-white">{stats.total_installations.toLocaleString()}</p>
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="bg-surface-card rounded-xl p-5 border border-white/5"
+              className="bg-white dark:bg-neutral-900 p-5 border border-neutral-200 dark:border-neutral-800"
             >
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
-                  <Activity className="w-5 h-5 text-green-400" />
+                <div className="w-10 h-10 bg-green-500/20 flex items-center justify-center">
+                  <Activity className="w-5 h-5 text-green-600 dark:text-green-400" />
                 </div>
-                <span className="text-gray-400 text-sm">Active Devices</span>
+                <span className="text-neutral-500 dark:text-neutral-400 text-sm">Active Devices</span>
               </div>
-              <p className="text-lg font-bold text-white">{stats.active_installations.toLocaleString()}</p>
-              <p className="text-xs text-gray-500 mt-1">Active in last 7 days</p>
+              <p className="text-lg font-bold text-neutral-900 dark:text-white">{stats.active_installations.toLocaleString()}</p>
+              <p className="text-xs text-neutral-500 mt-1">Active in last 7 days</p>
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="bg-surface-card rounded-xl p-5 border border-white/5"
+              className="bg-white dark:bg-neutral-900 p-5 border border-neutral-200 dark:border-neutral-800"
             >
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-lg bg-orange-500/20 flex items-center justify-center">
-                  <Chrome className="w-5 h-5 text-orange-400" />
+                <div className="w-10 h-10 bg-orange-500/20 flex items-center justify-center">
+                  <Chrome className="w-5 h-5 text-orange-600 dark:text-orange-400" />
                 </div>
-                <span className="text-gray-400 text-sm">Conversion Rate</span>
+                <span className="text-neutral-500 dark:text-neutral-400 text-sm">Conversion Rate</span>
               </div>
-              <p className="text-lg font-bold text-white">{stats.conversion_rate}%</p>
-              <p className="text-xs text-gray-500 mt-1">Downloads to installs</p>
+              <p className="text-lg font-bold text-neutral-900 dark:text-white">{stats.conversion_rate}%</p>
+              <p className="text-xs text-neutral-500 mt-1">Downloads to installs</p>
             </motion.div>
           </div>
         )}
@@ -275,10 +275,10 @@ export default function AdminDevicesPage() {
         <div className="flex gap-2 mb-6">
           <button
             onClick={() => handleTabChange("installations")}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+            className={`px-4 py-2 text-sm font-medium transition-all ${
               activeTab === "installations"
-                ? "bg-primary-500 text-white"
-                : "bg-surface-card text-gray-400 hover:text-white"
+                ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900"
+                : "bg-white dark:bg-neutral-900 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
             }`}
           >
             <Monitor className="w-4 h-4 inline mr-2" />
@@ -286,10 +286,10 @@ export default function AdminDevicesPage() {
           </button>
           <button
             onClick={() => handleTabChange("downloads")}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+            className={`px-4 py-2 text-sm font-medium transition-all ${
               activeTab === "downloads"
-                ? "bg-primary-500 text-white"
-                : "bg-surface-card text-gray-400 hover:text-white"
+                ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900"
+                : "bg-white dark:bg-neutral-900 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
             }`}
           >
             <Download className="w-4 h-4 inline mr-2" />
@@ -302,7 +302,7 @@ export default function AdminDevicesPage() {
           <select
             value={platformFilter}
             onChange={(e) => { setPlatformFilter(e.target.value); setPage(1); }}
-            className="bg-surface-card border border-white/10 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-primary-500"
+            className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 px-4 py-2 text-neutral-900 dark:text-white text-sm focus:outline-none focus:border-neutral-900 dark:focus:border-white"
           >
             <option value="">All Platforms</option>
             <option value="windows">Windows</option>
@@ -315,7 +315,7 @@ export default function AdminDevicesPage() {
             <select
               value={statusFilter}
               onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-              className="bg-surface-card border border-white/10 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-primary-500"
+              className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 px-4 py-2 text-neutral-900 dark:text-white text-sm focus:outline-none focus:border-neutral-900 dark:focus:border-white"
             >
               <option value="">All Statuses</option>
               <option value="active">Active</option>
@@ -327,84 +327,84 @@ export default function AdminDevicesPage() {
         </div>
 
         {error && (
-          <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-lg mb-6 text-sm">
+          <div className="bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 px-4 py-3 mb-6 text-sm">
             {error}
           </div>
         )}
 
-        <div className="bg-surface-card rounded-xl border border-white/5 overflow-hidden">
+        <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 overflow-hidden">
           {dataLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-6 h-6 text-gray-500 animate-spin" />
+              <Loader2 className="w-6 h-6 text-neutral-500 animate-spin" />
             </div>
           ) : activeTab === "installations" ? (
             installations.length === 0 ? (
               <div className="text-center py-12">
-                <Monitor className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-                <p className="text-gray-400">No installations found</p>
+                <Monitor className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
+                <p className="text-neutral-500 dark:text-neutral-400">No installations found</p>
               </div>
             ) : (
               <>
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-white/5">
-                      <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">Device</th>
-                      <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">User</th>
-                      <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">Platform</th>
-                      <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">Version</th>
-                      <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">Status</th>
-                      <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">Last Seen</th>
-                      <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">Actions</th>
+                    <tr className="border-b border-neutral-200 dark:border-neutral-800">
+                      <th className="text-left text-sm font-medium text-neutral-500 dark:text-neutral-400 px-4 py-3">Device</th>
+                      <th className="text-left text-sm font-medium text-neutral-500 dark:text-neutral-400 px-4 py-3">User</th>
+                      <th className="text-left text-sm font-medium text-neutral-500 dark:text-neutral-400 px-4 py-3">Platform</th>
+                      <th className="text-left text-sm font-medium text-neutral-500 dark:text-neutral-400 px-4 py-3">Version</th>
+                      <th className="text-left text-sm font-medium text-neutral-500 dark:text-neutral-400 px-4 py-3">Status</th>
+                      <th className="text-left text-sm font-medium text-neutral-500 dark:text-neutral-400 px-4 py-3">Last Seen</th>
+                      <th className="text-left text-sm font-medium text-neutral-500 dark:text-neutral-400 px-4 py-3">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {installations.map((item) => (
                       <motion.tr
                         key={item.id}
-                        className="border-b border-white/5 hover:bg-white/5 transition-colors"
+                        className="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                       >
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-lg bg-surface-base flex items-center justify-center">
-                              {platformIcons[item.platform] || <Monitor className="w-4 h-4 text-gray-400" />}
+                            <div className="w-10 h-10 bg-[#FAFAFA] dark:bg-neutral-800 flex items-center justify-center">
+                              {platformIcons[item.platform] || <Monitor className="w-4 h-4 text-neutral-500 dark:text-neutral-400" />}
                             </div>
                             <div>
-                              <p className="text-sm font-medium text-white">
+                              <p className="text-sm font-medium text-neutral-900 dark:text-white">
                                 {item.device_name || "Unknown Device"}
                               </p>
-                              <p className="text-xs text-gray-500">{item.device_id}</p>
+                              <p className="text-xs text-neutral-500">{item.device_id}</p>
                             </div>
                           </div>
                         </td>
                         <td className="px-4 py-3">
-                          <p className="text-sm text-white">{item.user_name || "—"}</p>
-                          <p className="text-xs text-gray-500">{item.user_email}</p>
+                          <p className="text-sm text-neutral-900 dark:text-white">{item.user_name || "—"}</p>
+                          <p className="text-xs text-neutral-500">{item.user_email}</p>
                         </td>
                         <td className="px-4 py-3">
-                          <span className="text-sm text-white capitalize">{item.platform}</span>
+                          <span className="text-sm text-neutral-900 dark:text-white capitalize">{item.platform}</span>
                           {item.os_version && (
-                            <p className="text-xs text-gray-500">{item.os_version}</p>
+                            <p className="text-xs text-neutral-500">{item.os_version}</p>
                           )}
                         </td>
                         <td className="px-4 py-3">
-                          <span className="text-sm text-white">{item.app_version}</span>
+                          <span className="text-sm text-neutral-900 dark:text-white">{item.app_version}</span>
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex flex-col gap-1">
-                            <span className={`text-xs font-medium px-2 py-1 rounded-full inline-block w-fit ${statusColors[item.status] || "bg-gray-500/20 text-gray-400"}`}>
+                            <span className={`text-xs font-medium px-2 py-1 inline-block w-fit ${statusColors[item.status] || "bg-gray-500/20 text-neutral-500 dark:text-neutral-400"}`}>
                               {item.status}
                             </span>
                             {item.is_blocked && (
-                              <span className="text-xs font-medium px-2 py-1 rounded-full bg-red-500/20 text-red-400 inline-block w-fit">
+                              <span className="text-xs font-medium px-2 py-1 bg-red-500/20 text-red-600 dark:text-red-400 inline-block w-fit">
                                 BLOCKED
                               </span>
                             )}
                           </div>
                         </td>
                         <td className="px-4 py-3">
-                          <span className="text-gray-400 text-sm">
+                          <span className="text-neutral-500 dark:text-neutral-400 text-sm">
                             {new Date(item.last_seen).toLocaleString()}
                           </span>
                         </td>
@@ -436,8 +436,8 @@ export default function AdminDevicesPage() {
                   </tbody>
                 </table>
 
-                <div className="flex items-center justify-between px-4 py-3 border-t border-white/5">
-                  <p className="text-sm text-gray-400">
+                <div className="flex items-center justify-between px-4 py-3 border-t border-neutral-200 dark:border-neutral-800">
+                  <p className="text-sm text-neutral-500 dark:text-neutral-400">
                     Showing {installations.length} of {total} installations
                   </p>
                   <div className="flex items-center gap-2">
@@ -450,7 +450,7 @@ export default function AdminDevicesPage() {
                       <ChevronLeft className="w-4 h-4" />
                       Previous
                     </Button>
-                    <span className="text-sm text-gray-400">
+                    <span className="text-sm text-neutral-500 dark:text-neutral-400">
                       Page {page} of {totalPages || 1}
                     </span>
                     <Button
@@ -468,56 +468,56 @@ export default function AdminDevicesPage() {
             )
           ) : downloads.length === 0 ? (
             <div className="text-center py-12">
-              <Download className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-              <p className="text-gray-400">No downloads found</p>
+              <Download className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
+              <p className="text-neutral-500 dark:text-neutral-400">No downloads found</p>
             </div>
           ) : (
             <>
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-white/5">
-                    <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">Platform</th>
-                    <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">User</th>
-                    <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">Version</th>
-                    <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">Source</th>
-                    <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">IP Address</th>
-                    <th className="text-left text-sm font-medium text-gray-400 px-4 py-3">Date</th>
+                  <tr className="border-b border-neutral-200 dark:border-neutral-800">
+                    <th className="text-left text-sm font-medium text-neutral-500 dark:text-neutral-400 px-4 py-3">Platform</th>
+                    <th className="text-left text-sm font-medium text-neutral-500 dark:text-neutral-400 px-4 py-3">User</th>
+                    <th className="text-left text-sm font-medium text-neutral-500 dark:text-neutral-400 px-4 py-3">Version</th>
+                    <th className="text-left text-sm font-medium text-neutral-500 dark:text-neutral-400 px-4 py-3">Source</th>
+                    <th className="text-left text-sm font-medium text-neutral-500 dark:text-neutral-400 px-4 py-3">IP Address</th>
+                    <th className="text-left text-sm font-medium text-neutral-500 dark:text-neutral-400 px-4 py-3">Date</th>
                   </tr>
                 </thead>
                 <tbody>
                   {downloads.map((item) => (
                     <motion.tr
                       key={item.id}
-                      className="border-b border-white/5 hover:bg-white/5 transition-colors"
+                      className="border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                     >
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-lg bg-surface-base flex items-center justify-center">
-                            {platformIcons[item.platform] || <Monitor className="w-4 h-4 text-gray-400" />}
+                          <div className="w-10 h-10 bg-[#FAFAFA] dark:bg-neutral-800 flex items-center justify-center">
+                            {platformIcons[item.platform] || <Monitor className="w-4 h-4 text-neutral-500 dark:text-neutral-400" />}
                           </div>
-                          <span className="text-sm text-white capitalize">{item.platform}</span>
+                          <span className="text-sm text-neutral-900 dark:text-white capitalize">{item.platform}</span>
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <span className="text-sm text-white">
-                          {item.user_email || <span className="text-gray-500">Anonymous</span>}
+                        <span className="text-sm text-neutral-900 dark:text-white">
+                          {item.user_email || <span className="text-neutral-500">Anonymous</span>}
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <span className="text-sm text-white">{item.app_version}</span>
+                        <span className="text-sm text-neutral-900 dark:text-white">{item.app_version}</span>
                       </td>
                       <td className="px-4 py-3">
-                        <span className="text-xs font-medium px-2 py-1 rounded-full bg-blue-500/20 text-blue-400 capitalize">
+                        <span className="text-xs font-medium px-2 py-1 bg-blue-500/20 text-blue-600 dark:text-blue-400 capitalize">
                           {item.source}
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <span className="text-gray-400 text-sm">{item.ip_address || "—"}</span>
+                        <span className="text-neutral-500 dark:text-neutral-400 text-sm">{item.ip_address || "—"}</span>
                       </td>
                       <td className="px-4 py-3">
-                        <span className="text-gray-400 text-sm">
+                        <span className="text-neutral-500 dark:text-neutral-400 text-sm">
                           {new Date(item.created_at).toLocaleString()}
                         </span>
                       </td>
@@ -526,8 +526,8 @@ export default function AdminDevicesPage() {
                 </tbody>
               </table>
 
-              <div className="flex items-center justify-between px-4 py-3 border-t border-white/5">
-                <p className="text-sm text-gray-400">
+              <div className="flex items-center justify-between px-4 py-3 border-t border-neutral-200 dark:border-neutral-800">
+                <p className="text-sm text-neutral-500 dark:text-neutral-400">
                   Showing {downloads.length} of {total} downloads
                 </p>
                 <div className="flex items-center gap-2">
@@ -540,7 +540,7 @@ export default function AdminDevicesPage() {
                     <ChevronLeft className="w-4 h-4" />
                     Previous
                   </Button>
-                  <span className="text-sm text-gray-400">
+                  <span className="text-sm text-neutral-500 dark:text-neutral-400">
                     Page {page} of {totalPages || 1}
                   </span>
                   <Button

@@ -1,114 +1,163 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Download, Monitor, Apple, Terminal } from "lucide-react";
-import Link from "next/link";
+import { ArrowDownRight, Monitor, Apple, Terminal } from "lucide-react";
 
 const platforms = [
   {
     name: "Windows",
     icon: Monitor,
-    version: "v2.5.1",
-    requirements: "Windows 10/11",
-    primary: true,
+    version: "0.1.0",
+    size: "3.2 MB",
+    requirements: "Windows 10+",
+    downloadUrl: "/downloads/windows/ParentShield_0.1.0_x64-setup.exe",
   },
   {
     name: "macOS",
     icon: Apple,
-    version: "v2.5.1",
+    version: "0.1.0",
+    size: "11.5 MB",
     requirements: "macOS 12+",
-    primary: false,
+    downloadUrl: "/downloads/macos/ParentShield_0.1.0_universal.dmg",
   },
   {
     name: "Linux",
     icon: Terminal,
-    version: "v2.5.1",
-    requirements: "Ubuntu 20.04+, Debian 11+",
-    primary: false,
+    version: "0.1.0",
+    size: "7.6 MB",
+    requirements: "Ubuntu 20.04+",
+    downloadUrl: "/downloads/linux/ParentShield_0.1.0_amd64.deb",
   },
 ];
 
 export function DownloadSection() {
   return (
-    <section id="download" className="py-16 bg-surface-raised relative">
-      <div className="max-w-7xl mx-auto px-6">
-        {/* Section Header */}
-        <motion.div
-          className="text-center max-w-2xl mx-auto mb-10"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          <span className="inline-flex items-center gap-2 bg-primary-500/10 border border-primary-500/20 text-primary-400 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-3">
-            Download
-          </span>
-          <h2 className="text-3xl md:text-4xl font-bold mb-3">
-            Get Started in <span className="text-gradient">Minutes</span>
-          </h2>
-          <p className="text-gray-400 text-sm">
-            Download ParentShield for your platform. Works on all major operating systems.
-          </p>
-        </motion.div>
+    <section id="download" className="py-32 bg-[#FAFAFA] dark:bg-neutral-900 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12">
+        {/* Editorial Header */}
+        <div className="grid lg:grid-cols-2 gap-16 mb-24">
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <p className="text-xs uppercase tracking-[0.4em] text-neutral-400 dark:text-neutral-500 mb-6">
+              Download
+            </p>
+            <h2 className="text-5xl md:text-7xl font-extralight text-neutral-900 dark:text-white leading-[0.9] tracking-tight">
+              Install.
+              <br />
+              <span className="italic font-light">Protect.</span>
+              <br />
+              <span className="text-neutral-300 dark:text-neutral-700">Done.</span>
+            </h2>
+          </motion.div>
 
-        {/* Download Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
-          {platforms.map((platform, index) => (
-            <motion.div
-              key={platform.name}
-              className="bg-surface-card rounded-xl p-5 border border-white/5 text-center hover:border-primary-500/20 transition-all duration-300"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              whileHover={{
-                y: -5,
-                boxShadow: "0 0 30px rgba(6, 182, 212, 0.12)",
-              }}
-            >
-              {/* Icon */}
-              <motion.div
-                className="w-14 h-14 mx-auto rounded-xl bg-surface-elevated flex items-center justify-center mb-4"
-                whileHover={{ rotate: -5, scale: 1.05 }}
-              >
-                <platform.icon className="w-7 h-7 text-gray-400" />
-              </motion.div>
-
-              {/* Platform Info */}
-              <h3 className="text-lg font-bold text-white mb-1">{platform.name}</h3>
-              <p className="text-gray-500 text-xs mb-0.5">{platform.version}</p>
-              <p className="text-gray-600 text-xs mb-4">{platform.requirements}</p>
-
-              {/* Download Button */}
-              <Link
-                href="/register"
-                className={`inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 w-full px-4 py-2 text-sm ${
-                  platform.primary
-                    ? "bg-linear-to-r from-primary-500 to-secondary-500 text-white shadow-md shadow-primary-500/20 hover:shadow-lg hover:shadow-primary-500/25"
-                    : "bg-surface-elevated text-gray-300 border border-white/10 hover:border-primary-500/30 hover:text-white"
-                }`}
-              >
-                <Download className="w-3.5 h-3.5" />
-                Get Started
-              </Link>
-            </motion.div>
-          ))}
+          <motion.div
+            className="flex items-end"
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            <div className="border-l border-neutral-200 dark:border-neutral-700 pl-8">
+              <p className="text-lg text-neutral-500 dark:text-neutral-400 font-light leading-relaxed mb-6">
+                Five minutes from download to complete protection.
+                No technical expertise. No complicated setup.
+              </p>
+              <p className="text-sm text-neutral-400 dark:text-neutral-500">
+                All builds are code-signed and verified.
+              </p>
+            </div>
+          </motion.div>
         </div>
 
-        {/* Additional Info */}
+        {/* Platform Cards - Magazine Layout */}
+        <div className="relative">
+          {/* Large background number */}
+          <div className="absolute -top-20 -right-20 text-[20rem] font-extralight text-neutral-100 dark:text-neutral-800 select-none pointer-events-none leading-none">
+            3
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-0 relative">
+            {platforms.map((platform, index) => (
+              <motion.div
+                key={platform.name}
+                className="group relative"
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.15, duration: 0.6 }}
+              >
+                {/* Card */}
+                <div className="border border-neutral-200 dark:border-neutral-800 p-10 md:p-14 h-full bg-[#FAFAFA] dark:bg-neutral-900 hover:bg-white dark:hover:bg-neutral-800 transition-colors duration-500">
+                  {/* Index */}
+                  <span className="text-xs text-neutral-300 dark:text-neutral-600 font-mono">
+                    0{index + 1}
+                  </span>
+
+                  {/* Icon */}
+                  <div className="my-8">
+                    <platform.icon
+                      className="w-10 h-10 text-neutral-900 dark:text-white stroke-1"
+                    />
+                  </div>
+
+                  {/* Platform Name */}
+                  <h3 className="text-3xl font-light text-neutral-900 dark:text-white mb-2 tracking-tight">
+                    {platform.name}
+                  </h3>
+
+                  {/* Details */}
+                  <div className="flex gap-4 text-xs text-neutral-400 dark:text-neutral-500 mb-10">
+                    <span>v{platform.version}</span>
+                    <span>·</span>
+                    <span>{platform.size}</span>
+                    <span>·</span>
+                    <span>{platform.requirements}</span>
+                  </div>
+
+                  {/* Download Link */}
+                  <a
+                    href={platform.downloadUrl}
+                    download
+                    className="inline-flex items-center gap-3 text-neutral-900 dark:text-white group/link"
+                  >
+                    <span className="text-sm font-medium tracking-wide uppercase">
+                      Download
+                    </span>
+                    <ArrowDownRight className="w-4 h-4 transition-transform group-hover/link:translate-x-1 group-hover/link:translate-y-1" />
+                  </a>
+                </div>
+
+                {/* Hover accent line */}
+                <div className="absolute bottom-0 left-0 w-0 h-px bg-neutral-900 dark:bg-white group-hover:w-full transition-all duration-500" />
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        {/* Bottom Stats */}
         <motion.div
-          className="text-center mt-8"
+          className="grid grid-cols-3 gap-8 mt-24 pt-12 border-t border-neutral-200 dark:border-neutral-800"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.5 }}
+          transition={{ delay: 0.4 }}
         >
-          <p className="text-gray-500 text-xs">
-            All downloads are digitally signed and verified. Need help installing?{" "}
-            <a href="/docs" className="text-primary-400 hover:underline">
-              View our installation guide
-            </a>
-          </p>
+          <div>
+            <p className="text-4xl font-extralight text-neutral-900 dark:text-white mb-1">50K+</p>
+            <p className="text-xs text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">Downloads</p>
+          </div>
+          <div>
+            <p className="text-4xl font-extralight text-neutral-900 dark:text-white mb-1">5 min</p>
+            <p className="text-xs text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">Setup time</p>
+          </div>
+          <div>
+            <p className="text-4xl font-extralight text-neutral-900 dark:text-white mb-1">99.9%</p>
+            <p className="text-xs text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">Uptime</p>
+          </div>
         </motion.div>
       </div>
     </section>

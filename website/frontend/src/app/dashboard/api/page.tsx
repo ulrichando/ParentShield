@@ -332,7 +332,7 @@ export default function APIPage() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-6 h-6 text-primary-500 animate-spin" />
+          <Loader2 className="w-6 h-6 text-neutral-900 dark:text-white animate-spin" />
         </div>
       </DashboardLayout>
     );
@@ -346,20 +346,18 @@ export default function APIPage() {
 
   return (
     <DashboardLayout>
-      {/* Page Header */}
+      {/* Editorial Page Header */}
       <motion.div
-        className="mb-6"
+        className="mb-8 pb-6 border-b border-neutral-200 dark:border-neutral-800"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="text-xl md:text-2xl font-bold text-white mb-2 flex items-center gap-3">
-          <div className="p-2 bg-primary-500/10 rounded-lg">
-            <Code className="w-6 h-6 text-primary-400" />
-          </div>
+        <p className="text-xs font-medium tracking-widest text-neutral-500 uppercase mb-2">Developer Tools</p>
+        <h1 className="text-2xl md:text-3xl font-bold text-neutral-900 dark:text-white mb-3">
           API & Integrations
         </h1>
-        <p className="text-gray-400">
+        <p className="text-neutral-500 dark:text-neutral-400 max-w-2xl">
           Connect ParentShield to your apps and services with API keys and webhooks.
         </p>
       </motion.div>
@@ -367,7 +365,7 @@ export default function APIPage() {
       {/* Alerts */}
       {error && (
         <motion.div
-          className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-6 flex items-center gap-3"
+          className="bg-red-500/10 border border-red-500/20 p-4 mb-6 flex items-center gap-3"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
@@ -378,7 +376,7 @@ export default function APIPage() {
 
       {success && (
         <motion.div
-          className="bg-green-500/10 border border-green-500/20 rounded-xl p-4 mb-6 flex items-center gap-3"
+          className="bg-green-500/10 border border-green-500/20 p-4 mb-6 flex items-center gap-3"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
@@ -388,22 +386,22 @@ export default function APIPage() {
       )}
 
       {/* Tabs */}
-      <div className="flex gap-2 mb-6 border-b border-white/10 pb-4 overflow-x-auto">
+      <div className="flex gap-2 mb-6 border-b border-neutral-200 dark:border-neutral-700 pb-4 overflow-x-auto">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all whitespace-nowrap ${
+            className={`flex items-center gap-2 px-4 py-2 font-medium text-sm transition-all whitespace-nowrap ${
               activeTab === tab.id
-                ? "bg-primary-500 text-white"
-                : "bg-surface-card text-gray-400 hover:text-white hover:bg-surface-elevated"
+                ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900"
+                : "bg-white dark:bg-neutral-900 text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800"
             }`}
           >
             <tab.icon className="w-4 h-4" />
             {tab.label}
             {tab.count !== undefined && (
-              <span className={`px-1.5 py-0.5 rounded text-xs ${
-                activeTab === tab.id ? "bg-white/20" : "bg-white/10"
+              <span className={`px-1.5 py-0.5 text-xs ${
+                activeTab === tab.id ? "bg-white/20 dark:bg-neutral-900/20" : "bg-neutral-100 dark:bg-neutral-800"
               }`}>
                 {tab.count}
               </span>
@@ -421,49 +419,49 @@ export default function APIPage() {
         >
           {/* Quick Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-surface-card rounded-xl border border-white/5 p-4">
+            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-primary-500/10 rounded-lg">
-                  <Key className="w-5 h-5 text-primary-400" />
+                <div className="p-2 bg-neutral-100 dark:bg-neutral-800">
+                  <Key className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-white">{apiKeys.filter(k => !k.is_revoked).length}</p>
-                  <p className="text-sm text-gray-500">Active Keys</p>
+                  <p className="text-2xl font-bold text-neutral-900 dark:text-white">{apiKeys.filter(k => !k.is_revoked).length}</p>
+                  <p className="text-sm text-neutral-500">Active Keys</p>
                 </div>
               </div>
             </div>
-            <div className="bg-surface-card rounded-xl border border-white/5 p-4">
+            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-green-500/10 rounded-lg">
+                <div className="p-2 bg-green-500/10">
                   <Shield className="w-5 h-5 text-green-400" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-white">1,000</p>
-                  <p className="text-sm text-gray-500">Requests/hour</p>
+                  <p className="text-2xl font-bold text-neutral-900 dark:text-white">1,000</p>
+                  <p className="text-sm text-neutral-500">Requests/hour</p>
                 </div>
               </div>
             </div>
-            <div className="bg-surface-card rounded-xl border border-white/5 p-4">
+            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-yellow-500/10 rounded-lg">
+                <div className="p-2 bg-yellow-500/10">
                   <Clock className="w-5 h-5 text-yellow-400" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-white">
+                  <p className="text-2xl font-bold text-neutral-900 dark:text-white">
                     {apiKeys.filter(k => k.expires_at && new Date(k.expires_at) < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)).length}
                   </p>
-                  <p className="text-sm text-gray-500">Expiring Soon</p>
+                  <p className="text-sm text-neutral-500">Expiring Soon</p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Create Key Card */}
-          <div className="bg-surface-card rounded-xl border border-white/5 p-6">
+          <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="text-lg font-semibold text-white">API Keys</h2>
-                <p className="text-sm text-gray-500">Manage your API keys for programmatic access</p>
+                <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">API Keys</h2>
+                <p className="text-sm text-neutral-500">Manage your API keys for programmatic access</p>
               </div>
               <Button
                 onClick={() => setShowCreateKeyForm(!showCreateKeyForm)}
@@ -477,15 +475,15 @@ export default function APIPage() {
             {/* Create Key Form */}
             {showCreateKeyForm && (
               <motion.div
-                className="bg-surface-elevated rounded-xl p-5 mb-6 border border-white/10"
+                className="bg-[#FAFAFA] dark:bg-neutral-800 p-5 mb-6 border border-neutral-200 dark:border-neutral-700"
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
               >
-                <h3 className="text-white font-medium mb-4">Create New API Key</h3>
+                <h3 className="text-neutral-900 dark:text-white font-medium mb-4">Create New API Key</h3>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                    <label className="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2">
                       Key Name *
                     </label>
                     <input
@@ -493,33 +491,33 @@ export default function APIPage() {
                       value={newKeyName}
                       onChange={(e) => setNewKeyName(e.target.value)}
                       placeholder="e.g., Production Server, Mobile App"
-                      className="w-full bg-surface-base border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
+                      className="w-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 px-4 py-2.5 text-neutral-900 dark:text-white focus:outline-none focus:border-neutral-900 dark:focus:border-white focus:ring-1 focus:ring-neutral-900 dark:focus:ring-white"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                    <label className="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2">
                       Permissions
                     </label>
                     <div className="grid grid-cols-2 gap-2">
                       {AVAILABLE_SCOPES.map((scope) => (
                         <label
                           key={scope.id}
-                          className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                          className={`flex items-start gap-3 p-3 border cursor-pointer transition-all ${
                             newKeyScopes.includes(scope.id)
-                              ? "bg-primary-500/10 border-primary-500/30"
-                              : "bg-surface-base border-white/10 hover:border-white/20"
+                              ? "bg-neutral-100 dark:bg-neutral-800 border-neutral-900 dark:border-white"
+                              : "bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600"
                           }`}
                         >
                           <input
                             type="checkbox"
                             checked={newKeyScopes.includes(scope.id)}
                             onChange={() => toggleScopeSelection(scope.id)}
-                            className="mt-0.5 rounded border-white/20 bg-surface-base text-primary-500 focus:ring-primary-500"
+                            className="mt-0.5 border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white focus:ring-neutral-900 dark:focus:ring-white"
                           />
                           <div>
-                            <div className="font-medium text-white text-sm">{scope.name}</div>
-                            <div className="text-xs text-gray-500">{scope.description}</div>
+                            <div className="font-medium text-neutral-900 dark:text-white text-sm">{scope.name}</div>
+                            <div className="text-xs text-neutral-500">{scope.description}</div>
                           </div>
                         </label>
                       ))}
@@ -527,7 +525,7 @@ export default function APIPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                    <label className="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2">
                       Expiration (Optional)
                     </label>
                     <input
@@ -535,9 +533,9 @@ export default function APIPage() {
                       value={newKeyExpiry}
                       onChange={(e) => setNewKeyExpiry(e.target.value)}
                       min={new Date().toISOString().split("T")[0]}
-                      className="w-full bg-surface-base border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary-500"
+                      className="w-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 px-4 py-2.5 text-neutral-900 dark:text-white focus:outline-none focus:border-neutral-900 dark:focus:border-white"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Leave empty for no expiration</p>
+                    <p className="text-xs text-neutral-500 mt-1">Leave empty for no expiration</p>
                   </div>
 
                   <div className="flex justify-end gap-3 pt-2">
@@ -570,7 +568,7 @@ export default function APIPage() {
             {/* Newly Created Key */}
             {newlyCreatedKey && (
               <motion.div
-                className="bg-green-500/10 border border-green-500/30 rounded-xl p-5 mb-6"
+                className="bg-green-500/10 border border-green-500/30 p-5 mb-6"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
               >
@@ -581,8 +579,8 @@ export default function APIPage() {
                     <p className="text-green-400/70 text-sm">Copy this key now. You won&apos;t be able to see it again.</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 bg-surface-base rounded-lg p-3">
-                  <code className="flex-1 text-sm text-white font-mono break-all">
+                <div className="flex items-center gap-2 bg-white dark:bg-neutral-900 p-3">
+                  <code className="flex-1 text-sm text-neutral-900 dark:text-white font-mono break-all">
                     {showKey ? newlyCreatedKey : "•".repeat(40)}
                   </code>
                   <Button
@@ -614,41 +612,41 @@ export default function APIPage() {
             {/* Keys List */}
             {isLoadingApiKeys ? (
               <div className="flex items-center justify-center py-12">
-                <Loader2 className="w-6 h-6 text-primary-500 animate-spin" />
+                <Loader2 className="w-6 h-6 text-neutral-900 dark:text-white animate-spin" />
               </div>
             ) : apiKeys.length === 0 ? (
-              <div className="text-center py-12 border-2 border-dashed border-white/10 rounded-xl">
-                <Key className="w-12 h-12 mx-auto mb-3 text-gray-600" />
-                <p className="text-gray-400 font-medium">No API keys yet</p>
-                <p className="text-gray-500 text-sm mt-1">Create your first API key to get started</p>
+              <div className="text-center py-12 border-2 border-dashed border-neutral-200 dark:border-neutral-700">
+                <Key className="w-12 h-12 mx-auto mb-3 text-neutral-400" />
+                <p className="text-neutral-500 dark:text-neutral-400 font-medium">No API keys yet</p>
+                <p className="text-neutral-500 text-sm mt-1">Create your first API key to get started</p>
               </div>
             ) : (
               <div className="space-y-3">
                 {apiKeys.map((key) => (
                   <div
                     key={key.id}
-                    className={`flex items-center justify-between p-4 rounded-xl border transition-all ${
+                    className={`flex items-center justify-between p-4 border transition-all ${
                       key.is_revoked
                         ? "bg-red-500/5 border-red-500/20 opacity-50"
-                        : "bg-surface-elevated border-white/10 hover:border-white/20"
+                        : "bg-[#FAFAFA] dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600"
                     }`}
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-1">
-                        <span className="font-semibold text-white">{key.name}</span>
+                        <span className="font-semibold text-neutral-900 dark:text-white">{key.name}</span>
                         {key.is_revoked && (
-                          <span className="text-xs px-2 py-0.5 bg-red-500/20 text-red-400 rounded-full font-medium">
+                          <span className="text-xs px-2 py-0.5 bg-red-500/20 text-red-400 font-medium">
                             Revoked
                           </span>
                         )}
                         {key.expires_at && new Date(key.expires_at) < new Date() && (
-                          <span className="text-xs px-2 py-0.5 bg-yellow-500/20 text-yellow-400 rounded-full font-medium">
+                          <span className="text-xs px-2 py-0.5 bg-yellow-500/20 text-yellow-400 font-medium">
                             Expired
                           </span>
                         )}
                       </div>
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500">
-                        <code className="font-mono text-gray-400">{key.key_prefix}...</code>
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-neutral-500">
+                        <code className="font-mono text-neutral-500 dark:text-neutral-400">{key.key_prefix}...</code>
                         <span>Created {new Date(key.created_at).toLocaleDateString()}</span>
                         {key.last_used_at && (
                           <span>Last used {new Date(key.last_used_at).toLocaleDateString()}</span>
@@ -663,7 +661,7 @@ export default function APIPage() {
                         {key.scopes.map((scope) => (
                           <span
                             key={scope}
-                            className="text-xs px-2 py-0.5 bg-primary-500/10 text-primary-400 rounded"
+                            className="text-xs px-2 py-0.5 bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400"
                           >
                             {scope}
                           </span>
@@ -710,11 +708,11 @@ export default function APIPage() {
           animate={{ opacity: 1, y: 0 }}
           className="space-y-6"
         >
-          <div className="bg-surface-card rounded-xl border border-white/5 p-6">
+          <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="text-lg font-semibold text-white">Webhooks</h2>
-                <p className="text-sm text-gray-500">Receive real-time notifications for events</p>
+                <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Webhooks</h2>
+                <p className="text-sm text-neutral-500">Receive real-time notifications for events</p>
               </div>
               <Button
                 onClick={() => setShowCreateWebhookForm(!showCreateWebhookForm)}
@@ -728,15 +726,15 @@ export default function APIPage() {
             {/* Create Webhook Form */}
             {showCreateWebhookForm && (
               <motion.div
-                className="bg-surface-elevated rounded-xl p-5 mb-6 border border-white/10"
+                className="bg-[#FAFAFA] dark:bg-neutral-800 p-5 mb-6 border border-neutral-200 dark:border-neutral-700"
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
               >
-                <h3 className="text-white font-medium mb-4">Create New Webhook</h3>
+                <h3 className="text-neutral-900 dark:text-white font-medium mb-4">Create New Webhook</h3>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                    <label className="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2">
                       Endpoint URL *
                     </label>
                     <input
@@ -744,12 +742,12 @@ export default function APIPage() {
                       value={newWebhookUrl}
                       onChange={(e) => setNewWebhookUrl(e.target.value)}
                       placeholder="https://your-server.com/webhook"
-                      className="w-full bg-surface-base border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary-500"
+                      className="w-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 px-4 py-2.5 text-neutral-900 dark:text-white focus:outline-none focus:border-neutral-900 dark:focus:border-white"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                    <label className="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2">
                       Description (Optional)
                     </label>
                     <input
@@ -757,33 +755,33 @@ export default function APIPage() {
                       value={newWebhookDescription}
                       onChange={(e) => setNewWebhookDescription(e.target.value)}
                       placeholder="e.g., Slack notifications, Custom integration"
-                      className="w-full bg-surface-base border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary-500"
+                      className="w-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 px-4 py-2.5 text-neutral-900 dark:text-white focus:outline-none focus:border-neutral-900 dark:focus:border-white"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                    <label className="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2">
                       Events to Subscribe *
                     </label>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                       {availableEvents.map((event) => (
                         <label
                           key={event.id}
-                          className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                          className={`flex items-start gap-3 p-3 border cursor-pointer transition-all ${
                             newWebhookEvents.includes(event.id)
-                              ? "bg-primary-500/10 border-primary-500/30"
-                              : "bg-surface-base border-white/10 hover:border-white/20"
+                              ? "bg-neutral-100 dark:bg-neutral-800 border-neutral-900 dark:border-white"
+                              : "bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600"
                           }`}
                         >
                           <input
                             type="checkbox"
                             checked={newWebhookEvents.includes(event.id)}
                             onChange={() => toggleEventSelection(event.id)}
-                            className="mt-0.5 rounded border-white/20 bg-surface-base text-primary-500 focus:ring-primary-500"
+                            className="mt-0.5 border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white focus:ring-neutral-900 dark:focus:ring-white"
                           />
                           <div>
-                            <div className="font-medium text-white text-sm">{event.name}</div>
-                            <div className="text-xs text-gray-500">{event.description}</div>
+                            <div className="font-medium text-neutral-900 dark:text-white text-sm">{event.name}</div>
+                            <div className="text-xs text-neutral-500">{event.description}</div>
                           </div>
                         </label>
                       ))}
@@ -820,7 +818,7 @@ export default function APIPage() {
             {/* Newly Created Webhook Secret */}
             {newlyCreatedWebhook && (
               <motion.div
-                className="bg-green-500/10 border border-green-500/30 rounded-xl p-5 mb-6"
+                className="bg-green-500/10 border border-green-500/30 p-5 mb-6"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
               >
@@ -831,8 +829,8 @@ export default function APIPage() {
                     <p className="text-green-400/70 text-sm">Copy this secret to verify webhook signatures.</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 bg-surface-base rounded-lg p-3">
-                  <code className="flex-1 text-sm text-white font-mono break-all">
+                <div className="flex items-center gap-2 bg-white dark:bg-neutral-900 p-3">
+                  <code className="flex-1 text-sm text-neutral-900 dark:text-white font-mono break-all">
                     {newlyCreatedWebhook.secret}
                   </code>
                   <Button
@@ -847,8 +845,8 @@ export default function APIPage() {
                     Copy
                   </Button>
                 </div>
-                <p className="text-gray-500 text-xs mt-2">
-                  Use this secret to verify the <code className="text-gray-400">X-Webhook-Signature</code> header.
+                <p className="text-neutral-500 text-xs mt-2">
+                  Use this secret to verify the <code className="text-neutral-500 dark:text-neutral-400">X-Webhook-Signature</code> header.
                 </p>
               </motion.div>
             )}
@@ -856,23 +854,23 @@ export default function APIPage() {
             {/* Webhooks List */}
             {isLoadingWebhooks ? (
               <div className="flex items-center justify-center py-12">
-                <Loader2 className="w-6 h-6 text-primary-500 animate-spin" />
+                <Loader2 className="w-6 h-6 text-neutral-900 dark:text-white animate-spin" />
               </div>
             ) : webhooks.length === 0 ? (
-              <div className="text-center py-12 border-2 border-dashed border-white/10 rounded-xl">
-                <Globe className="w-12 h-12 mx-auto mb-3 text-gray-600" />
-                <p className="text-gray-400 font-medium">No webhooks configured</p>
-                <p className="text-gray-500 text-sm mt-1">Add a webhook to receive real-time event notifications</p>
+              <div className="text-center py-12 border-2 border-dashed border-neutral-200 dark:border-neutral-700">
+                <Globe className="w-12 h-12 mx-auto mb-3 text-neutral-400" />
+                <p className="text-neutral-500 dark:text-neutral-400 font-medium">No webhooks configured</p>
+                <p className="text-neutral-500 text-sm mt-1">Add a webhook to receive real-time event notifications</p>
               </div>
             ) : (
               <div className="space-y-3">
                 {webhooks.map((webhook) => (
                   <div
                     key={webhook.id}
-                    className={`p-4 rounded-xl border transition-all ${
+                    className={`p-4 border transition-all ${
                       webhook.is_active
-                        ? "bg-surface-elevated border-white/10 hover:border-white/20"
-                        : "bg-surface-elevated/50 border-white/5 opacity-60"
+                        ? "bg-[#FAFAFA] dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600"
+                        : "bg-[#FAFAFA]/50 dark:bg-neutral-800/50 border-neutral-200 dark:border-neutral-800 opacity-60"
                     }`}
                   >
                     <div className="flex items-start justify-between gap-4">
@@ -881,18 +879,18 @@ export default function APIPage() {
                           {webhook.is_active ? (
                             <CheckCircle className="w-4 h-4 text-green-400 shrink-0" />
                           ) : (
-                            <XCircle className="w-4 h-4 text-gray-500 shrink-0" />
+                            <XCircle className="w-4 h-4 text-neutral-500 shrink-0" />
                           )}
-                          <span className="font-semibold text-white truncate">
+                          <span className="font-semibold text-neutral-900 dark:text-white truncate">
                             {webhook.description || "Webhook"}
                           </span>
                         </div>
-                        <p className="text-sm text-gray-500 truncate mb-2 font-mono">{webhook.url}</p>
+                        <p className="text-sm text-neutral-500 truncate mb-2 font-mono">{webhook.url}</p>
                         <div className="flex flex-wrap gap-1.5">
                           {webhook.events.map((event) => (
                             <span
                               key={event}
-                              className="text-xs px-2 py-0.5 bg-primary-500/10 text-primary-400 rounded"
+                              className="text-xs px-2 py-0.5 bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400"
                             >
                               {event}
                             </span>
@@ -915,13 +913,13 @@ export default function APIPage() {
                         </Button>
                         <button
                           onClick={() => toggleWebhook(webhook.id, webhook.is_active)}
-                          className="text-primary-400 hover:text-primary-300 transition-colors"
+                          className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
                           title={webhook.is_active ? "Disable webhook" : "Enable webhook"}
                         >
                           {webhook.is_active ? (
                             <ToggleRight className="w-7 h-7" />
                           ) : (
-                            <ToggleLeft className="w-7 h-7 text-gray-500" />
+                            <ToggleLeft className="w-7 h-7 text-neutral-500" />
                           )}
                         </button>
                         <Button
@@ -935,7 +933,7 @@ export default function APIPage() {
                         </Button>
                       </div>
                     </div>
-                    <div className="mt-3 pt-3 border-t border-white/5 text-xs text-gray-600">
+                    <div className="mt-3 pt-3 border-t border-neutral-200 dark:border-neutral-800 text-xs text-neutral-500">
                       Created {new Date(webhook.created_at).toLocaleDateString()}
                     </div>
                   </div>
@@ -954,20 +952,20 @@ export default function APIPage() {
           className="space-y-6"
         >
           {/* Getting Started */}
-          <div className="bg-surface-card rounded-xl border border-white/5 p-6">
-            <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-              <Terminal className="w-5 h-5 text-primary-400" />
+          <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-6">
+            <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4 flex items-center gap-2">
+              <Terminal className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
               Getting Started
             </h2>
 
             <div className="space-y-4">
               <div>
-                <h3 className="text-white font-medium mb-2">Authentication</h3>
-                <p className="text-gray-400 text-sm mb-3">
-                  Include your API key in the <code className="bg-surface-elevated px-1.5 py-0.5 rounded text-xs text-primary-400">X-API-Key</code> header with every request.
+                <h3 className="text-neutral-900 dark:text-white font-medium mb-2">Authentication</h3>
+                <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-3">
+                  Include your API key in the <code className="bg-[#FAFAFA] dark:bg-neutral-800 px-1.5 py-0.5 text-xs text-neutral-600 dark:text-neutral-400">X-API-Key</code> header with every request.
                 </p>
-                <div className="bg-surface-elevated rounded-lg p-4 font-mono text-sm overflow-x-auto">
-                  <pre className="text-gray-300">
+                <div className="bg-[#FAFAFA] dark:bg-neutral-800 p-4 font-mono text-sm overflow-x-auto">
+                  <pre className="text-neutral-700 dark:text-neutral-300">
 {`curl -X GET "https://api.parentshield.com/api/v1/devices" \\
   -H "X-API-Key: your_api_key_here"`}
                   </pre>
@@ -975,9 +973,9 @@ export default function APIPage() {
               </div>
 
               <div>
-                <h3 className="text-white font-medium mb-2">Base URL</h3>
-                <div className="flex items-center gap-2 bg-surface-elevated rounded-lg p-3">
-                  <code className="text-primary-400 font-mono text-sm">https://api.parentshield.com/api/v1</code>
+                <h3 className="text-neutral-900 dark:text-white font-medium mb-2">Base URL</h3>
+                <div className="flex items-center gap-2 bg-[#FAFAFA] dark:bg-neutral-800 p-3">
+                  <code className="text-neutral-600 dark:text-neutral-400 font-mono text-sm">https://api.parentshield.com/api/v1</code>
                   <Button
                     size="sm"
                     variant="ghost"
@@ -991,8 +989,8 @@ export default function APIPage() {
           </div>
 
           {/* Endpoints */}
-          <div className="bg-surface-card rounded-xl border border-white/5 p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">Available Endpoints</h2>
+          <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-6">
+            <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">Available Endpoints</h2>
 
             <div className="space-y-3">
               {[
@@ -1006,8 +1004,8 @@ export default function APIPage() {
                 { method: "GET", path: "/web-filters", description: "List web filters" },
                 { method: "POST", path: "/web-filters", description: "Add web filter" },
               ].map((endpoint, i) => (
-                <div key={i} className="flex items-center gap-3 p-3 bg-surface-elevated rounded-lg">
-                  <span className={`px-2 py-0.5 rounded text-xs font-bold ${
+                <div key={i} className="flex items-center gap-3 p-3 bg-[#FAFAFA] dark:bg-neutral-800">
+                  <span className={`px-2 py-0.5 text-xs font-bold ${
                     endpoint.method === "GET" ? "bg-green-500/20 text-green-400" :
                     endpoint.method === "POST" ? "bg-blue-500/20 text-blue-400" :
                     endpoint.method === "PUT" ? "bg-yellow-500/20 text-yellow-400" :
@@ -1015,28 +1013,28 @@ export default function APIPage() {
                   }`}>
                     {endpoint.method}
                   </span>
-                  <code className="text-white font-mono text-sm">{endpoint.path}</code>
-                  <span className="text-gray-500 text-sm ml-auto hidden md:block">{endpoint.description}</span>
+                  <code className="text-neutral-900 dark:text-white font-mono text-sm">{endpoint.path}</code>
+                  <span className="text-neutral-500 text-sm ml-auto hidden md:block">{endpoint.description}</span>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Webhook Security */}
-          <div className="bg-surface-card rounded-xl border border-white/5 p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">Webhook Security</h2>
+          <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-6">
+            <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">Webhook Security</h2>
 
-            <p className="text-gray-400 text-sm mb-4">
-              All webhooks include a signature in the <code className="bg-surface-elevated px-1.5 py-0.5 rounded text-xs text-primary-400">X-Webhook-Signature</code> header for verification.
+            <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-4">
+              All webhooks include a signature in the <code className="bg-[#FAFAFA] dark:bg-neutral-800 px-1.5 py-0.5 text-xs text-neutral-600 dark:text-neutral-400">X-Webhook-Signature</code> header for verification.
             </p>
 
-            <div className="bg-surface-elevated rounded-lg p-4">
+            <div className="bg-[#FAFAFA] dark:bg-neutral-800 p-4">
               <div className="flex items-center gap-3 mb-3">
-                <Shield className="w-5 h-5 text-primary-400" />
-                <span className="text-white font-medium">HMAC-SHA256 Signed</span>
+                <Shield className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
+                <span className="text-neutral-900 dark:text-white font-medium">HMAC-SHA256 Signed</span>
               </div>
-              <ul className="text-gray-400 text-sm space-y-2">
-                <li>• Signature format: <code className="text-gray-300">sha256=&#123;hash&#125;</code></li>
+              <ul className="text-neutral-500 dark:text-neutral-400 text-sm space-y-2">
+                <li>• Signature format: <code className="text-neutral-700 dark:text-neutral-300">sha256=&#123;hash&#125;</code></li>
                 <li>• Use your webhook secret to verify signatures</li>
                 <li>• Always verify before processing webhook data</li>
               </ul>
@@ -1044,30 +1042,30 @@ export default function APIPage() {
           </div>
 
           {/* Rate Limits */}
-          <div className="bg-surface-card rounded-xl border border-white/5 p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">Rate Limits</h2>
+          <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-6">
+            <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">Rate Limits</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-surface-elevated rounded-lg p-4">
-                <p className="text-2xl font-bold text-white">1,000</p>
-                <p className="text-gray-500 text-sm">Requests per hour</p>
+              <div className="bg-[#FAFAFA] dark:bg-neutral-800 p-4">
+                <p className="text-2xl font-bold text-neutral-900 dark:text-white">1,000</p>
+                <p className="text-neutral-500 text-sm">Requests per hour</p>
               </div>
-              <div className="bg-surface-elevated rounded-lg p-4">
-                <p className="text-2xl font-bold text-white">100</p>
-                <p className="text-gray-500 text-sm">Requests per minute</p>
+              <div className="bg-[#FAFAFA] dark:bg-neutral-800 p-4">
+                <p className="text-2xl font-bold text-neutral-900 dark:text-white">100</p>
+                <p className="text-neutral-500 text-sm">Requests per minute</p>
               </div>
             </div>
 
-            <p className="text-gray-500 text-sm mt-4">
-              Rate limit headers are included in every response: <code className="text-gray-400">X-RateLimit-Remaining</code>, <code className="text-gray-400">X-RateLimit-Reset</code>
+            <p className="text-neutral-500 text-sm mt-4">
+              Rate limit headers are included in every response: <code className="text-neutral-500 dark:text-neutral-400">X-RateLimit-Remaining</code>, <code className="text-neutral-500 dark:text-neutral-400">X-RateLimit-Reset</code>
             </p>
           </div>
 
           {/* Full Docs Link */}
-          <div className="bg-linear-to-r from-primary-500/10 to-primary-600/10 rounded-xl border border-primary-500/20 p-6 text-center">
-            <BookOpen className="w-10 h-10 text-primary-400 mx-auto mb-3" />
-            <h3 className="text-white font-semibold mb-2">Need More Help?</h3>
-            <p className="text-gray-400 text-sm mb-4">
+          <div className="bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 p-6 text-center">
+            <BookOpen className="w-10 h-10 text-neutral-600 dark:text-neutral-400 mx-auto mb-3" />
+            <h3 className="text-neutral-900 dark:text-white font-semibold mb-2">Need More Help?</h3>
+            <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-4">
               Check out our public API documentation for more examples and use cases.
             </p>
             <a href="/api-docs" target="_blank" rel="noopener noreferrer">

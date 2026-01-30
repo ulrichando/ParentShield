@@ -73,7 +73,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
       {/* Header - Fluent 2 Custom Title Bar */}
       <TitleBar>
         <div className="flex items-center px-3 gap-2 h-full">
-          <div className="w-5 h-5 bg-gradient-primary rounded flex items-center justify-center">
+          <div className="w-5 h-5 bg-gradient-primary flex items-center justify-center">
             <Shield className="h-3 w-3 text-white" />
           </div>
           <span className="text-xs font-semibold">ParentShield</span>
@@ -94,7 +94,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
           )}
         </div>
         <div className="flex-1" />
-        <Button variant="ghost" size="sm" onClick={logout} className="h-7 text-xs text-muted-foreground hover:text-foreground hover:bg-foreground/10 rounded px-2 mr-1">
+        <Button variant="ghost" size="sm" onClick={logout} className="h-7 text-xs text-muted-foreground hover:text-foreground hover:bg-foreground/10 px-2 mr-1">
           <LogOut className="h-3.5 w-3.5 mr-1.5" />
           Lock
         </Button>
@@ -104,7 +104,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
         <div className="max-w-5xl mx-auto px-4 py-6 space-y-4">
         {/* Trial Banner */}
         {subscriptionStatus === "trialing" && daysRemaining !== null && (
-          <Alert className="border-primary/30 bg-primary/5 rounded-lg">
+          <Alert className="border-primary/30 bg-primary/5">
             <Clock className="h-4 w-4 text-primary" />
             <AlertTitle className="text-primary text-sm font-semibold">Free Trial</AlertTitle>
             <AlertDescription className="text-primary/80 text-xs">
@@ -117,7 +117,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
 
         {/* Plan Badge */}
         {plan && plan !== "none" && plan !== "Free Trial" && (
-          <Alert className="border-success/30 bg-success/5 rounded-lg">
+          <Alert className="border-success/30 bg-success/5">
             <Sparkles className="h-4 w-4 text-success" />
             <AlertTitle className="text-success text-sm font-semibold">{plan} Plan</AlertTitle>
             <AlertDescription className="text-success/80 text-xs">
@@ -128,12 +128,12 @@ export function Dashboard({ onNavigate }: DashboardProps) {
 
         {/* Error Alert */}
         {error && (
-          <Alert variant="destructive" className="rounded-lg">
+          <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle className="text-sm font-semibold">Error</AlertTitle>
             <AlertDescription className="flex items-center justify-between text-xs">
               <span>{error}</span>
-              <Button variant="ghost" size="sm" onClick={clearError} className="h-5 px-1.5 rounded">
+              <Button variant="ghost" size="sm" onClick={clearError} className="h-5 px-1.5">
                 <X className="h-3 w-3" />
               </Button>
             </AlertDescription>
@@ -141,14 +141,14 @@ export function Dashboard({ onNavigate }: DashboardProps) {
         )}
 
         {/* Status Card - Main Protection Status */}
-        <Card className={`overflow-hidden rounded-lg ${
+        <Card className={`overflow-hidden ${
           isProtectionActive
             ? "border-success/50 bg-success/5"
             : "border-warning/50 bg-warning/5"
         }`}>
           <CardContent className="py-4 px-4">
             <div className="flex items-center gap-3">
-              <div className={`flex h-12 w-12 items-center justify-center rounded-lg ${
+              <div className={`flex h-12 w-12 items-center justify-center ${
                 isProtectionActive
                   ? "bg-success/20"
                   : "bg-warning/20"
@@ -174,7 +174,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
                 </p>
               </div>
               {firewallBlockingActive && (
-                <Badge className="bg-success/20 text-success border-success/30 rounded">
+                <Badge className="bg-success/20 text-success border-success/30">
                   <Flame className="h-3 w-3 mr-1" />
                   Firewall
                 </Badge>
@@ -187,7 +187,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
         <div className="grid gap-2 md:grid-cols-2">
           {/* Daemon Status */}
           {daemonStatus?.installed && daemonStatus?.running && (
-            <Alert className="border-secondary/30 bg-secondary/5 rounded-lg">
+            <Alert className="border-secondary/30 bg-secondary/5">
               <Server className="h-4 w-4 text-secondary" />
               <AlertTitle className="text-secondary text-sm font-semibold">Background Service</AlertTitle>
               <AlertDescription className="text-secondary/80 text-xs">
@@ -197,7 +197,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
           )}
 
           {daemonStatus && !daemonStatus.installed && (
-            <Alert className="border-warning/30 bg-warning/5 rounded-lg">
+            <Alert className="border-warning/30 bg-warning/5">
               <AlertTriangle className="h-4 w-4 text-warning" />
               <AlertTitle className="text-warning text-sm font-semibold">Service Not Installed</AlertTitle>
               <AlertDescription className="text-warning/80 text-xs">
@@ -208,7 +208,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
 
           {/* Firewall Status */}
           {firewallBlockingActive && (
-            <Alert className="border-success/30 bg-success/5 rounded-lg">
+            <Alert className="border-success/30 bg-success/5">
               <CheckCircle2 className="h-4 w-4 text-success" />
               <AlertTitle className="text-success text-sm font-semibold">Firewall Active</AlertTitle>
               <AlertDescription className="text-success/80 text-xs flex items-center justify-between">
@@ -218,7 +218,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
                   variant="ghost"
                   onClick={disableFirewallBlocking}
                   disabled={isLoading}
-                  className="h-5 text-xs rounded"
+                  className="h-5 text-xs"
                 >
                   Disable
                 </Button>
@@ -229,7 +229,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
 
         {/* Bypass Warning */}
         {isProtectionActive && !firewallBlockingActive && (
-          <Alert variant="destructive" className="border-destructive/50 rounded-lg">
+          <Alert variant="destructive" className="border-destructive/50">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle className="text-sm font-semibold">Blocking Can Be Bypassed</AlertTitle>
             <AlertDescription className="space-y-2">
@@ -241,7 +241,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
                   size="sm"
                   onClick={enableFirewallBlocking}
                   disabled={isLoading}
-                  className="bg-destructive hover:bg-destructive/90 rounded-md text-xs h-7"
+                  className="bg-destructive hover:bg-destructive/90 text-xs h-7"
                 >
                   <Flame className="h-3 w-3 mr-1.5" />
                   Enable Firewall
@@ -251,7 +251,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
                   variant="outline"
                   onClick={disableBrowserDoh}
                   disabled={isLoading}
-                  className="rounded-md text-xs h-7"
+                  className="text-xs h-7"
                 >
                   Disable Browser DoH
                 </Button>
@@ -262,7 +262,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
 
         {/* DoH disabled confirmation */}
         {dohDisabled && dohConfiguredBrowsers.length > 0 && !firewallBlockingActive && (
-          <Alert className="border-success/30 bg-success/5 rounded-lg">
+          <Alert className="border-success/30 bg-success/5">
             <Shield className="h-4 w-4 text-success" />
             <AlertTitle className="text-success text-sm font-semibold">Browser DoH Disabled</AlertTitle>
             <AlertDescription className="text-success/80 text-xs">
@@ -277,14 +277,14 @@ export function Dashboard({ onNavigate }: DashboardProps) {
             <CardContent className="py-3 px-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-md bg-secondary/10 flex items-center justify-center">
+                  <div className="w-9 h-9 bg-secondary/10 flex items-center justify-center">
                     <Gamepad2 className="h-4 w-4 text-secondary" />
                   </div>
                   <div>
                     <p className="text-sm font-medium flex items-center gap-2">
                       Game Blocking
                       {!features.gameBlocking && (
-                        <Badge variant="outline" className="text-caption-2 px-1 py-0 rounded">Pro</Badge>
+                        <Badge variant="outline" className="text-caption-2 px-1 py-0">Pro</Badge>
                       )}
                     </p>
                     <p className="text-xs text-muted-foreground">200+ gaming sites</p>
@@ -303,7 +303,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
             <CardContent className="py-3 px-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-md bg-primary/10 flex items-center justify-center">
+                  <div className="w-9 h-9 bg-primary/10 flex items-center justify-center">
                     <Bot className="h-4 w-4 text-primary" />
                   </div>
                   <div>
@@ -324,7 +324,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
             <CardContent className="py-3 px-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-md bg-success/10 flex items-center justify-center">
+                  <div className="w-9 h-9 bg-success/10 flex items-center justify-center">
                     <Globe className="h-4 w-4 text-success" />
                   </div>
                   <div>
@@ -344,7 +344,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
 
         {/* Recent Activity */}
         {recentlyBlocked.length > 0 && (
-          <Card className="rounded-lg">
+          <Card>
             <CardHeader className="pb-2 pt-3 px-4">
               <CardTitle className="text-sm font-semibold">Recently Blocked</CardTitle>
               <CardDescription className="text-xs">Processes that were terminated</CardDescription>
@@ -352,7 +352,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
             <CardContent className="px-4 pb-3">
               <div className="flex flex-wrap gap-1.5">
                 {recentlyBlocked.map((process) => (
-                  <Badge key={process.pid} variant="secondary" className="bg-destructive/10 text-destructive border-destructive/20 rounded text-xs">
+                  <Badge key={process.pid} variant="secondary" className="bg-destructive/10 text-destructive border-destructive/20 text-xs">
                     {process.name}
                   </Badge>
                 ))}
@@ -369,7 +369,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
           >
             <CardContent className="py-3 px-4">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-md bg-primary/10 flex items-center justify-center">
+                <div className="w-9 h-9 bg-primary/10 flex items-center justify-center">
                   <Activity className="h-4 w-4 text-primary" />
                 </div>
                 <div>
@@ -386,7 +386,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
           >
             <CardContent className="py-3 px-4">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-md bg-warning/10 flex items-center justify-center">
+                <div className="w-9 h-9 bg-warning/10 flex items-center justify-center">
                   <Bell className="h-4 w-4 text-warning" />
                 </div>
                 <div>
@@ -403,7 +403,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
           >
             <CardContent className="py-3 px-4">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-md bg-accent/10 flex items-center justify-center">
+                <div className="w-9 h-9 bg-accent/10 flex items-center justify-center">
                   <Calendar className="h-4 w-4 text-accent" />
                 </div>
                 <div>
@@ -420,7 +420,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
           >
             <CardContent className="py-3 px-4">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-md bg-destructive/10 flex items-center justify-center">
+                <div className="w-9 h-9 bg-destructive/10 flex items-center justify-center">
                   <List className="h-4 w-4 text-destructive" />
                 </div>
                 <div>
@@ -437,7 +437,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
           >
             <CardContent className="py-3 px-4">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-md bg-muted flex items-center justify-center">
+                <div className="w-9 h-9 bg-muted flex items-center justify-center">
                   <Settings className="h-4 w-4 text-muted-foreground" />
                 </div>
                 <div>

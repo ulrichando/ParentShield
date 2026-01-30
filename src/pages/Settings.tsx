@@ -205,7 +205,7 @@ export function Settings({ onBack }: SettingsPageProps) {
       <main className="flex-1 overflow-y-auto scrollable-content">
         <div className="max-w-5xl mx-auto px-4 py-4 space-y-3">
         {/* Password Section */}
-        <Card className="fluent-card">
+        <Card className="rounded-none border border-border bg-background">
           <CardHeader className="pb-2 pt-4 px-4">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <Key className="h-4 w-4 text-primary" />
@@ -281,7 +281,7 @@ export function Settings({ onBack }: SettingsPageProps) {
         </Card>
 
         {/* Website Account Section */}
-        <Card className="fluent-card">
+        <Card className="rounded-none border border-border bg-background">
           <CardHeader className="pb-2 pt-4 px-4">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <Globe className="h-4 w-4 text-primary" />
@@ -305,7 +305,7 @@ export function Settings({ onBack }: SettingsPageProps) {
                 </div>
 
                 {/* Subscription Info */}
-                <div className="rounded-lg border border-border bg-muted/50 p-4 space-y-2">
+                <div className="border border-border bg-muted/50 p-4 space-y-2">
                   <div className="flex items-center gap-2">
                     <CreditCard className="h-4 w-4 text-primary" />
                     <span className="text-sm font-medium">Subscription</span>
@@ -337,7 +337,7 @@ export function Settings({ onBack }: SettingsPageProps) {
 
                 {/* Account Password Change Form */}
                 {showAccountPasswordChange ? (
-                  <div className="rounded-lg border border-border bg-muted/50 p-4 space-y-4">
+                  <div className="border border-border bg-muted/50 p-4 space-y-4">
                     <div className="flex items-center gap-2">
                       <Key className="h-4 w-4 text-primary" />
                       <span className="text-sm font-medium">Change Account Password</span>
@@ -474,7 +474,7 @@ export function Settings({ onBack }: SettingsPageProps) {
         </Card>
 
         {/* Master Password Section */}
-        <Card className="fluent-card">
+        <Card className="rounded-none border border-border bg-background">
           <CardHeader className="pb-2 pt-4 px-4">
             <CardTitle className="text-sm font-semibold">Recovery Password</CardTitle>
             <CardDescription className="text-xs">
@@ -488,7 +488,7 @@ export function Settings({ onBack }: SettingsPageProps) {
               </Button>
             ) : masterPassword ? (
               <div className="space-y-4">
-                <div className="rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-4">
+                <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-4">
                   <p className="text-xs text-amber-700 dark:text-amber-400 mb-2">
                     Master Recovery Password
                   </p>
@@ -542,7 +542,7 @@ export function Settings({ onBack }: SettingsPageProps) {
         </Card>
 
         {/* Daemon/Service Section */}
-        <Card className="fluent-card">
+        <Card className="rounded-none border border-border bg-background">
           <CardHeader className="pb-2 pt-4 px-4">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <Server className="h-4 w-4 text-secondary" />
@@ -618,7 +618,7 @@ export function Settings({ onBack }: SettingsPageProps) {
         </Card>
 
         {/* Appearance Section */}
-        <Card className="fluent-card">
+        <Card className="rounded-none border border-border bg-background">
           <CardHeader className="pb-2 pt-4 px-4">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <Sun className="h-4 w-4 text-primary" />
@@ -662,7 +662,7 @@ export function Settings({ onBack }: SettingsPageProps) {
         </Card>
 
         {/* About Section */}
-        <Card className="fluent-card">
+        <Card className="rounded-none border border-border bg-background">
           <CardHeader className="pb-2 pt-4 px-4">
             <CardTitle className="text-sm font-semibold">About</CardTitle>
           </CardHeader>

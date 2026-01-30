@@ -86,7 +86,7 @@ export function Schedule({ onBack }: SchedulePageProps) {
       {/* Header - Fluent 2 Custom Title Bar */}
       <TitleBar>
         <div className="flex items-center px-2 gap-1 h-full">
-          <Button variant="ghost" size="icon" onClick={onBack} className="h-6 w-6 rounded hover:bg-foreground/10">
+          <Button variant="ghost" size="icon" onClick={onBack} className="h-6 w-6 rounded-none hover:bg-foreground/10">
             <ArrowLeft className="h-3.5 w-3.5" />
           </Button>
           <span className="text-xs font-semibold">Schedule</span>
@@ -107,7 +107,7 @@ export function Schedule({ onBack }: SchedulePageProps) {
               size="sm"
               onClick={() => addPresetSchedule("school")}
               disabled={isLoading}
-              className="rounded-md text-xs h-7"
+              className="rounded-none text-xs h-7"
             >
               <Clock className="h-3 w-3 mr-1.5 text-primary" />
               School Hours
@@ -117,7 +117,7 @@ export function Schedule({ onBack }: SchedulePageProps) {
               size="sm"
               onClick={() => addPresetSchedule("bedtime")}
               disabled={isLoading}
-              className="rounded-md text-xs h-7"
+              className="rounded-none text-xs h-7"
             >
               <Clock className="h-3 w-3 mr-1.5 text-primary" />
               Bedtime
@@ -127,7 +127,7 @@ export function Schedule({ onBack }: SchedulePageProps) {
               size="sm"
               onClick={() => addPresetSchedule("weekend")}
               disabled={isLoading}
-              className="rounded-md text-xs h-7"
+              className="rounded-none text-xs h-7"
             >
               <Clock className="h-3 w-3 mr-1.5 text-primary" />
               Weekend Gaming
@@ -144,7 +144,7 @@ export function Schedule({ onBack }: SchedulePageProps) {
                   <div className="space-y-1.5">
                     <div className="flex items-center gap-2">
                       <h3 className="text-sm font-medium text-foreground">{schedule.name}</h3>
-                      <Badge variant={schedule.blocking_enabled ? "default" : "secondary"} className="text-xs rounded">
+                      <Badge variant={schedule.blocking_enabled ? "default" : "secondary"} className="text-xs rounded-none">
                         {schedule.blocking_enabled ? "Blocking ON" : "Blocking OFF"}
                       </Badge>
                     </div>
@@ -152,7 +152,7 @@ export function Schedule({ onBack }: SchedulePageProps) {
                       {DAYS.map((day, i) => (
                         <span
                           key={day}
-                          className={`text-xs px-1.5 py-0.5 rounded ${
+                          className={`text-xs px-1.5 py-0.5 rounded-none ${
                             schedule.days.includes(i)
                               ? "bg-primary/20 text-primary"
                               : "bg-muted text-muted-foreground"
@@ -177,7 +177,7 @@ export function Schedule({ onBack }: SchedulePageProps) {
                       variant="ghost"
                       size="icon"
                       onClick={() => deleteSchedule(schedule.id)}
-                      className="h-7 w-7 rounded-md"
+                      className="h-7 w-7 rounded-none"
                     >
                       <Trash2 className="h-3.5 w-3.5 text-red-500" />
                     </Button>
@@ -211,7 +211,7 @@ export function Schedule({ onBack }: SchedulePageProps) {
                     setNewSchedule({ ...newSchedule, name: e.target.value })
                   }
                   placeholder="e.g., After School"
-                  className="h-8 text-sm rounded-md"
+                  className="h-8 text-sm rounded-none"
                 />
               </div>
 
@@ -222,7 +222,7 @@ export function Schedule({ onBack }: SchedulePageProps) {
                     <button
                       key={day}
                       onClick={() => toggleDay(i)}
-                      className={`px-2 py-1 rounded-md text-xs font-medium transition-colors ${
+                      className={`px-2 py-1 rounded-none text-xs font-medium transition-colors ${
                         newSchedule.days.includes(i)
                           ? "bg-primary text-primary-foreground"
                           : "bg-muted hover:bg-muted/80 text-muted-foreground"
@@ -243,7 +243,7 @@ export function Schedule({ onBack }: SchedulePageProps) {
                     onChange={(e) =>
                       setNewSchedule({ ...newSchedule, startTime: e.target.value })
                     }
-                    className="h-8 text-sm rounded-md"
+                    className="h-8 text-sm rounded-none"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -254,7 +254,7 @@ export function Schedule({ onBack }: SchedulePageProps) {
                     onChange={(e) =>
                       setNewSchedule({ ...newSchedule, endTime: e.target.value })
                     }
-                    className="h-8 text-sm rounded-md"
+                    className="h-8 text-sm rounded-none"
                   />
                 </div>
               </div>
@@ -270,17 +270,17 @@ export function Schedule({ onBack }: SchedulePageProps) {
               </div>
 
               <div className="flex gap-2">
-                <Button onClick={handleAddSchedule} disabled={isLoading} size="sm" className="rounded-md text-xs h-7">
+                <Button onClick={handleAddSchedule} disabled={isLoading} size="sm" className="rounded-none text-xs h-7">
                   Add Schedule
                 </Button>
-                <Button variant="outline" onClick={() => setShowAddForm(false)} size="sm" className="rounded-md text-xs h-7">
+                <Button variant="outline" onClick={() => setShowAddForm(false)} size="sm" className="rounded-none text-xs h-7">
                   Cancel
                 </Button>
               </div>
             </CardContent>
           </Card>
         ) : (
-          <Button onClick={() => setShowAddForm(true)} size="sm" className="rounded-md text-xs h-7">
+          <Button onClick={() => setShowAddForm(true)} size="sm" className="rounded-none text-xs h-7">
             <Plus className="h-3 w-3 mr-1.5" />
             Add Custom Schedule
           </Button>

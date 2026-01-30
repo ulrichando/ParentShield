@@ -4,8 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Shield, Mail, Lock, Eye, EyeOff, User, ArrowRight, Loader2, Check } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Mail, Lock, Eye, EyeOff, User, ArrowRight, Loader2, Check } from "lucide-react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 
@@ -73,19 +72,19 @@ export default function RegisterPage() {
 
   if (success) {
     return (
-      <main className="min-h-screen bg-surface-base flex flex-col">
+      <main className="min-h-screen bg-[#FAFAFA] dark:bg-neutral-950 flex flex-col">
         <Navbar />
-        <div className="flex-1 flex items-center justify-center p-4 pt-24 pb-16">
+        <div className="flex-1 flex items-center justify-center p-4 pt-32 pb-16">
           <motion.div
             className="text-center"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
           >
-            <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Check className="w-8 h-8 text-green-500" />
+            <div className="w-16 h-16 border border-neutral-200 dark:border-neutral-800 flex items-center justify-center mx-auto mb-6">
+              <Check className="w-8 h-8 text-neutral-900 dark:text-white" />
             </div>
-            <h1 className="text-xl font-bold text-white mb-1">Account Created!</h1>
-            <p className="text-gray-400 text-sm">Redirecting to login...</p>
+            <h1 className="text-2xl font-light text-neutral-900 dark:text-white mb-2">Account Created</h1>
+            <p className="text-neutral-500 dark:text-neutral-400">Redirecting to login...</p>
           </motion.div>
         </div>
         <Footer />
@@ -94,170 +93,170 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="min-h-screen bg-surface-base flex flex-col">
+    <main className="min-h-screen bg-[#FAFAFA] dark:bg-neutral-950 flex flex-col">
       <Navbar />
-      <div className="flex-1 flex items-center justify-center p-4 pt-24 pb-16 relative overflow-hidden">
-        {/* Background Effects */}
-        <div className="absolute -top-50 -left-25 w-125 h-125 rounded-full bg-primary-600/30 blur-[120px]" />
-        <div className="absolute -bottom-25 -right-25 w-100 h-100 rounded-full bg-accent-500/20 blur-[100px]" />
-
-      <motion.div
-        className="w-full max-w-sm relative z-10"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        {/* Logo */}
-        <Link href="/" className="flex items-center justify-center gap-2 mb-5">
-          <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
-            <Shield className="w-5 h-5 text-white" />
-          </div>
-          <span className="text-xl font-bold text-white">ParentShield</span>
-        </Link>
-
-        {/* Card */}
-        <div className="bg-surface-card/80 backdrop-blur-xl rounded-xl border border-white/10 p-5">
-          <div className="text-center mb-5">
-            <h1 className="text-xl font-bold text-white mb-1">Create Account</h1>
-            <p className="text-gray-400 text-sm">Start your free 7-day trial</p>
+      <div className="flex-1 flex items-center justify-center p-4 pt-32 pb-16">
+        <motion.div
+          className="w-full max-w-md"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          {/* Header */}
+          <div className="text-center mb-10">
+            <Link href="/" className="inline-block mb-8">
+              <span className="text-2xl font-light tracking-tight text-neutral-900 dark:text-white">
+                Parent<span className="font-semibold">Shield</span>
+              </span>
+            </Link>
+            <h1 className="text-3xl font-light text-neutral-900 dark:text-white mb-2">
+              Create <span className="italic">account.</span>
+            </h1>
+            <p className="text-neutral-500 dark:text-neutral-400">Start your free 7-day trial</p>
           </div>
 
-          {error && (
-            <motion.div
-              className="bg-red-500/10 border border-red-500/30 text-red-400 px-3 py-2 rounded-lg mb-4 text-xs"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              {error}
-            </motion.div>
-          )}
+          {/* Card */}
+          <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-8">
+            {error && (
+              <motion.div
+                className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 mb-6 text-sm"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                {error}
+              </motion.div>
+            )}
 
-          <form onSubmit={handleSubmit} className="space-y-3">
-            {/* Name Row */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-gray-300 mb-1.5">
-                  First Name
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Name Row */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-neutral-600 dark:text-neutral-400 mb-2">
+                    First Name
+                  </label>
+                  <div className="relative">
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
+                    <input
+                      type="text"
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleChange}
+                      className="w-full bg-transparent border border-neutral-200 dark:border-neutral-700 py-3 pl-12 pr-4 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:border-neutral-900 dark:focus:border-white transition-colors"
+                      placeholder="John"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm text-neutral-600 dark:text-neutral-400 mb-2">
+                    Last Name
+                  </label>
                   <input
                     type="text"
-                    name="firstName"
-                    value={formData.firstName}
+                    name="lastName"
+                    value={formData.lastName}
                     onChange={handleChange}
-                    className="w-full bg-surface-elevated border border-white/10 rounded-lg py-2 pl-9 pr-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
-                    placeholder="John"
+                    className="w-full bg-transparent border border-neutral-200 dark:border-neutral-700 py-3 px-4 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:border-neutral-900 dark:focus:border-white transition-colors"
+                    placeholder="Doe"
                   />
                 </div>
               </div>
+
+              {/* Email */}
               <div>
-                <label className="block text-xs font-medium text-gray-300 mb-1.5">
-                  Last Name
+                <label className="block text-sm text-neutral-600 dark:text-neutral-400 mb-2">
+                  Email
                 </label>
-                <input
-                  type="text"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  className="w-full bg-surface-elevated border border-white/10 rounded-lg py-2 px-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
-                  placeholder="Doe"
-                />
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="w-full bg-transparent border border-neutral-200 dark:border-neutral-700 py-3 pl-12 pr-4 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:border-neutral-900 dark:focus:border-white transition-colors"
+                    placeholder="you@example.com"
+                    required
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* Email */}
-            <div>
-              <label className="block text-xs font-medium text-gray-300 mb-1.5">
-                Email
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="w-full bg-surface-elevated border border-white/10 rounded-lg py-2 pl-9 pr-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
-                  placeholder="you@example.com"
-                  required
-                />
+              {/* Password */}
+              <div>
+                <label className="block text-sm text-neutral-600 dark:text-neutral-400 mb-2">
+                  Password
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="w-full bg-transparent border border-neutral-200 dark:border-neutral-700 py-3 pl-12 pr-12 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:border-neutral-900 dark:focus:border-white transition-colors"
+                    placeholder="••••••••"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+                <p className="text-xs text-neutral-400 dark:text-neutral-500 mt-2">
+                  Min 8 characters with uppercase, lowercase, and number
+                </p>
               </div>
-            </div>
 
-            {/* Password */}
-            <div>
-              <label className="block text-xs font-medium text-gray-300 mb-1.5">
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="w-full bg-surface-elevated border border-white/10 rounded-lg py-2 pl-9 pr-9 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
-                  placeholder="••••••••"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
+              {/* Confirm Password */}
+              <div>
+                <label className="block text-sm text-neutral-600 dark:text-neutral-400 mb-2">
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    className="w-full bg-transparent border border-neutral-200 dark:border-neutral-700 py-3 pl-12 pr-4 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:border-neutral-900 dark:focus:border-white transition-colors"
+                    placeholder="••••••••"
+                    required
+                  />
+                </div>
               </div>
-              <p className="text-xs text-gray-500 mt-1">
-                Min 8 chars, uppercase, lowercase, and number
-              </p>
-            </div>
 
-            {/* Confirm Password */}
-            <div>
-              <label className="block text-xs font-medium text-gray-300 mb-1.5">
-                Confirm Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className="w-full bg-surface-elevated border border-white/10 rounded-lg py-2 pl-9 pr-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
-                  placeholder="••••••••"
-                  required
-                />
-              </div>
-            </div>
+              {/* Submit */}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full py-4 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-sm font-medium tracking-wide flex items-center justify-center gap-2 hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors disabled:opacity-50"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <>
+                    Create Account
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </button>
+            </form>
 
-            {/* Submit */}
-            <Button type="submit" size="sm" className="w-full mt-4" disabled={isLoading}>
-              {isLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <>
-                  Create Account
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
-            </Button>
-          </form>
-
-          {/* Login Link */}
-          <p className="text-center text-gray-400 text-sm mt-4">
-            Already have an account?{" "}
-            <Link
-              href="/login"
-              className="text-primary-400 hover:text-primary-300 font-medium transition-colors"
-            >
-              Sign in
-            </Link>
-          </p>
-        </div>
-      </motion.div>
+            {/* Login Link */}
+            <p className="text-center text-neutral-500 dark:text-neutral-400 text-sm mt-6">
+              Already have an account?{" "}
+              <Link
+                href="/login"
+                className="text-neutral-900 dark:text-white font-medium hover:underline"
+              >
+                Sign in
+              </Link>
+            </p>
+          </div>
+        </motion.div>
       </div>
       <Footer />
     </main>

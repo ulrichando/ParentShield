@@ -29,16 +29,16 @@ function StatCard({ title, value, icon: Icon, color }: {
 }) {
   return (
     <motion.div
-      className="bg-surface-card rounded-xl border border-white/5 p-4"
-      whileHover={{ y: -2, boxShadow: "0 0 20px rgba(6, 182, 212, 0.1)" }}
+      className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4"
+      whileHover={{ y: -2, boxShadow: "0 0 20px rgba(0, 0, 0, 0.1)" }}
     >
       <div className="flex items-start justify-between mb-2">
-        <div className={`w-9 h-9 rounded-lg ${color} flex items-center justify-center`}>
+        <div className={`w-9 h-9 ${color} flex items-center justify-center`}>
           <Icon className="w-4 h-4 text-white" />
         </div>
       </div>
-      <p className="text-xl font-bold text-white mb-0.5">{value}</p>
-      <p className="text-xs text-gray-500">{title}</p>
+      <p className="text-xl font-bold text-neutral-900 dark:text-white mb-0.5">{value}</p>
+      <p className="text-xs text-neutral-500">{title}</p>
     </motion.div>
   );
 }
@@ -46,7 +46,7 @@ function StatCard({ title, value, icon: Icon, color }: {
 function SimpleBarChart({ data, label }: { data: ChartDataPoint[]; label: string }) {
   if (!data || data.length === 0) {
     return (
-      <div className="h-48 flex items-center justify-center text-gray-500">
+      <div className="h-48 flex items-center justify-center text-neutral-500">
         No data available
       </div>
     );
@@ -67,16 +67,16 @@ function SimpleBarChart({ data, label }: { data: ChartDataPoint[]; label: string
             >
               <div className="relative w-full">
                 <motion.div
-                  className="w-full bg-primary-500/80 rounded-t-sm min-h-0.5"
+                  className="w-full bg-neutral-900 dark:bg-white min-h-0.5"
                   initial={{ height: 0 }}
                   animate={{ height: `${Math.max(height, 2)}%` }}
                   transition={{ delay: i * 0.02 }}
                   style={{ maxHeight: "100%" }}
                 />
-                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-surface-elevated px-2 py-1 rounded text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#FAFAFA] dark:bg-neutral-800 px-2 py-1 text-xs text-neutral-900 dark:text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
                   {label === "Revenue" ? `$${value.toFixed(2)}` : value}
                   <br />
-                  <span className="text-gray-400">{new Date(point.date).toLocaleDateString()}</span>
+                  <span className="text-neutral-500 dark:text-neutral-400">{new Date(point.date).toLocaleDateString()}</span>
                 </div>
               </div>
             </div>
@@ -133,27 +133,30 @@ export default function AdminAnalyticsPage() {
 
   if (isLoading || !user) {
     return (
-      <div className="min-h-screen bg-surface-base flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#FAFAFA] dark:bg-neutral-950 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-neutral-900 dark:border-white border-t-transparent animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-surface-base">
+    <div className="min-h-screen bg-[#FAFAFA] dark:bg-neutral-950">
       <AdminSidebar activePage="analytics" user={user} />
 
       <main className="lg:ml-52 pt-14 lg:pt-6">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 py-4 md:py-6">
-        <div className="flex items-center justify-between mb-5">
-          <div>
-            <h1 className="text-lg font-bold text-white mb-0.5">Analytics</h1>
-            <p className="text-gray-400">Platform insights and metrics</p>
-          </div>
+        {/* Editorial Page Header */}
+        <header className="mb-8 border-b border-neutral-200 dark:border-neutral-800 pb-6">
+          <p className="text-xs font-medium tracking-widest text-neutral-500 uppercase mb-2">Admin Dashboard</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-neutral-900 dark:text-white tracking-tight mb-2">Analytics</h1>
+          <p className="text-neutral-500 dark:text-neutral-400">Platform insights and metrics</p>
+        </header>
+
+        <div className="flex items-center justify-end mb-5">
           <select
             value={days}
             onChange={(e) => setDays(Number(e.target.value))}
-            className="bg-surface-card border border-white/10 rounded-xl py-2 px-4 text-white text-sm focus:outline-none focus:border-primary-500"
+            className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 py-2 px-4 text-neutral-900 dark:text-white text-sm focus:outline-none focus:border-neutral-900 dark:focus:border-white"
           >
             <option value={7}>Last 7 days</option>
             <option value={30}>Last 30 days</option>
@@ -163,14 +166,14 @@ export default function AdminAnalyticsPage() {
         </div>
 
         {error && (
-          <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-lg mb-6 text-sm">
+          <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 mb-6 text-sm">
             {error}
           </div>
         )}
 
         {dataLoading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-6 h-6 text-gray-500 animate-spin" />
+            <Loader2 className="w-6 h-6 text-neutral-500 animate-spin" />
           </div>
         ) : (
           <>
@@ -205,19 +208,19 @@ export default function AdminAnalyticsPage() {
             {/* Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Revenue Chart */}
-              <div className="bg-surface-card rounded-xl border border-white/5 p-4">
-                <h2 className="text-sm font-semibold text-white mb-4">Revenue Over Time</h2>
+              <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4">
+                <h2 className="text-sm font-semibold text-neutral-900 dark:text-white mb-4">Revenue Over Time</h2>
                 <SimpleBarChart data={revenueData} label="Revenue" />
-                <p className="text-xs text-gray-500 mt-4 text-center">
+                <p className="text-xs text-neutral-500 mt-4 text-center">
                   Showing last {days} days
                 </p>
               </div>
 
               {/* Customer Growth Chart */}
-              <div className="bg-surface-card rounded-xl border border-white/5 p-4">
-                <h2 className="text-sm font-semibold text-white mb-4">Customer Growth</h2>
+              <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4">
+                <h2 className="text-sm font-semibold text-neutral-900 dark:text-white mb-4">Customer Growth</h2>
                 <SimpleBarChart data={customerData} label="Customers" />
-                <p className="text-xs text-gray-500 mt-4 text-center">
+                <p className="text-xs text-neutral-500 mt-4 text-center">
                   Showing last {days} days
                 </p>
               </div>
@@ -225,48 +228,48 @@ export default function AdminAnalyticsPage() {
 
             {/* Summary Stats */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-              <div className="bg-surface-card rounded-xl border border-white/5 p-4">
-                <h2 className="text-sm font-semibold text-white mb-3">Revenue Breakdown</h2>
+              <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4">
+                <h2 className="text-sm font-semibold text-neutral-900 dark:text-white mb-3">Revenue Breakdown</h2>
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between py-2 border-b border-white/5">
-                    <span className="text-gray-400">Today</span>
-                    <span className="text-white font-medium">
+                  <div className="flex items-center justify-between py-2 border-b border-neutral-200 dark:border-neutral-800">
+                    <span className="text-neutral-500 dark:text-neutral-400">Today</span>
+                    <span className="text-neutral-900 dark:text-white font-medium">
                       ${stats?.revenue_today.toFixed(2) || "0.00"}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between py-2 border-b border-white/5">
-                    <span className="text-gray-400">This Month</span>
-                    <span className="text-white font-medium">
+                  <div className="flex items-center justify-between py-2 border-b border-neutral-200 dark:border-neutral-800">
+                    <span className="text-neutral-500 dark:text-neutral-400">This Month</span>
+                    <span className="text-neutral-900 dark:text-white font-medium">
                       ${stats?.revenue_this_month.toFixed(2) || "0.00"}
                     </span>
                   </div>
                   <div className="flex items-center justify-between py-3">
-                    <span className="text-gray-400">All Time</span>
-                    <span className="text-white font-medium">
+                    <span className="text-neutral-500 dark:text-neutral-400">All Time</span>
+                    <span className="text-neutral-900 dark:text-white font-medium">
                       ${stats?.revenue_total.toFixed(2) || "0.00"}
                     </span>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-surface-card rounded-xl border border-white/5 p-4">
-                <h2 className="text-sm font-semibold text-white mb-3">Customer Metrics</h2>
+              <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4">
+                <h2 className="text-sm font-semibold text-neutral-900 dark:text-white mb-3">Customer Metrics</h2>
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between py-2 border-b border-white/5">
-                    <span className="text-gray-400">New Today</span>
-                    <span className="text-white font-medium">
+                  <div className="flex items-center justify-between py-2 border-b border-neutral-200 dark:border-neutral-800">
+                    <span className="text-neutral-500 dark:text-neutral-400">New Today</span>
+                    <span className="text-neutral-900 dark:text-white font-medium">
                       {stats?.new_customers_today || 0}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between py-2 border-b border-white/5">
-                    <span className="text-gray-400">New This Month</span>
-                    <span className="text-white font-medium">
+                  <div className="flex items-center justify-between py-2 border-b border-neutral-200 dark:border-neutral-800">
+                    <span className="text-neutral-500 dark:text-neutral-400">New This Month</span>
+                    <span className="text-neutral-900 dark:text-white font-medium">
                       {stats?.new_customers_this_month || 0}
                     </span>
                   </div>
                   <div className="flex items-center justify-between py-3">
-                    <span className="text-gray-400">Total Customers</span>
-                    <span className="text-white font-medium">
+                    <span className="text-neutral-500 dark:text-neutral-400">Total Customers</span>
+                    <span className="text-neutral-900 dark:text-white font-medium">
                       {stats?.total_customers || 0}
                     </span>
                   </div>

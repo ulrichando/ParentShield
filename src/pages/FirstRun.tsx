@@ -127,7 +127,7 @@ export function FirstRun() {
         <div className="flex-1 flex items-center justify-center p-4 overflow-y-auto scrollable-content">
           <Card className="w-full max-w-sm fluent-card">
             <CardHeader className="text-center pt-6 px-6 pb-2">
-              <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-primary">
+              <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center bg-gradient-primary">
                 <Shield className="h-7 w-7 text-white" />
               </div>
               <CardTitle className="text-lg">Welcome to ParentShield</CardTitle>
@@ -219,7 +219,7 @@ export function FirstRun() {
         <div className="flex-1 flex items-center justify-center p-4 overflow-y-auto scrollable-content">
         <Card className="w-full max-w-sm fluent-card">
           <CardHeader className="text-center pt-6 px-6 pb-2">
-            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-primary">
+            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center bg-gradient-primary">
               <Shield className="h-7 w-7 text-white" />
             </div>
             <CardTitle className="text-lg">
@@ -261,7 +261,7 @@ export function FirstRun() {
                     {[...Array(5)].map((_, i) => (
                       <div
                         key={i}
-                        className={`h-1 flex-1 rounded ${i < strength ? strengthColor : "bg-gray-200"}`}
+                        className={`h-1 flex-1 ${i < strength ? strengthColor : "bg-gray-200"}`}
                       />
                     ))}
                   </div>
@@ -310,7 +310,7 @@ export function FirstRun() {
       <div className="flex-1 flex items-center justify-center p-4 overflow-y-auto scrollable-content">
       <Card className="w-full max-w-sm fluent-card">
         <CardHeader className="text-center pt-6 px-6 pb-2">
-          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-xl bg-success">
+          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center bg-success">
             <Check className="h-7 w-7 text-success-foreground" />
           </div>
           <CardTitle className="text-lg">Save Your Recovery Password</CardTitle>
@@ -319,7 +319,7 @@ export function FirstRun() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 px-6 pb-6">
-          <div className="rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-3">
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-3">
             <p className="text-xs text-amber-700 dark:text-amber-400 mb-1.5">
               Master Recovery Password
             </p>
@@ -338,7 +338,7 @@ export function FirstRun() {
             </div>
           </div>
 
-          <div className="rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-3">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-3">
             <p className="text-xs text-red-700 dark:text-red-400">
               <strong>Important:</strong> This password is never stored and cannot be recovered.
               Write it down and keep it in a safe place.
@@ -363,7 +363,7 @@ export function FirstRun() {
       <div className="flex-1 flex items-center justify-center p-4 overflow-y-auto scrollable-content">
       <Card className="w-full max-w-sm fluent-card">
         <CardHeader className="text-center pt-6 px-6 pb-2">
-          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-xl bg-secondary">
+          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center bg-secondary">
             <Server className="h-7 w-7 text-secondary-foreground" />
           </div>
           <CardTitle className="text-lg">Install Background Service</CardTitle>
@@ -372,7 +372,7 @@ export function FirstRun() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 px-6 pb-6">
-          <div className="rounded-lg bg-primary/10 border border-primary/20 p-3">
+          <div className="bg-primary/10 border border-primary/20 p-3">
             <p className="text-xs text-primary font-medium">
               Why install the service?
             </p>
@@ -385,7 +385,7 @@ export function FirstRun() {
           </div>
 
           {daemonStatus?.installed && daemonStatus?.running && (
-            <Alert className="border-green-200 bg-green-50 dark:bg-green-900/20 rounded-lg">
+            <Alert className="border-green-200 bg-green-50 dark:bg-green-900/20">
               <Check className="h-3.5 w-3.5 text-green-600" />
               <AlertDescription className="text-green-700 dark:text-green-300 text-xs">
                 Service is installed and running!
@@ -394,7 +394,7 @@ export function FirstRun() {
           )}
 
           {daemonError && (
-            <Alert variant="destructive" className="rounded-lg">
+            <Alert variant="destructive">
               <AlertTriangle className="h-3.5 w-3.5" />
               <AlertDescription className="text-xs">{daemonError}</AlertDescription>
             </Alert>

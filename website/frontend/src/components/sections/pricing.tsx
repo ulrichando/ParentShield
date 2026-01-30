@@ -1,184 +1,137 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
-import { Check, X, Sparkles } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Check } from "lucide-react";
 
 const plans = [
   {
-    name: "Free Trial",
-    price: "0",
-    period: "7 days",
-    description: "Try all Pro features free",
+    name: "Basic",
+    price: "4.99",
+    description: "Essential protection for small families",
     features: [
-      { text: "All Pro features included", included: true },
-      { text: "7-day full access", included: true },
-      { text: "No credit card required", included: true },
-      { text: "Email support", included: true },
-      { text: "1 device", included: true },
+      "3 devices",
+      "Website filtering",
+      "Basic time limits",
+      "Weekly reports",
     ],
-    cta: "Start Free Trial",
-    featured: false,
   },
   {
     name: "Pro",
     price: "9.99",
-    period: "month",
-    description: "Complete family protection",
-    features: [
-      { text: "Unlimited devices", included: true },
-      { text: "Game & app blocking", included: true },
-      { text: "Website filtering", included: true },
-      { text: "Screen time limits", included: true },
-      { text: "Activity reports", included: true },
-      { text: "Tamper protection", included: true },
-      { text: "Priority support", included: true },
-    ],
-    cta: "Get Pro",
+    description: "Complete protection for growing families",
     featured: true,
-    badge: "Most Popular",
+    features: [
+      "Unlimited devices",
+      "Game & app blocking",
+      "Advanced filtering",
+      "Screen time limits",
+      "Activity reports",
+      "Tamper protection",
+      "Priority support",
+    ],
   },
   {
-    name: "Basic",
-    price: "4.99",
-    period: "month",
-    description: "Essential protection",
+    name: "Trial",
+    price: "0",
+    description: "Experience everything free for 7 days",
     features: [
-      { text: "3 devices", included: true },
-      { text: "Website filtering", included: true },
-      { text: "Basic time limits", included: true },
-      { text: "Weekly reports", included: true },
-      { text: "Game blocking", included: false },
-      { text: "Tamper protection", included: false },
+      "All Pro features",
+      "7-day access",
+      "No credit card required",
+      "1 device",
     ],
-    cta: "Get Basic",
-    featured: false,
   },
 ];
 
 export function Pricing() {
   return (
-    <section id="pricing" className="py-16 bg-surface-raised relative overflow-hidden">
-      {/* Background gradients */}
-      <div className="absolute inset-0 bg-linear-to-b from-primary-500/5 via-transparent to-secondary-500/5" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-150 h-75 bg-primary-500/10 rounded-full blur-[80px]" />
-
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
-        {/* Section Header */}
+    <section id="pricing" className="py-32 bg-white dark:bg-neutral-950">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12">
+        {/* Header */}
         <motion.div
-          className="text-center max-w-2xl mx-auto mb-10"
-          initial={{ opacity: 0, y: 20 }}
+          className="max-w-2xl mb-20"
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
         >
-          <span className="inline-flex items-center gap-2 bg-primary-500/10 border border-primary-500/20 text-primary-400 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-3">
+          <p className="text-xs uppercase tracking-[0.3em] text-neutral-400 dark:text-neutral-500 mb-4">
             Pricing
-          </span>
-          <h2 className="text-3xl md:text-4xl font-bold mb-3">
-            Choose Your <span className="text-gradient">Protection Plan</span>
-          </h2>
-          <p className="text-gray-400 text-sm">
-            Start free, upgrade anytime. All plans include a 30-day money-back guarantee.
           </p>
+          <h2 className="text-4xl md:text-5xl font-light text-neutral-900 dark:text-white leading-tight">
+            Simple, transparent
+            <br />
+            <span className="italic">pricing.</span>
+          </h2>
         </motion.div>
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-px bg-neutral-200 dark:bg-neutral-800">
           {plans.map((plan, index) => (
             <motion.div
               key={plan.name}
-              className={cn(
-                "relative rounded-xl p-5 border flex flex-col",
-                plan.featured
-                  ? "bg-linear-to-b from-primary-500/15 to-surface-card border-primary-500/50 scale-105 z-10"
-                  : "bg-surface-card border-white/5"
-              )}
+              className={`p-10 md:p-12 ${plan.featured ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900" : "bg-white dark:bg-neutral-950"}`}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              whileHover={{
-                y: -5,
-                boxShadow: plan.featured
-                  ? "0 20px 40px rgba(6, 182, 212, 0.2)"
-                  : "0 15px 30px rgba(0, 0, 0, 0.25)",
-              }}
+              transition={{ delay: index * 0.1 }}
             >
-              {/* Popular Badge */}
-              {plan.badge && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <div className="inline-flex items-center gap-1 bg-gradient-primary text-white text-xs font-bold px-3 py-1 rounded-full shadow-glow-sm">
-                    <Sparkles className="w-3 h-3" />
-                    {plan.badge}
-                  </div>
-                </div>
-              )}
-
-              {/* Plan Header */}
-              <div className="text-center mb-4">
-                <h3 className="text-lg font-bold text-white mb-1">{plan.name}</h3>
-                <p className="text-gray-500 text-xs">{plan.description}</p>
-              </div>
+              {/* Plan name */}
+              <p className={`text-xs uppercase tracking-[0.2em] mb-6 ${plan.featured ? "text-neutral-400 dark:text-neutral-500" : "text-neutral-400 dark:text-neutral-500"}`}>
+                {plan.name}
+                {plan.featured && " — Most Popular"}
+              </p>
 
               {/* Price */}
-              <div className="text-center mb-4">
-                <div className="flex items-baseline justify-center gap-0.5">
-                  <span className="text-lg font-semibold text-gray-400">$</span>
-                  <span
-                    className={cn(
-                      "text-3xl font-bold",
-                      plan.featured ? "text-gradient" : "text-white"
-                    )}
-                  >
-                    {plan.price}
-                  </span>
-                  <span className="text-gray-500 text-sm">/{plan.period}</span>
-                </div>
+              <div className="mb-6">
+                <span className={`text-5xl font-light ${plan.featured ? "text-white dark:text-neutral-900" : "text-neutral-900 dark:text-white"}`}>
+                  ${plan.price}
+                </span>
+                <span className={plan.featured ? "text-neutral-400 dark:text-neutral-500" : "text-neutral-400 dark:text-neutral-500"}>/mo</span>
               </div>
 
+              {/* Description */}
+              <p className={`text-sm mb-10 ${plan.featured ? "text-neutral-400 dark:text-neutral-500" : "text-neutral-500 dark:text-neutral-400"}`}>
+                {plan.description}
+              </p>
+
               {/* Features */}
-              <ul className="space-y-2 grow mb-5">
+              <ul className="space-y-4 mb-10">
                 {plan.features.map((feature) => (
-                  <li
-                    key={feature.text}
-                    className={cn(
-                      "flex items-center gap-2 text-xs",
-                      feature.included ? "text-gray-300" : "text-gray-600"
-                    )}
-                  >
-                    {feature.included ? (
-                      <Check className="w-4 h-4 text-green-500 shrink-0" />
-                    ) : (
-                      <X className="w-4 h-4 text-gray-600 shrink-0" />
-                    )}
-                    {feature.text}
+                  <li key={feature} className="flex items-center gap-3 text-sm">
+                    <Check className={`w-4 h-4 ${plan.featured ? "text-white dark:text-neutral-900" : "text-neutral-400 dark:text-neutral-500"}`} />
+                    <span className={plan.featured ? "text-neutral-300 dark:text-neutral-600" : "text-neutral-600 dark:text-neutral-400"}>
+                      {feature}
+                    </span>
                   </li>
                 ))}
               </ul>
 
-              {/* CTA Button */}
-              <Button
-                variant={plan.featured ? "primary" : "secondary"}
-                size="sm"
-                className="w-full"
-              >
-                {plan.cta}
-              </Button>
+              {/* CTA */}
+              <Link href="/register" className="block">
+                <motion.button
+                  className={`w-full py-4 text-sm font-medium tracking-wide transition-colors ${
+                    plan.featured
+                      ? "bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                      : "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 hover:bg-neutral-800 dark:hover:bg-neutral-100"
+                  }`}
+                  whileHover={{ x: 3 }}
+                >
+                  Get Started
+                </motion.button>
+              </Link>
             </motion.div>
           ))}
         </div>
 
-        {/* Trust Badge */}
+        {/* Note */}
         <motion.p
-          className="text-center text-gray-500 text-xs mt-8"
+          className="text-center text-sm text-neutral-400 dark:text-neutral-500 mt-12"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.5 }}
         >
-          Secure payment via Stripe - Cancel anytime - 30-day money-back guarantee
+          All plans include a 30-day money-back guarantee
         </motion.p>
       </div>
     </section>

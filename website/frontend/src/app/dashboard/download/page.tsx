@@ -211,7 +211,7 @@ export default function DownloadPage() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-6 h-6 text-primary-500 animate-spin" />
+          <Loader2 className="w-6 h-6 text-neutral-900 dark:text-white animate-spin" />
         </div>
       </DashboardLayout>
     );
@@ -221,67 +221,71 @@ export default function DownloadPage() {
 
   return (
     <DashboardLayout>
-        {/* Page Header */}
+        {/* Editorial Page Header */}
         <motion.div
-          className="text-center mb-5"
+          className="mb-8 border-b border-neutral-200 dark:border-neutral-800 pb-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-xl md:text-2xl font-bold text-white mb-2">
+          <p className="text-xs font-medium uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-2">
+            Downloads
+          </p>
+          <h1 className="text-2xl md:text-3xl font-bold text-neutral-900 dark:text-white mb-3">
             Download ParentShield
           </h1>
-          <p className="text-gray-400 text-sm max-w-lg mx-auto mb-4">
-            Install ParentShield on your devices to start protecting your family.
+          <p className="text-neutral-500 dark:text-neutral-400 text-sm max-w-2xl">
+            Install ParentShield on your devices to start protecting your family. Choose your platform below or let us detect it automatically.
           </p>
-
-          {/* Auto-detect download button */}
-          {detectedPlatform && availableDownloads?.platforms[detectedPlatform.platform]?.available && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2 }}
-            >
-              <Button
-                size="md"
-                onClick={handleAutoDownload}
-                disabled={downloading !== null}
-                className="bg-linear-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 px-6 py-2"
-              >
-                {downloading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Preparing...
-                  </>
-                ) : (
-                  <>
-                    <Download className="w-4 h-4" />
-                    Download for {platformNames[detectedPlatform.platform]}
-                  </>
-                )}
-              </Button>
-              <p className="text-gray-500 text-xs mt-1">
-                Detected: {platformNames[detectedPlatform.platform]} • v{availableDownloads?.version}
-              </p>
-            </motion.div>
-          )}
         </motion.div>
+
+        {/* Auto-detect download button */}
+        {detectedPlatform && availableDownloads?.platforms[detectedPlatform.platform]?.available && (
+          <motion.div
+            className="mb-8"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2 }}
+          >
+            <Button
+              size="md"
+              onClick={handleAutoDownload}
+              disabled={downloading !== null}
+              className="bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 hover:bg-neutral-800 dark:hover:bg-neutral-100 px-6 py-2"
+            >
+              {downloading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Preparing...
+                </>
+              ) : (
+                <>
+                  <Download className="w-4 h-4" />
+                  Download for {platformNames[detectedPlatform.platform]}
+                </>
+              )}
+            </Button>
+            <p className="text-neutral-500 text-xs mt-2">
+              Detected: {platformNames[detectedPlatform.platform]} · v{availableDownloads?.version}
+            </p>
+          </motion.div>
+        )}
 
         {error && (
           <motion.div
-            className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 mb-5 text-center"
+            className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 p-3 mb-5 text-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
-            <p className="text-red-400 text-sm">{error}</p>
+            <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
           </motion.div>
         )}
 
         {/* Divider */}
         <div className="flex items-center gap-3 mb-5">
-          <div className="flex-1 h-px bg-white/10" />
-          <span className="text-gray-500 text-xs">Or choose your platform</span>
-          <div className="flex-1 h-px bg-white/10" />
+          <div className="flex-1 h-px bg-neutral-200 dark:bg-neutral-700" />
+          <span className="text-neutral-500 text-xs">Or choose your platform</span>
+          <div className="flex-1 h-px bg-neutral-200 dark:bg-neutral-700" />
         </div>
 
         {/* Platform Cards */}
@@ -303,20 +307,20 @@ export default function DownloadPage() {
             return (
               <motion.div
                 key={platformId}
-                className={`relative bg-surface-card rounded-xl border p-4 text-center transition-all duration-300 flex flex-col h-full ${
+                className={`relative bg-white dark:bg-neutral-900 border p-4 text-center transition-all duration-300 flex flex-col h-full ${
                   hasAvailableFormats
-                    ? "border-white/5 hover:border-primary-500/20"
-                    : "border-white/5 opacity-60"
-                } ${isDetected ? "ring-1 ring-primary-500/30" : ""}`}
+                    ? "border-neutral-200 dark:border-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-600"
+                    : "border-neutral-200 dark:border-neutral-800 opacity-60"
+                } ${isDetected ? "ring-1 ring-neutral-900 dark:ring-white" : ""}`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: index * 0.1 }}
-                whileHover={hasAvailableFormats ? { y: -2, boxShadow: "0 0 30px rgba(6, 182, 212, 0.1)" } : {}}
+                whileHover={hasAvailableFormats ? { y: -2 } : {}}
               >
                 {/* Detected Badge */}
                 {isDetected && (
                   <div className="absolute top-2 right-2">
-                    <span className="bg-primary-500/20 text-primary-400 text-caption-2 font-medium px-1.5 py-0.5 rounded-full">
+                    <span className="bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white text-caption-2 font-medium px-1.5 py-0.5">
                       Detected
                     </span>
                   </div>
@@ -325,7 +329,7 @@ export default function DownloadPage() {
                 {/* Not Available Badge */}
                 {!hasAvailableFormats && (
                   <div className="absolute top-2 right-2">
-                    <span className="bg-amber-500/20 text-amber-400 text-caption-2 font-medium px-1.5 py-0.5 rounded-full">
+                    <span className="bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 text-caption-2 font-medium px-1.5 py-0.5">
                       Coming Soon
                     </span>
                   </div>
@@ -333,18 +337,18 @@ export default function DownloadPage() {
 
                 {/* Icon */}
                 <motion.div
-                  className={`w-10 h-10 mx-auto rounded-xl flex items-center justify-center mb-2 ${
-                    hasAvailableFormats ? "bg-surface-elevated" : "bg-surface-elevated/50"
+                  className={`w-10 h-10 mx-auto flex items-center justify-center mb-2 ${
+                    hasAvailableFormats ? "bg-[#FAFAFA] dark:bg-neutral-800" : "bg-[#FAFAFA]/50 dark:bg-neutral-800/50"
                   }`}
                   whileHover={hasAvailableFormats ? { rotate: -5, scale: 1.05 } : {}}
                 >
-                  <Icon className={`w-5 h-5 ${hasAvailableFormats ? "text-gray-400" : "text-gray-600"}`} />
+                  <Icon className={`w-5 h-5 ${hasAvailableFormats ? "text-neutral-500 dark:text-neutral-400" : "text-neutral-400 dark:text-neutral-600"}`} />
                 </motion.div>
 
                 {/* Platform Info */}
-                <h3 className="text-base font-bold text-white mb-0.5">{platformNames[platformId]}</h3>
-                <p className="text-primary-400 text-caption-2 font-medium">v{availableDownloads?.version}</p>
-                <p className="text-gray-500 text-caption-2 h-4 flex items-center justify-center">{platformRequirements[platformId]}</p>
+                <h3 className="text-base font-bold text-neutral-900 dark:text-white mb-0.5">{platformNames[platformId]}</h3>
+                <p className="text-neutral-600 dark:text-neutral-400 text-caption-2 font-medium">v{availableDownloads?.version}</p>
+                <p className="text-neutral-500 text-caption-2 h-4 flex items-center justify-center">{platformRequirements[platformId]}</p>
 
                 {/* Spacer */}
                 <div className="grow" />
@@ -354,8 +358,8 @@ export default function DownloadPage() {
                   <button
                     onClick={() => setShowFormatMenu(showFormatMenu === platformId ? null : platformId)}
                     disabled={!hasAvailableFormats}
-                    className={`w-full flex items-center justify-between bg-surface-elevated border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white transition-colors ${
-                      hasAvailableFormats ? "hover:border-white/20" : "opacity-50 cursor-not-allowed"
+                    className={`w-full flex items-center justify-between bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 px-2 py-1.5 text-xs text-neutral-900 dark:text-white transition-colors ${
+                      hasAvailableFormats ? "hover:border-neutral-400 dark:hover:border-neutral-600" : "opacity-50 cursor-not-allowed"
                     }`}
                   >
                     <span className="flex flex-col items-start">
@@ -363,17 +367,17 @@ export default function DownloadPage() {
                         {selectedFormat?.label}
                         {!selectedFormat?.available && " (N/A)"}
                       </span>
-                      <span className="text-caption-2 text-gray-500">
+                      <span className="text-caption-2 text-neutral-500">
                         {selectedFormat?.available ? selectedFormat?.fileSize : "Not available"}
                       </span>
                     </span>
-                    <ChevronDown className={`w-3 h-3 text-gray-400 transition-transform ${showFormatMenu === platformId ? "rotate-180" : ""}`} />
+                    <ChevronDown className={`w-3 h-3 text-neutral-500 dark:text-neutral-400 transition-transform ${showFormatMenu === platformId ? "rotate-180" : ""}`} />
                   </button>
 
                   {/* Dropdown Menu */}
                   {showFormatMenu === platformId && (
                     <motion.div
-                      className="absolute top-full left-0 right-0 mt-1 bg-surface-elevated border border-white/10 rounded-lg overflow-hidden z-10 shadow-xl"
+                      className="absolute top-full left-0 right-0 mt-1 bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 overflow-hidden z-10 shadow-xl"
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                     >
@@ -384,19 +388,19 @@ export default function DownloadPage() {
                             setSelectedFormats((prev) => ({ ...prev, [platformId]: format.id }));
                             setShowFormatMenu(null);
                           }}
-                          className={`w-full text-left px-2 py-1.5 hover:bg-white/5 transition-colors ${
-                            selectedFormat?.id === format.id ? "bg-white/5" : ""
+                          className={`w-full text-left px-2 py-1.5 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors ${
+                            selectedFormat?.id === format.id ? "bg-neutral-100 dark:bg-neutral-700" : ""
                           } ${!format.available ? "opacity-50" : ""}`}
                         >
                           <div className="flex items-center justify-between">
                             <div>
-                              <p className="text-xs font-medium text-white">
+                              <p className="text-xs font-medium text-neutral-900 dark:text-white">
                                 {format.label}
-                                {!format.available && <span className="text-amber-400 ml-1">(N/A)</span>}
+                                {!format.available && <span className="text-amber-600 dark:text-amber-400 ml-1">(N/A)</span>}
                               </p>
-                              <p className="text-caption-2 text-gray-500">{format.description}</p>
+                              <p className="text-caption-2 text-neutral-500">{format.description}</p>
                             </div>
-                            <span className="text-caption-2 text-gray-400 ml-2 shrink-0">
+                            <span className="text-caption-2 text-neutral-500 dark:text-neutral-400 ml-2 shrink-0">
                               {format.available ? format.fileSize : "—"}
                             </span>
                           </div>
@@ -413,10 +417,10 @@ export default function DownloadPage() {
                   disabled={isDownloading || !selectedFormat?.available}
                   className={`w-full text-xs ${
                     !selectedFormat?.available
-                      ? "bg-gray-600 cursor-not-allowed hover:bg-gray-600"
+                      ? "bg-neutral-300 dark:bg-neutral-600 cursor-not-allowed hover:bg-neutral-300 dark:hover:bg-neutral-600"
                       : isDownloaded
-                      ? "bg-green-500 hover:bg-green-600"
-                      : "bg-linear-to-r from-primary-500 to-secondary-500"
+                      ? "bg-green-600 dark:bg-green-500 hover:bg-green-700 dark:hover:bg-green-600 text-white"
+                      : "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 hover:bg-neutral-800 dark:hover:bg-neutral-100"
                   }`}
                 >
                   {!selectedFormat?.available ? (
@@ -448,55 +452,55 @@ export default function DownloadPage() {
 
         {/* Installation Instructions */}
         <motion.div
-          className="bg-surface-card rounded-xl border border-white/5 p-4"
+          className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.4 }}
         >
-          <h2 className="text-base font-bold text-white mb-3">Installation Instructions</h2>
+          <h2 className="text-base font-bold text-neutral-900 dark:text-white mb-3">Installation Instructions</h2>
           <div className="space-y-3">
             <div className="flex gap-3">
-              <div className="w-6 h-6 rounded-full bg-primary-500/20 flex items-center justify-center shrink-0">
-                <span className="text-primary-400 font-bold text-xs">1</span>
+              <div className="w-6 h-6 bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center shrink-0">
+                <span className="text-neutral-900 dark:text-white font-bold text-xs">1</span>
               </div>
               <div>
-                <h3 className="font-medium text-white text-sm mb-0.5">Download the installer</h3>
-                <p className="text-gray-400 text-xs">
+                <h3 className="font-medium text-neutral-900 dark:text-white text-sm mb-0.5">Download the installer</h3>
+                <p className="text-neutral-500 dark:text-neutral-400 text-xs">
                   Click the download button above or choose a specific format for your system.
                 </p>
               </div>
             </div>
             <div className="flex gap-3">
-              <div className="w-6 h-6 rounded-full bg-primary-500/20 flex items-center justify-center shrink-0">
-                <span className="text-primary-400 font-bold text-xs">2</span>
+              <div className="w-6 h-6 bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center shrink-0">
+                <span className="text-neutral-900 dark:text-white font-bold text-xs">2</span>
               </div>
               <div>
-                <h3 className="font-medium text-white text-sm mb-0.5">Run the installer</h3>
-                <div className="text-gray-400 text-xs space-y-1">
-                  <div><strong className="text-white">Windows:</strong> Double-click the .exe and follow the wizard.</div>
-                  <div><strong className="text-white">macOS:</strong> Open the .dmg, drag to Applications.</div>
-                  <div><strong className="text-white">Linux:</strong> AppImage: <code className="bg-surface-elevated px-1 rounded text-caption-2">chmod +x</code> then run.</div>
+                <h3 className="font-medium text-neutral-900 dark:text-white text-sm mb-0.5">Run the installer</h3>
+                <div className="text-neutral-500 dark:text-neutral-400 text-xs space-y-1">
+                  <div><strong className="text-neutral-900 dark:text-white">Windows:</strong> Double-click the .exe and follow the wizard.</div>
+                  <div><strong className="text-neutral-900 dark:text-white">macOS:</strong> Open the .dmg, drag to Applications.</div>
+                  <div><strong className="text-neutral-900 dark:text-white">Linux:</strong> AppImage: <code className="bg-[#FAFAFA] dark:bg-neutral-800 px-1 text-caption-2">chmod +x</code> then run.</div>
                 </div>
               </div>
             </div>
             <div className="flex gap-3">
-              <div className="w-6 h-6 rounded-full bg-primary-500/20 flex items-center justify-center shrink-0">
-                <span className="text-primary-400 font-bold text-xs">3</span>
+              <div className="w-6 h-6 bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center shrink-0">
+                <span className="text-neutral-900 dark:text-white font-bold text-xs">3</span>
               </div>
               <div>
-                <h3 className="font-medium text-white text-sm mb-0.5">Connect your account</h3>
-                <p className="text-gray-400 text-xs">
+                <h3 className="font-medium text-neutral-900 dark:text-white text-sm mb-0.5">Connect your account</h3>
+                <p className="text-neutral-500 dark:text-neutral-400 text-xs">
                   Open ParentShield, go to Settings, and sign in with {user?.email}
                 </p>
               </div>
             </div>
             <div className="flex gap-3">
-              <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center shrink-0">
-                <Check className="w-3 h-3 text-green-400" />
+              <div className="w-6 h-6 bg-green-100 dark:bg-green-500/20 flex items-center justify-center shrink-0">
+                <Check className="w-3 h-3 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <h3 className="font-medium text-white text-sm mb-0.5">You&apos;re protected!</h3>
-                <p className="text-gray-400 text-xs">
+                <h3 className="font-medium text-neutral-900 dark:text-white text-sm mb-0.5">You&apos;re protected!</h3>
+                <p className="text-neutral-500 dark:text-neutral-400 text-xs">
                   Configure your blocking rules. The app works even when closed.
                 </p>
               </div>
@@ -511,9 +515,9 @@ export default function DownloadPage() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
         >
-          <p className="text-gray-500 text-xs">
+          <p className="text-neutral-500 text-xs">
             Need help?{" "}
-            <a href="/support" className="text-primary-400 hover:underline inline-flex items-center gap-1">
+            <a href="/support" className="text-neutral-600 dark:text-neutral-400 hover:underline inline-flex items-center gap-1">
               Contact Support <ExternalLink className="w-2.5 h-2.5" />
             </a>
           </p>

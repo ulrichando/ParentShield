@@ -210,7 +210,7 @@ export default function WebFiltersPage() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-6 h-6 text-primary-500 animate-spin" />
+          <Loader2 className="w-6 h-6 text-neutral-900 dark:text-white animate-spin" />
         </div>
       </DashboardLayout>
     );
@@ -220,32 +220,34 @@ export default function WebFiltersPage() {
     <DashboardLayout>
       {/* Page Header */}
       <motion.div
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5"
+        className="mb-8"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <div>
-          <h1 className="text-lg md:text-base font-bold text-white mb-2 flex items-center gap-3">
-            <Globe className="w-5 h-5 text-blue-400" />
-            Web Filters
-          </h1>
-          <p className="text-gray-400">Block websites by category or custom URLs.</p>
-        </div>
-        <div className="flex gap-3">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => selectedDevice && fetchConfig(selectedDevice)}
-            disabled={isLoading}
-          >
-            <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
-            Refresh
-          </Button>
-          <Button size="sm" onClick={saveConfig} disabled={!hasChanges || isSaving}>
-            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            Save Changes
-          </Button>
+        <p className="text-xs uppercase tracking-widest text-neutral-500 dark:text-neutral-400 mb-2">Content Protection</p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-light text-neutral-900 dark:text-white mb-2">
+              Web Filters
+            </h1>
+            <p className="text-neutral-500 dark:text-neutral-400">Block websites by category or custom URLs.</p>
+          </div>
+          <div className="flex gap-3">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => selectedDevice && fetchConfig(selectedDevice)}
+              disabled={isLoading}
+            >
+              <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
+              Refresh
+            </Button>
+            <Button size="sm" onClick={saveConfig} disabled={!hasChanges || isSaving}>
+              {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              Save Changes
+            </Button>
+          </div>
         </div>
       </motion.div>
 
@@ -257,11 +259,11 @@ export default function WebFiltersPage() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.1 }}
         >
-          <label className="block text-sm font-medium text-gray-400 mb-2">Select Device</label>
+          <label className="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2">Select Device</label>
           <select
             value={selectedDevice || ""}
             onChange={(e) => setSelectedDevice(e.target.value)}
-            className="w-full md:w-64 bg-surface-card border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500"
+            className="w-full md:w-64 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 px-4 py-2 text-neutral-900 dark:text-white focus:outline-none focus:border-neutral-900 dark:focus:border-white"
           >
             {devices.map((device) => (
               <option key={device.id} value={device.id}>
@@ -274,7 +276,7 @@ export default function WebFiltersPage() {
 
       {error && (
         <motion.div
-          className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-5"
+          className="bg-red-500/10 border border-red-500/20 p-4 mb-5"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
@@ -284,15 +286,15 @@ export default function WebFiltersPage() {
 
       {devices.length === 0 ? (
         <motion.div
-          className="bg-surface-card rounded-2xl border border-white/5 p-8 text-center"
+          className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-8 text-center"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <div className="w-10 h-10 mx-auto rounded-full bg-surface-elevated flex items-center justify-center mb-6">
-            <Laptop className="w-8 h-8 text-gray-500" />
+          <div className="w-10 h-10 mx-auto bg-[#FAFAFA] dark:bg-neutral-800 flex items-center justify-center mb-6">
+            <Laptop className="w-8 h-8 text-neutral-500" />
           </div>
-          <h2 className="text-base font-bold text-white mb-2">No Devices Found</h2>
-          <p className="text-gray-400 text-sm mb-4 max-w-md mx-auto">
+          <h2 className="text-base font-bold text-neutral-900 dark:text-white mb-2">No Devices Found</h2>
+          <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-4 max-w-md mx-auto">
             You need to have at least one active device to configure web filters.
           </p>
           <Link href="/dashboard/download">
@@ -304,21 +306,21 @@ export default function WebFiltersPage() {
         </motion.div>
       ) : isLoading ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-6 h-6 text-primary-500 animate-spin" />
+          <Loader2 className="w-6 h-6 text-neutral-900 dark:text-white animate-spin" />
         </div>
       ) : config ? (
         <div className="space-y-3">
           {/* Enable/Disable & Safe Search */}
           <motion.div
-            className="bg-surface-card rounded-xl border border-white/5 p-4"
+            className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-sm font-semibold text-white">Enable Web Filtering</h3>
-                <p className="text-xs text-gray-400">
+                <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">Enable Web Filtering</h3>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400">
                   Turn on to block websites on this device.
                 </p>
               </div>
@@ -327,21 +329,21 @@ export default function WebFiltersPage() {
                   setConfig({ ...config, is_enabled: !config.is_enabled });
                   setHasChanges(true);
                 }}
-                className="text-primary-400 hover:text-primary-300 transition-colors"
+                className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
               >
                 {config.is_enabled ? (
                   <ToggleRight className="w-8 h-8" />
                 ) : (
-                  <ToggleLeft className="w-8 h-8 text-gray-500" />
+                  <ToggleLeft className="w-8 h-8 text-neutral-500" />
                 )}
               </button>
             </div>
 
-            <div className="border-t border-white/5 pt-4">
+            <div className="border-t border-neutral-200 dark:border-neutral-800 pt-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="font-medium text-white">Enforce Safe Search</h4>
-                  <p className="text-sm text-gray-400">
+                  <h4 className="font-medium text-neutral-900 dark:text-white">Enforce Safe Search</h4>
+                  <p className="text-sm text-neutral-500 dark:text-neutral-400">
                     Force safe search on Google, Bing, and YouTube.
                   </p>
                 </div>
@@ -351,12 +353,12 @@ export default function WebFiltersPage() {
                     setHasChanges(true);
                   }}
                   disabled={!config.is_enabled}
-                  className="text-primary-400 hover:text-primary-300 transition-colors disabled:opacity-50"
+                  className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors disabled:opacity-50"
                 >
                   {config.enforce_safe_search ? (
                     <ToggleRight className="w-8 h-8" />
                   ) : (
-                    <ToggleLeft className="w-8 h-8 text-gray-500" />
+                    <ToggleLeft className="w-8 h-8 text-neutral-500" />
                   )}
                 </button>
               </div>
@@ -365,15 +367,15 @@ export default function WebFiltersPage() {
 
           {/* Category Filters */}
           <motion.div
-            className={`bg-surface-card rounded-xl border border-white/5 p-4 ${
+            className={`bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4 ${
               !config.is_enabled ? "opacity-50" : ""
             }`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <h3 className="text-sm font-semibold text-white mb-4">Block Categories</h3>
-            <p className="text-sm text-gray-400 text-sm mb-4">
+            <h3 className="text-sm font-semibold text-neutral-900 dark:text-white mb-4">Block Categories</h3>
+            <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
               Select categories of websites to block.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -384,21 +386,21 @@ export default function WebFiltersPage() {
                     key={category.id}
                     onClick={() => toggleCategory(category.id)}
                     disabled={!config.is_enabled}
-                    className={`p-4 rounded-lg text-left transition-all ${
+                    className={`p-4 text-left transition-all ${
                       isSelected
-                        ? "bg-primary-500/10 border-primary-500/30 border"
-                        : "bg-surface-elevated hover:bg-white/5 border border-transparent"
+                        ? "bg-neutral-100 dark:bg-neutral-800 border-neutral-900 dark:border-white border"
+                        : "bg-[#FAFAFA] dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-transparent"
                     } disabled:opacity-50`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-medium text-white">{category.name}</span>
+                      <span className="font-medium text-neutral-900 dark:text-white">{category.name}</span>
                       {isSelected ? (
                         <Ban className="w-5 h-5 text-red-400" />
                       ) : (
-                        <CheckCircle className="w-5 h-5 text-gray-500" />
+                        <CheckCircle className="w-5 h-5 text-neutral-500" />
                       )}
                     </div>
-                    <p className="text-xs text-gray-400">{category.description}</p>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400">{category.description}</p>
                   </button>
                 );
               })}
@@ -407,7 +409,7 @@ export default function WebFiltersPage() {
 
           {/* Custom Rules */}
           <motion.div
-            className={`bg-surface-card rounded-xl border border-white/5 p-4 ${
+            className={`bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4 ${
               !config.is_enabled ? "opacity-50" : ""
             }`}
             initial={{ opacity: 0, y: 20 }}
@@ -416,8 +418,8 @@ export default function WebFiltersPage() {
           >
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-sm font-semibold text-white">Custom Rules</h3>
-                <p className="text-xs text-gray-400">
+                <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">Custom Rules</h3>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400">
                   Add specific websites to block or allow.
                 </p>
               </div>
@@ -432,7 +434,7 @@ export default function WebFiltersPage() {
             </div>
 
             {rules.length === 0 ? (
-              <div className="text-center py-8 text-gray-400">
+              <div className="text-center py-8 text-neutral-500 dark:text-neutral-400">
                 <Search className="w-8 h-8 mx-auto mb-2 opacity-50" />
                 <p>No custom rules yet</p>
               </div>
@@ -441,7 +443,7 @@ export default function WebFiltersPage() {
                 {rules.map((rule) => (
                   <div
                     key={rule.id}
-                    className="flex items-center justify-between py-3 px-4 bg-surface-elevated rounded-lg"
+                    className="flex items-center justify-between py-3 px-4 bg-[#FAFAFA] dark:bg-neutral-800"
                   >
                     <div className="flex items-center gap-3">
                       {rule.is_blocked ? (
@@ -450,15 +452,15 @@ export default function WebFiltersPage() {
                         <CheckCircle className="w-4 h-4 text-green-400" />
                       )}
                       <div>
-                        <p className="text-white font-medium">{rule.url_pattern}</p>
+                        <p className="text-neutral-900 dark:text-white font-medium">{rule.url_pattern}</p>
                         {rule.notes && (
-                          <p className="text-xs text-gray-500">{rule.notes}</p>
+                          <p className="text-xs text-neutral-500">{rule.notes}</p>
                         )}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <span
-                        className={`text-xs px-2 py-1 rounded-full ${
+                        className={`text-xs px-2 py-1 ${
                           rule.is_blocked
                             ? "bg-red-500/10 text-red-400"
                             : "bg-green-500/10 text-green-400"
@@ -469,7 +471,7 @@ export default function WebFiltersPage() {
                       <button
                         onClick={() => deleteRule(rule.id)}
                         disabled={deletingId === rule.id}
-                        className="p-2 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50"
+                        className="p-2 text-neutral-500 hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50"
                       >
                         {deletingId === rule.id ? (
                           <Loader2 className="w-4 h-4 animate-spin" />
@@ -490,23 +492,23 @@ export default function WebFiltersPage() {
       {showAddRule && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <motion.div
-            className="bg-surface-card rounded-2xl border border-white/10 p-6 w-full max-w-md"
+            className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 p-6 w-full max-w-md"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
           >
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-base font-bold text-white">Add Custom Rule</h2>
+              <h2 className="text-base font-bold text-neutral-900 dark:text-white">Add Custom Rule</h2>
               <button
                 onClick={() => setShowAddRule(false)}
-                className="p-2 hover:bg-white/5 rounded-lg transition-colors"
+                className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
               >
-                <X className="w-5 h-5 text-gray-400" />
+                <X className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
               </button>
             </div>
 
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">
+                <label className="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2">
                   URL / Domain Pattern
                 </label>
                 <input
@@ -514,29 +516,29 @@ export default function WebFiltersPage() {
                   value={newRule.url_pattern}
                   onChange={(e) => setNewRule({ ...newRule, url_pattern: e.target.value })}
                   placeholder="e.g., facebook.com, *.tiktok.com"
-                  className="w-full bg-surface-elevated border border-white/10 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-primary-500"
+                  className="w-full bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 px-4 py-2 text-neutral-900 dark:text-white placeholder-neutral-500 focus:outline-none focus:border-neutral-900 dark:focus:border-white"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">Action</label>
+                <label className="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2">Action</label>
                 <div className="flex gap-3">
                   <button
                     onClick={() => setNewRule({ ...newRule, is_blocked: true })}
-                    className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
+                    className={`flex-1 py-2 px-4 font-medium transition-colors ${
                       newRule.is_blocked
                         ? "bg-red-500/20 text-red-400 border border-red-500/30"
-                        : "bg-surface-elevated text-gray-400"
+                        : "bg-[#FAFAFA] dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400"
                     }`}
                   >
                     Block
                   </button>
                   <button
                     onClick={() => setNewRule({ ...newRule, is_blocked: false })}
-                    className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
+                    className={`flex-1 py-2 px-4 font-medium transition-colors ${
                       !newRule.is_blocked
                         ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                        : "bg-surface-elevated text-gray-400"
+                        : "bg-[#FAFAFA] dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400"
                     }`}
                   >
                     Allow
@@ -545,7 +547,7 @@ export default function WebFiltersPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">
+                <label className="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2">
                   Notes (optional)
                 </label>
                 <input
@@ -553,7 +555,7 @@ export default function WebFiltersPage() {
                   value={newRule.notes}
                   onChange={(e) => setNewRule({ ...newRule, notes: e.target.value })}
                   placeholder="e.g., Block for homework time"
-                  className="w-full bg-surface-elevated border border-white/10 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-primary-500"
+                  className="w-full bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 px-4 py-2 text-neutral-900 dark:text-white placeholder-neutral-500 focus:outline-none focus:border-neutral-900 dark:focus:border-white"
                 />
               </div>
             </div>

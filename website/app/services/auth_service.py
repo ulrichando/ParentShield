@@ -288,3 +288,57 @@ class AuthService:
         await db.commit()
 
         return admin
+
+    @staticmethod
+    async def create_demo_customers(db: AsyncSession) -> list[User]:
+        """Create demo customer accounts if they don't exist."""
+        demo_accounts = [
+            {
+                "email": "customer@test.com",
+                "password": "Customer123!",
+                "first_name": "John",
+                "last_name": "Doe",
+            },
+            {
+                "email": "demo@parentshield.app",
+                "password": "Demo123!",
+                "first_name": "Jane",
+                "last_name": "Smith",
+            },
+        ]
+
+        created_users = []
+        for account in demo_accounts:
+            result = await db.execute(
+                select(User).where(User.email == account["email"])
+            )
+            if result.scalar_one_or_none():
+                continue
+
+            user = User(
+                email=account["email"],
+                password_hash=get_password_hash(account["password"]),
+                first_name=account["first_name"],
+                last_name=account["last_name"],
+                role=UserRole.CUSTOMER,
+                is_verified=True,
+                is_active=True,
+            )
+            db.add(user)
+            await db.flush()
+
+            # Create 7-day free trial subscription
+            trial_subscription = Subscription(
+                user_id=user.id,
+                status=SubscriptionStatus.TRIALING,
+                plan_name="Free Trial",
+                amount=0.00,
+                currency="USD",
+                current_period_start=datetime.utcnow(),
+                current_period_end=datetime.utcnow() + timedelta(days=7),
+            )
+            db.add(trial_subscription)
+            created_users.append(user)
+
+        await db.commit()
+        return created_users

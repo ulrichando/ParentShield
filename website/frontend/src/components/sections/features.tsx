@@ -6,115 +6,88 @@ import {
   Gamepad2,
   Globe,
   Shield,
-  Laptop,
   BarChart3,
-  Lock,
-  Bell,
+  Zap,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 const features = [
   {
     icon: Clock,
-    title: "Smart Time Limits",
-    description:
-      "Set daily screen time limits that automatically adjust based on your family's schedule. Includes homework mode and weekend extensions.",
-    span: "md:col-span-2",
-    featured: true,
+    number: "01",
+    title: "Screen Time",
+    description: "Intelligent limits that adapt to your family's schedule. Homework mode, weekend extensions, and granular per-app controls.",
   },
   {
     icon: Gamepad2,
-    title: "Game Blocking",
-    description:
-      "Block Steam, Epic, and 500+ gaming platforms. Whitelist educational games while blocking distractions.",
-    span: "",
+    number: "02",
+    title: "Game Control",
+    description: "Block 500+ gaming platforms with a single toggle. Steam, Epic, Discord—managed effortlessly.",
   },
   {
     icon: Globe,
-    title: "Website Filtering",
-    description:
-      "AI-powered content filtering that blocks harmful content in real-time across all browsers.",
-    span: "",
+    number: "03",
+    title: "Web Filtering",
+    description: "AI-powered content analysis blocks harmful sites in real-time. Protection that stays invisible.",
   },
   {
     icon: Shield,
-    title: "Tamper Protection",
-    description:
-      "Enterprise-grade security prevents kids from disabling or bypassing the software. Even tech-savvy teenagers can't circumvent it.",
-    span: "md:col-span-3",
-    featured: true,
-  },
-  {
-    icon: Laptop,
-    title: "Cross-Platform",
-    description:
-      "Works on Windows, macOS, and Linux. One subscription covers all your family's devices.",
-    span: "",
+    number: "04",
+    title: "Tamper-Proof",
+    description: "Enterprise-grade security that even tech-savvy teenagers cannot bypass. You stay in control.",
   },
   {
     icon: BarChart3,
-    title: "Activity Reports",
-    description:
-      "Weekly reports show screen time trends, most-used apps, and blocked attempts.",
-    span: "",
+    number: "05",
+    title: "Insights",
+    description: "Weekly reports with usage trends, app breakdowns, and actionable recommendations.",
   },
   {
-    icon: Lock,
-    title: "App Control",
-    description:
-      "Block or limit any application. Set different rules for different apps.",
-    span: "",
-  },
-  {
-    icon: Bell,
-    title: "Instant Alerts",
-    description:
-      "Get notified when limits are reached or when blocked content is attempted.",
-    span: "",
+    icon: Zap,
+    number: "06",
+    title: "Quick Setup",
+    description: "Get protected in under five minutes. No complex configuration required.",
   },
 ];
 
 export function Features() {
   return (
-    <section id="features" className="py-16 bg-surface-base relative">
-      {/* Subtle gradient background */}
-      <div className="absolute inset-0 bg-linear-to-b from-transparent via-primary-500/5 to-transparent" />
+    <section id="features" className="py-32 bg-white dark:bg-neutral-950">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12">
+        {/* Header */}
+        <div className="grid lg:grid-cols-12 gap-12 mb-24">
+          <motion.div
+            className="lg:col-span-5"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <p className="text-xs uppercase tracking-[0.3em] text-neutral-400 dark:text-neutral-500 mb-4">
+              Features
+            </p>
+            <h2 className="text-4xl md:text-5xl font-light text-neutral-900 dark:text-white leading-tight">
+              Everything you need,
+              <br />
+              <span className="italic">nothing you don&apos;t.</span>
+            </h2>
+          </motion.div>
+          <motion.div
+            className="lg:col-span-5 lg:col-start-8 flex items-end"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+          >
+            <p className="text-neutral-500 dark:text-neutral-400 leading-relaxed">
+              Comprehensive protection designed for modern families.
+              Simple to configure, impossible to bypass.
+            </p>
+          </motion.div>
+        </div>
 
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
-        {/* Section Header */}
-        <motion.div
-          className="text-center max-w-2xl mx-auto mb-10"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          <span className="inline-flex items-center gap-2 bg-primary-500/10 border border-primary-500/20 text-primary-400 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-3">
-            Features
-          </span>
-          <h2 className="text-3xl md:text-4xl font-bold mb-3">
-            Everything You Need to{" "}
-            <span className="text-gradient">Protect Your Family</span>
-          </h2>
-          <p className="text-gray-400 text-sm">
-            Comprehensive parental control tools designed for modern families.
-            Easy to set up, impossible to bypass.
-          </p>
-        </motion.div>
-
-        {/* Bento Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Features Grid */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-16">
           {features.map((feature, index) => (
-            <motion.div
-              key={feature.title}
-              className={cn("col-span-1", feature.span)}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-            >
-              <FeatureCard {...feature} />
-            </motion.div>
+            <FeatureCard key={feature.number} feature={feature} index={index} />
           ))}
         </div>
       </div>
@@ -123,42 +96,43 @@ export function Features() {
 }
 
 function FeatureCard({
-  icon: Icon,
-  title,
-  description,
-  featured = false,
+  feature,
+  index,
 }: {
-  icon: React.ElementType;
-  title: string;
-  description: string;
-  featured?: boolean;
+  feature: (typeof features)[0];
+  index: number;
 }) {
+  const Icon = feature.icon;
+
   return (
     <motion.div
-      className={cn(
-        "h-full rounded-xl p-4 border transition-all duration-300",
-        "bg-surface-card hover:bg-surface-elevated",
-        featured
-          ? "border-primary-500/30 bg-linear-to-br from-primary-500/10 to-transparent"
-          : "border-white/5 hover:border-primary-500/20"
-      )}
-      whileHover={{
-        y: -3,
-        boxShadow: featured
-          ? "0 0 40px rgba(6, 182, 212, 0.15)"
-          : "0 0 30px rgba(6, 182, 212, 0.08)",
-      }}
+      className="group"
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: index * 0.1 }}
     >
-      <div
-        className={cn(
-          "w-10 h-10 rounded-lg flex items-center justify-center mb-3",
-          featured ? "bg-gradient-primary shadow-glow-sm" : "bg-surface-elevated"
-        )}
-      >
-        <Icon className={cn("w-5 h-5", featured ? "text-white" : "text-primary-400")} />
+      <div className="flex items-start gap-6">
+        {/* Number */}
+        <span className="text-xs text-neutral-300 dark:text-neutral-600 font-light mt-1">
+          {feature.number}
+        </span>
+
+        <div className="flex-1">
+          {/* Icon */}
+          <div className="w-12 h-12 flex items-center justify-center border border-neutral-200 dark:border-neutral-800 mb-6 group-hover:border-neutral-900 dark:group-hover:border-white transition-colors">
+            <Icon className="w-5 h-5 text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-900 dark:group-hover:text-white transition-colors" />
+          </div>
+
+          {/* Content */}
+          <h3 className="text-lg font-medium text-neutral-900 dark:text-white mb-3">
+            {feature.title}
+          </h3>
+          <p className="text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed">
+            {feature.description}
+          </p>
+        </div>
       </div>
-      <h3 className="text-base font-semibold text-white mb-1.5">{title}</h3>
-      <p className="text-gray-400 text-sm leading-relaxed">{description}</p>
     </motion.div>
   );
 }

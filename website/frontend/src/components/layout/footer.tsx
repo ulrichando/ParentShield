@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Shield, Twitter, Github, Linkedin, Mail } from "lucide-react";
+import { motion } from "framer-motion";
+import { ArrowUpRight } from "lucide-react";
 
 const footerLinks = {
   product: [
@@ -18,139 +19,199 @@ const footerLinks = {
   ],
   resources: [
     { label: "Documentation", href: "/docs" },
-    { label: "Help Center", href: "/support" },
+    { label: "Support", href: "/support" },
     { label: "Community", href: "/community" },
     { label: "API", href: "/api-docs" },
   ],
   legal: [
-    { label: "Privacy Policy", href: "/privacy" },
-    { label: "Terms of Service", href: "/terms" },
-    { label: "Cookie Policy", href: "/cookies" },
-    { label: "GDPR", href: "/gdpr" },
+    { label: "Privacy", href: "/privacy" },
+    { label: "Terms", href: "/terms" },
+    { label: "Cookies", href: "/cookies" },
   ],
 };
 
 const socialLinks = [
-  { icon: Twitter, href: "https://twitter.com/parentshield", label: "Twitter" },
-  { icon: Github, href: "https://github.com/parentshield", label: "GitHub" },
-  { icon: Linkedin, href: "https://linkedin.com/company/parentshield", label: "LinkedIn" },
-  { icon: Mail, href: "mailto:support@parentshield.com", label: "Email" },
+  { label: "Twitter", href: "https://twitter.com" },
+  { label: "GitHub", href: "https://github.com" },
+  { label: "LinkedIn", href: "https://linkedin.com" },
 ];
 
 export function Footer() {
   return (
-    <footer className="bg-surface-base border-t border-white/5">
-      <div className="max-w-7xl mx-auto px-6 py-10">
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-6 mb-8">
-          {/* Brand */}
-          <div className="col-span-2">
-            <Link href="/" className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                <Shield className="w-4 h-4 text-white" />
-              </div>
-              <span className="text-lg font-bold text-white">ParentShield</span>
+    <footer className="bg-[#FAFAFA] dark:bg-neutral-900 border-t border-neutral-200 dark:border-neutral-800">
+      {/* Main Footer */}
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 pt-20 pb-12">
+        {/* Top Section - Brand & Newsletter */}
+        <div className="grid lg:grid-cols-2 gap-16 pb-16 border-b border-neutral-200 dark:border-neutral-800">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <Link href="/" className="inline-block mb-6">
+              <span className="text-2xl font-light tracking-tight text-neutral-900 dark:text-white">
+                Parent<span className="font-medium">Shield</span>
+              </span>
             </Link>
-            <p className="text-gray-500 text-xs leading-relaxed mb-4 max-w-xs">
-              Enterprise-grade parental control software that helps families manage screen time and digital safety.
+            <p className="text-neutral-500 dark:text-neutral-400 font-light leading-relaxed max-w-md">
+              Thoughtfully designed parental controls that protect
+              without overreaching. For families who value both
+              safety and trust.
             </p>
-            <div className="flex gap-2">
-              {socialLinks.map((social) => (
-                <a
-                  key={social.label}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-8 h-8 rounded-lg bg-surface-card border border-white/5 flex items-center justify-center text-gray-500 hover:text-white hover:bg-primary-600 hover:border-primary-600 transition-all duration-300"
-                  aria-label={social.label}
-                >
-                  <social.icon className="w-3.5 h-3.5" />
-                </a>
-              ))}
-            </div>
-          </div>
+          </motion.div>
 
-          {/* Links */}
-          <div>
-            <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+          <motion.div
+            className="lg:text-right"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+          >
+            <p className="text-xs uppercase tracking-[0.3em] text-neutral-400 dark:text-neutral-500 mb-4">
+              Stay Updated
+            </p>
+            <div className="flex lg:justify-end">
+              <div className="flex border-b border-neutral-300 dark:border-neutral-700 pb-2 w-full max-w-sm">
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  className="bg-transparent text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-600 text-sm flex-1 outline-none"
+                />
+                <button className="text-neutral-900 dark:text-white hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">
+                  <ArrowUpRight className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Links Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 py-16">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h4 className="text-xs uppercase tracking-[0.2em] text-neutral-400 dark:text-neutral-500 mb-6">
               Product
             </h4>
-            <ul className="space-y-2">
+            <ul className="space-y-4">
               {footerLinks.product.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-gray-400 hover:text-white transition-colors text-xs"
+                    className="text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
                   >
                     {link.label}
                   </Link>
                 </li>
               ))}
             </ul>
-          </div>
+          </motion.div>
 
-          <div>
-            <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.05 }}
+          >
+            <h4 className="text-xs uppercase tracking-[0.2em] text-neutral-400 dark:text-neutral-500 mb-6">
               Company
             </h4>
-            <ul className="space-y-2">
+            <ul className="space-y-4">
               {footerLinks.company.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-gray-400 hover:text-white transition-colors text-xs"
+                    className="text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
                   >
                     {link.label}
                   </Link>
                 </li>
               ))}
             </ul>
-          </div>
+          </motion.div>
 
-          <div>
-            <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+          >
+            <h4 className="text-xs uppercase tracking-[0.2em] text-neutral-400 dark:text-neutral-500 mb-6">
               Resources
             </h4>
-            <ul className="space-y-2">
+            <ul className="space-y-4">
               {footerLinks.resources.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-gray-400 hover:text-white transition-colors text-xs"
+                    className="text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
                   >
                     {link.label}
                   </Link>
                 </li>
               ))}
             </ul>
-          </div>
+          </motion.div>
 
-          <div>
-            <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.15 }}
+          >
+            <h4 className="text-xs uppercase tracking-[0.2em] text-neutral-400 dark:text-neutral-500 mb-6">
               Legal
             </h4>
-            <ul className="space-y-2">
+            <ul className="space-y-4">
               {footerLinks.legal.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-gray-400 hover:text-white transition-colors text-xs"
+                    className="text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
                   >
                     {link.label}
                   </Link>
                 </li>
               ))}
             </ul>
-          </div>
+          </motion.div>
         </div>
 
-        {/* Bottom */}
-        <div className="pt-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-3">
-          <p className="text-gray-500 text-xs">
+        {/* Bottom Bar */}
+        <div className="pt-8 border-t border-neutral-200 dark:border-neutral-800 flex flex-col md:flex-row justify-between items-center gap-6">
+          <p className="text-sm text-neutral-500 dark:text-neutral-500 font-light">
             © {new Date().getFullYear()} ParentShield. All rights reserved.
           </p>
-          <div className="flex items-center gap-6">
-            <span className="text-gray-600 text-xs">Made with ♥ for families worldwide</span>
+
+          <div className="flex items-center gap-8">
+            {socialLinks.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-neutral-500 hover:text-neutral-900 dark:hover:text-white transition-colors"
+              >
+                {link.label}
+              </a>
+            ))}
           </div>
+        </div>
+      </div>
+
+      {/* Large Brand Mark */}
+      <div className="border-t border-neutral-200 dark:border-neutral-800 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 py-8">
+          <motion.p
+            className="text-[8vw] md:text-[6vw] font-extralight text-neutral-200 dark:text-neutral-800 leading-none tracking-tighter"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+          >
+            ParentShield
+          </motion.p>
         </div>
       </div>
     </footer>

@@ -18,8 +18,10 @@ import {
   Briefcase,
   FileText,
   Key,
+  Sun,
+  Moon,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useTheme } from "@/components/theme-provider";
 
 interface AdminSidebarProps {
   activePage: "dashboard" | "users" | "subscriptions" | "transactions" | "analytics" | "devices" | "settings" | "careers" | "blog" | "api-keys";
@@ -44,6 +46,7 @@ const navItems = [
 
 export function AdminSidebar({ activePage, user }: AdminSidebarProps) {
   const router = useRouter();
+  const { theme, toggleTheme, mounted } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleLogout = () => {
@@ -63,19 +66,34 @@ export function AdminSidebar({ activePage, user }: AdminSidebarProps) {
   return (
     <>
       {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 h-14 bg-surface-card border-b border-white/5 flex items-center justify-between px-4 z-40">
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-14 bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between px-4 z-40">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-linear-to-r from-red-500 to-orange-500 rounded-lg flex items-center justify-center">
-            <Shield className="w-3.5 h-3.5 text-white" />
+          <div className="w-8 h-8 bg-red-600 flex items-center justify-center">
+            <Shield className="w-4 h-4 text-white" />
           </div>
-          <span className="text-sm font-bold text-white">Admin</span>
+          <div>
+            <span className="text-sm font-medium text-neutral-900 dark:text-white">ParentShield</span>
+            <span className="text-xs text-red-600 dark:text-red-400 ml-2">Admin</span>
+          </div>
         </div>
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="p-2 text-gray-400 hover:text-white"
-        >
-          {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleTheme}
+            className="p-2 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
+          >
+            {mounted ? (
+              theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />
+            ) : (
+              <div className="w-5 h-5" />
+            )}
+          </button>
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="p-2 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
+          >
+            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Overlay */}
@@ -87,17 +105,17 @@ export function AdminSidebar({ activePage, user }: AdminSidebarProps) {
       )}
 
       {/* Sidebar */}
-      <aside className={`fixed left-0 top-0 h-full w-52 bg-surface-card border-r border-white/5 p-4 flex flex-col z-50 transition-transform duration-300 ${
+      <aside className={`fixed left-0 top-0 h-full w-56 bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 p-5 flex flex-col z-50 transition-transform duration-300 ${
         mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       }`}>
         {/* Logo */}
-        <div className="flex items-center gap-2 mb-6">
-          <div className="w-8 h-8 bg-linear-to-r from-red-500 to-orange-500 rounded-lg flex items-center justify-center">
-            <Shield className="w-4 h-4 text-white" />
+        <div className="flex items-center gap-3 mb-8">
+          <div className="w-9 h-9 bg-red-600 flex items-center justify-center">
+            <Shield className="w-5 h-5 text-white" />
           </div>
           <div>
-            <span className="text-base font-bold text-white">ParentShield</span>
-            <p className="text-[10px] text-red-400 font-medium">Admin Panel</p>
+            <span className="text-lg font-medium text-neutral-900 dark:text-white">ParentShield</span>
+            <p className="text-xs text-red-600 dark:text-red-400">Admin Panel</p>
           </div>
         </div>
 
@@ -107,10 +125,10 @@ export function AdminSidebar({ activePage, user }: AdminSidebarProps) {
             <button
               key={item.key}
               onClick={() => handleNavClick(item.href)}
-              className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all ${
+              className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm transition-all ${
                 activePage === item.key
-                  ? "bg-linear-to-r from-red-500 to-orange-500 text-white"
-                  : "text-gray-400 hover:bg-white/5 hover:text-white"
+                  ? "bg-red-600 text-white"
+                  : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-white"
               }`}
             >
               <item.icon className="w-4 h-4" />
@@ -119,21 +137,49 @@ export function AdminSidebar({ activePage, user }: AdminSidebarProps) {
           ))}
         </nav>
 
+        {/* Theme Toggle */}
+        <button
+          onClick={toggleTheme}
+          className="flex items-center gap-3 px-3 py-2.5 text-sm text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-white transition-all mb-4"
+        >
+          {mounted ? (
+            theme === "dark" ? (
+              <>
+                <Sun className="w-4 h-4" />
+                Light Mode
+              </>
+            ) : (
+              <>
+                <Moon className="w-4 h-4" />
+                Dark Mode
+              </>
+            )
+          ) : (
+            <>
+              <div className="w-4 h-4" />
+              Theme
+            </>
+          )}
+        </button>
+
         {/* User */}
-        <div className="border-t border-white/5 pt-4">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-8 h-8 rounded-full bg-linear-to-br from-red-400 to-orange-500 flex items-center justify-center">
-              <User className="w-4 h-4 text-white" />
+        <div className="border-t border-neutral-200 dark:border-neutral-800 pt-4">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-9 h-9 bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
+              <User className="w-4 h-4 text-red-600 dark:text-red-400" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-medium text-white truncate">{user?.first_name || "Admin"}</p>
-              <p className="text-[10px] text-gray-500 truncate">{user?.email}</p>
+              <p className="text-sm font-medium text-neutral-900 dark:text-white truncate">{user?.first_name || "Admin"}</p>
+              <p className="text-xs text-neutral-500 truncate">{user?.email}</p>
             </div>
           </div>
-          <Button variant="ghost" size="sm" className="w-full justify-start text-xs" onClick={handleLogout}>
-            <LogOut className="w-3.5 h-3.5" />
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-white transition-all"
+          >
+            <LogOut className="w-4 h-4" />
             Sign Out
-          </Button>
+          </button>
         </div>
       </aside>
 

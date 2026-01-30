@@ -137,24 +137,27 @@ export default function AdminApiKeysPage() {
 
   if (isLoading || !user) {
     return (
-      <div className="min-h-screen bg-surface-base flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#FAFAFA] dark:bg-neutral-950 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-neutral-900 dark:border-white border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-surface-base">
+    <div className="min-h-screen bg-[#FAFAFA] dark:bg-neutral-950">
       <AdminSidebar activePage="api-keys" user={user} />
 
       <main className="lg:ml-52 pt-14 lg:pt-6">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 py-4 md:py-6">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-5">
-            <div>
-              <h1 className="text-lg font-bold text-white mb-0.5">API Keys Management</h1>
-              <p className="text-sm text-gray-400">Manage paid API access for developers</p>
-            </div>
+          {/* Editorial Page Header */}
+          <header className="mb-8 border-b border-neutral-200 dark:border-neutral-800 pb-6">
+            <p className="text-xs uppercase tracking-widest text-neutral-500 mb-2">Administration</p>
+            <h1 className="text-3xl font-light text-neutral-900 dark:text-white mb-2">API Keys Management</h1>
+            <p className="text-neutral-500 dark:text-neutral-400">Manage paid API access for developers</p>
+          </header>
+
+          {/* Header Actions */}
+          <div className="flex items-center justify-end mb-5">
             <Button size="sm" onClick={() => { setShowForm(true); setNewKey(null); }}>
               <Plus className="w-4 h-4 mr-1" />
               Create Key
@@ -163,45 +166,45 @@ export default function AdminApiKeysPage() {
 
           {/* Stats */}
           <div className="grid grid-cols-4 gap-3 mb-5">
-            <div className="bg-surface-card rounded-xl border border-white/5 p-4">
+            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4">
               <div className="flex items-center gap-2 mb-1">
-                <Key className="w-4 h-4 text-primary-400" />
-                <span className="text-xs text-gray-500">Total Keys</span>
+                <Key className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
+                <span className="text-xs text-neutral-500">Total Keys</span>
               </div>
-              <p className="text-xl font-bold text-white">{apiKeys.length}</p>
+              <p className="text-xl font-bold text-neutral-900 dark:text-white">{apiKeys.length}</p>
             </div>
-            <div className="bg-surface-card rounded-xl border border-white/5 p-4">
+            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4">
               <div className="flex items-center gap-2 mb-1">
                 <Activity className="w-4 h-4 text-green-400" />
-                <span className="text-xs text-gray-500">Active</span>
+                <span className="text-xs text-neutral-500">Active</span>
               </div>
               <p className="text-xl font-bold text-green-400">{apiKeys.filter(k => k.is_active).length}</p>
             </div>
-            <div className="bg-surface-card rounded-xl border border-white/5 p-4">
+            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4">
               <div className="flex items-center gap-2 mb-1">
                 <DollarSign className="w-4 h-4 text-purple-400" />
-                <span className="text-xs text-gray-500">Monthly Revenue</span>
+                <span className="text-xs text-neutral-500">Monthly Revenue</span>
               </div>
               <p className="text-xl font-bold text-purple-400">${totalRevenue}</p>
             </div>
-            <div className="bg-surface-card rounded-xl border border-white/5 p-4">
+            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4">
               <div className="flex items-center gap-2 mb-1">
                 <Activity className="w-4 h-4 text-blue-400" />
-                <span className="text-xs text-gray-500">Total Requests</span>
+                <span className="text-xs text-neutral-500">Total Requests</span>
               </div>
               <p className="text-xl font-bold text-blue-400">{apiKeys.reduce((sum, k) => sum + k.requests_used, 0).toLocaleString()}</p>
             </div>
           </div>
 
           {/* Pricing Info */}
-          <div className="bg-surface-card rounded-xl border border-white/5 p-4 mb-5">
-            <h3 className="text-sm font-medium text-white mb-3">API Pricing Plans</h3>
+          <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4 mb-5">
+            <h3 className="text-sm font-medium text-neutral-900 dark:text-white mb-3">API Pricing Plans</h3>
             <div className="grid grid-cols-3 gap-4">
               {PLANS.map(plan => (
-                <div key={plan.value} className="p-3 rounded-lg bg-surface-base border border-white/5">
-                  <p className="font-medium text-white">{plan.label}</p>
-                  <p className="text-lg font-bold text-primary-400">{plan.price}</p>
-                  <p className="text-xs text-gray-500">{plan.limit.toLocaleString()} requests/month</p>
+                <div key={plan.value} className="p-3 bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-800">
+                  <p className="font-medium text-neutral-900 dark:text-white">{plan.label}</p>
+                  <p className="text-lg font-bold text-neutral-600 dark:text-neutral-400">{plan.price}</p>
+                  <p className="text-xs text-neutral-500">{plan.limit.toLocaleString()} requests/month</p>
                 </div>
               ))}
             </div>
@@ -209,13 +212,13 @@ export default function AdminApiKeysPage() {
 
           {/* Search */}
           <div className="relative mb-5">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by name or email..."
-              className="w-full bg-surface-card border border-white/10 rounded-lg py-2 pl-10 pr-4 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-primary-500"
+              className="w-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 py-2 pl-10 pr-4 text-sm text-neutral-900 dark:text-white placeholder-neutral-500 focus:outline-none focus:border-neutral-900 dark:focus:border-white"
             />
           </div>
 
@@ -228,22 +231,22 @@ export default function AdminApiKeysPage() {
               onClick={() => { setShowForm(false); setNewKey(null); }}
             >
               <motion.div
-                className="bg-surface-card rounded-xl border border-white/5 p-6 max-w-md w-full"
+                className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-6 max-w-md w-full"
                 initial={{ scale: 0.95 }}
                 animate={{ scale: 1 }}
                 onClick={(e) => e.stopPropagation()}
               >
                 {newKey ? (
                   <div className="text-center">
-                    <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="w-12 h-12 bg-green-500/20 flex items-center justify-center mx-auto mb-4">
                       <Check className="w-6 h-6 text-green-400" />
                     </div>
-                    <h2 className="text-lg font-semibold text-white mb-2">API Key Created</h2>
-                    <p className="text-sm text-gray-400 mb-4">
+                    <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">API Key Created</h2>
+                    <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
                       Copy this key now. You won&apos;t be able to see it again.
                     </p>
-                    <div className="bg-surface-base border border-white/10 rounded-lg p-3 flex items-center justify-between mb-4">
-                      <code className="text-sm text-primary-400 font-mono">{newKey}</code>
+                    <div className="bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 p-3 flex items-center justify-between mb-4">
+                      <code className="text-sm text-neutral-600 dark:text-neutral-400 font-mono">{newKey}</code>
                       <Button variant="ghost" size="sm" onClick={handleCopyKey}>
                         {copiedKey ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
                       </Button>
@@ -254,36 +257,36 @@ export default function AdminApiKeysPage() {
                   </div>
                 ) : (
                   <>
-                    <h2 className="text-lg font-semibold text-white mb-4">Create API Key</h2>
+                    <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">Create API Key</h2>
                     <form onSubmit={handleCreateKey} className="space-y-4">
                       <div>
-                        <label className="text-sm text-gray-400">Key Name</label>
+                        <label className="text-sm text-neutral-500 dark:text-neutral-400">Key Name</label>
                         <input
                           type="text"
                           value={newKeyData.name}
                           onChange={(e) => setNewKeyData({ ...newKeyData, name: e.target.value })}
-                          className="w-full bg-surface-base border border-white/10 rounded-lg py-2 px-3 text-sm text-white mt-1"
+                          className="w-full bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 py-2 px-3 text-sm text-neutral-900 dark:text-white mt-1"
                           placeholder="My Integration"
                           required
                         />
                       </div>
                       <div>
-                        <label className="text-sm text-gray-400">User Email</label>
+                        <label className="text-sm text-neutral-500 dark:text-neutral-400">User Email</label>
                         <input
                           type="email"
                           value={newKeyData.user_email}
                           onChange={(e) => setNewKeyData({ ...newKeyData, user_email: e.target.value })}
-                          className="w-full bg-surface-base border border-white/10 rounded-lg py-2 px-3 text-sm text-white mt-1"
+                          className="w-full bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 py-2 px-3 text-sm text-neutral-900 dark:text-white mt-1"
                           placeholder="developer@example.com"
                           required
                         />
                       </div>
                       <div>
-                        <label className="text-sm text-gray-400">Plan</label>
+                        <label className="text-sm text-neutral-500 dark:text-neutral-400">Plan</label>
                         <select
                           value={newKeyData.plan}
                           onChange={(e) => setNewKeyData({ ...newKeyData, plan: e.target.value as "basic" | "pro" | "enterprise" })}
-                          className="w-full bg-surface-base border border-white/10 rounded-lg py-2 px-3 text-sm text-white mt-1"
+                          className="w-full bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 py-2 px-3 text-sm text-neutral-900 dark:text-white mt-1"
                         >
                           {PLANS.map(plan => (
                             <option key={plan.value} value={plan.value}>
@@ -313,12 +316,12 @@ export default function AdminApiKeysPage() {
           {/* Keys List */}
           {keysLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-6 h-6 text-gray-500 animate-spin" />
+              <Loader2 className="w-6 h-6 text-neutral-500 animate-spin" />
             </div>
           ) : filteredKeys.length === 0 ? (
-            <div className="bg-surface-card rounded-xl border border-white/5 p-8 text-center">
+            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-8 text-center">
               <Key className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-              <p className="text-gray-400">No API keys yet</p>
+              <p className="text-neutral-500 dark:text-neutral-400">No API keys yet</p>
               <Button size="sm" className="mt-4" onClick={() => setShowForm(true)}>
                 Create First Key
               </Button>
@@ -328,29 +331,29 @@ export default function AdminApiKeysPage() {
               {filteredKeys.map((key) => (
                 <motion.div
                   key={key.id}
-                  className="bg-surface-card rounded-xl border border-white/5 p-4"
-                  whileHover={{ borderColor: "rgba(6, 182, 212, 0.3)" }}
+                  className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4"
+                  whileHover={{ backgroundColor: "rgba(0, 0, 0, 0.02)" }}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-medium text-white">{key.name}</h3>
-                        <span className={`px-2 py-0.5 rounded text-xs ${
+                        <h3 className="font-medium text-neutral-900 dark:text-white">{key.name}</h3>
+                        <span className={`px-2 py-0.5 text-xs ${
                           key.plan === "enterprise" ? "bg-purple-500/20 text-purple-400" :
                           key.plan === "pro" ? "bg-blue-500/20 text-blue-400" :
-                          "bg-gray-500/20 text-gray-400"
+                          "bg-gray-500/20 text-neutral-500 dark:text-neutral-400"
                         }`}>
                           {key.plan.toUpperCase()}
                         </span>
-                        <span className={`px-2 py-0.5 rounded text-xs ${key.is_active ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"}`}>
+                        <span className={`px-2 py-0.5 text-xs ${key.is_active ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"}`}>
                           {key.is_active ? "Active" : "Revoked"}
                         </span>
                       </div>
-                      <div className="flex items-center gap-4 text-sm text-gray-400 mb-2">
-                        <code className="text-xs font-mono text-gray-500">{key.key_prefix}...</code>
+                      <div className="flex items-center gap-4 text-sm text-neutral-500 dark:text-neutral-400 mb-2">
+                        <code className="text-xs font-mono text-neutral-500">{key.key_prefix}...</code>
                         <span>{key.user_email}</span>
                       </div>
-                      <div className="flex items-center gap-4 text-xs text-gray-500">
+                      <div className="flex items-center gap-4 text-xs text-neutral-500">
                         <span>Usage: {key.requests_used.toLocaleString()} / {key.requests_limit.toLocaleString()}</span>
                         <span>Created: {new Date(key.created_at).toLocaleDateString()}</span>
                         {key.last_used_at && (
@@ -358,12 +361,12 @@ export default function AdminApiKeysPage() {
                         )}
                       </div>
                       {/* Usage bar */}
-                      <div className="mt-2 h-1.5 bg-surface-base rounded-full overflow-hidden">
+                      <div className="mt-2 h-1.5 bg-[#FAFAFA] dark:bg-neutral-800 overflow-hidden">
                         <div
-                          className={`h-full rounded-full ${
+                          className={`h-full ${
                             key.requests_used / key.requests_limit > 0.9 ? "bg-red-500" :
                             key.requests_used / key.requests_limit > 0.7 ? "bg-yellow-500" :
-                            "bg-primary-500"
+                            "bg-neutral-900 dark:bg-white"
                           }`}
                           style={{ width: `${Math.min(100, (key.requests_used / key.requests_limit) * 100)}%` }}
                         />
@@ -375,10 +378,11 @@ export default function AdminApiKeysPage() {
                         size="sm"
                         onClick={() => handleToggleActive(key)}
                         title={key.is_active ? "Disable" : "Enable"}
+                        className="hover:bg-neutral-100 dark:hover:bg-neutral-800"
                       >
                         {key.is_active ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => handleRevokeKey(key.id)}>
+                      <Button variant="ghost" size="sm" onClick={() => handleRevokeKey(key.id)} className="hover:bg-neutral-100 dark:hover:bg-neutral-800">
                         <Trash2 className="w-4 h-4 text-red-400" />
                       </Button>
                     </div>

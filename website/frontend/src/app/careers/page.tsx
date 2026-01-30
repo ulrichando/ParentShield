@@ -3,7 +3,6 @@
 import { motion } from "framer-motion";
 import { MapPin, Briefcase, Clock, ArrowRight, Heart, Zap, Users, Coffee } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 
@@ -36,120 +35,107 @@ const openings = [
     type: "Full-time",
     description: "Help our customers get the most out of ParentShield and ensure their success.",
   },
-  {
-    title: "Marketing Manager",
-    department: "Marketing",
-    location: "Remote",
-    type: "Full-time",
-    description: "Drive growth through creative campaigns and content marketing strategies.",
-  },
 ];
 
 export default function CareersPage() {
   return (
-    <main className="min-h-screen bg-surface-base flex flex-col">
+    <main className="min-h-screen bg-white dark:bg-neutral-950 flex flex-col">
       <Navbar />
 
       {/* Hero */}
-      <section className="pt-32 pb-20 px-6">
-        <div className="max-w-4xl mx-auto text-center">
+      <section className="pt-32 pb-20 px-6 bg-[#FAFAFA] dark:bg-neutral-900">
+        <div className="max-w-4xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
-              Join Our Mission to Protect Families
+            <p className="text-xs uppercase tracking-[0.3em] text-neutral-400 dark:text-neutral-500 mb-4">
+              Careers
+            </p>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-light text-neutral-900 dark:text-white leading-tight mb-6">
+              Join our mission to
+              <br />
+              <span className="italic">protect families.</span>
             </h1>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-8">
+            <p className="text-lg text-neutral-500 dark:text-neutral-400 max-w-xl">
               We&apos;re building the future of digital parenting. Join a team that&apos;s passionate about making the internet safer for children.
             </p>
-            <Button size="lg">
-              View Open Positions
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
           </motion.div>
         </div>
       </section>
 
       {/* Benefits */}
-      <section className="py-20 px-6 bg-surface-card/30">
+      <section className="py-20 px-6">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-white mb-12 text-center">Why Work With Us</h2>
-          <div className="grid md:grid-cols-4 gap-6">
+          <p className="text-xs uppercase tracking-[0.3em] text-neutral-400 dark:text-neutral-500 mb-4">
+            Benefits
+          </p>
+          <h2 className="text-3xl font-light text-neutral-900 dark:text-white mb-12">
+            Why work <span className="italic">with us.</span>
+          </h2>
+          <div className="grid md:grid-cols-4 gap-px bg-neutral-200 dark:bg-neutral-800">
             {benefits.map((benefit, i) => (
               <motion.div
                 key={benefit.title}
-                className="bg-surface-card/50 rounded-2xl border border-white/5 p-6 text-center"
+                className="bg-white dark:bg-neutral-950 p-8"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
               >
-                <div className="w-12 h-12 bg-primary-600/20 rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <benefit.icon className="w-6 h-6 text-primary-400" />
+                <div className="w-12 h-12 border border-neutral-200 dark:border-neutral-800 flex items-center justify-center mb-6">
+                  <benefit.icon className="w-5 h-5 text-neutral-400 dark:text-neutral-500" />
                 </div>
-                <h3 className="font-semibold text-white mb-2">{benefit.title}</h3>
-                <p className="text-gray-500 text-sm">{benefit.description}</p>
+                <h3 className="font-medium text-neutral-900 dark:text-white mb-2">{benefit.title}</h3>
+                <p className="text-sm text-neutral-500 dark:text-neutral-400">{benefit.description}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Culture */}
-      <section className="py-20 px-6">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-white mb-8 text-center">Our Culture</h2>
-          <div className="prose prose-invert prose-gray max-w-none text-gray-300 space-y-6">
-            <p>
-              At ParentShield, we believe that great products come from diverse, empowered teams. We&apos;ve built a culture that values transparency, creativity, and work-life balance.
-            </p>
-            <p>
-              We&apos;re a remote-first company, which means you can work from anywhere while still feeling connected to your teammates through regular video calls, virtual events, and annual company retreats.
-            </p>
-            <p>
-              We encourage continuous learning and provide a generous professional development budget. Whether you want to attend conferences, take courses, or buy books, we&apos;ve got you covered.
-            </p>
-          </div>
-        </div>
-      </section>
-
       {/* Open Positions */}
-      <section className="py-20 px-6 bg-surface-card/30" id="positions">
+      <section className="py-20 px-6 bg-[#FAFAFA] dark:bg-neutral-900" id="positions">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-white mb-12 text-center">Open Positions</h2>
-          <div className="space-y-4">
+          <p className="text-xs uppercase tracking-[0.3em] text-neutral-400 dark:text-neutral-500 mb-4">
+            Open Positions
+          </p>
+          <h2 className="text-3xl font-light text-neutral-900 dark:text-white mb-12">
+            Current <span className="italic">openings.</span>
+          </h2>
+          <div className="space-y-px bg-neutral-200 dark:bg-neutral-800">
             {openings.map((job, i) => (
               <motion.div
                 key={job.title}
-                className="bg-surface-card/50 rounded-2xl border border-white/5 p-6 hover:border-primary-500/30 transition-colors"
+                className="bg-[#FAFAFA] dark:bg-neutral-900 p-8 hover:bg-white dark:hover:bg-neutral-800 transition-colors"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
               >
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div>
-                    <h3 className="text-xl font-semibold text-white mb-2">{job.title}</h3>
-                    <p className="text-gray-500 text-sm mb-3">{job.description}</p>
-                    <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400">
+                    <h3 className="text-xl font-medium text-neutral-900 dark:text-white mb-2">{job.title}</h3>
+                    <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-4">{job.description}</p>
+                    <div className="flex flex-wrap items-center gap-4 text-xs text-neutral-400 dark:text-neutral-500">
                       <span className="flex items-center gap-1">
-                        <Briefcase className="w-4 h-4" />
+                        <Briefcase className="w-3 h-3" />
                         {job.department}
                       </span>
                       <span className="flex items-center gap-1">
-                        <MapPin className="w-4 h-4" />
+                        <MapPin className="w-3 h-3" />
                         {job.location}
                       </span>
                       <span className="flex items-center gap-1">
-                        <Clock className="w-4 h-4" />
+                        <Clock className="w-3 h-3" />
                         {job.type}
                       </span>
                     </div>
                   </div>
-                  <Link href={`mailto:careers@parentshield.app?subject=Application: ${job.title}`}>
-                    <Button variant="secondary">
-                      Apply Now
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
+                  <Link
+                    href={`mailto:careers@parentshield.app?subject=Application: ${job.title}`}
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-sm font-medium hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors"
+                  >
+                    Apply Now
+                    <ArrowRight className="w-4 h-4" />
                   </Link>
                 </div>
               </motion.div>
@@ -161,14 +147,15 @@ export default function CareersPage() {
       {/* CTA */}
       <section className="py-20 px-6">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-2xl font-bold text-white mb-4">Don&apos;t see the right role?</h2>
-          <p className="text-gray-400 mb-6">
-            We&apos;re always looking for talented people. Send us your resume and we&apos;ll keep you in mind for future opportunities.
+          <h2 className="text-2xl font-light text-neutral-900 dark:text-white mb-4">Don&apos;t see the right role?</h2>
+          <p className="text-neutral-500 dark:text-neutral-400 mb-8">
+            We&apos;re always looking for talented people. Send us your resume.
           </p>
-          <Link href="mailto:careers@parentshield.app">
-            <Button variant="secondary">
-              Send Your Resume
-            </Button>
+          <Link
+            href="mailto:careers@parentshield.app"
+            className="inline-flex items-center gap-2 px-8 py-4 border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors"
+          >
+            Send Your Resume
           </Link>
         </div>
       </section>

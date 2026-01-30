@@ -4,8 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Shield, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 
@@ -40,11 +39,9 @@ export default function LoginPage() {
         throw new Error(errorMsg);
       }
 
-      // Store tokens
       localStorage.setItem("access_token", data.access_token);
       localStorage.setItem("refresh_token", data.refresh_token);
 
-      // Fetch user profile to determine role
       try {
         const profileRes = await fetch("/api/account/profile", {
           headers: {
@@ -57,18 +54,15 @@ export default function LoginPage() {
           localStorage.setItem("user_role", profile.role);
           localStorage.setItem("user_email", profile.email);
           localStorage.setItem("user_name", profile.first_name || "User");
-          // Redirect based on role
           if (profile.role === "admin") {
             router.push("/admin");
           } else {
             router.push("/dashboard");
           }
         } else {
-          // Profile fetch failed, redirect to dashboard anyway
           router.push("/dashboard");
         }
       } catch {
-        // Profile fetch error, redirect to dashboard
         router.push("/dashboard");
       }
     } catch (err) {
@@ -79,157 +73,168 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen bg-surface-base flex flex-col">
+    <main className="min-h-screen bg-[#FAFAFA] dark:bg-neutral-950 flex flex-col">
       <Navbar />
-      <div className="flex-1 flex items-center justify-center p-4 pt-24 pb-16 relative overflow-hidden">
-        {/* Background Effects */}
-        <div className="absolute -top-25 -right-12 w-75 h-75 rounded-full bg-primary-600/30 blur-[100px]" />
-        <div className="absolute -bottom-12 -left-12 w-50 h-50 rounded-full bg-secondary-500/20 blur-[80px]" />
-
-      <motion.div
-        className="w-full max-w-sm relative z-10"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        {/* Logo */}
-        <Link href="/" className="flex items-center justify-center gap-2 mb-5">
-          <div className="w-9 h-9 bg-gradient-primary rounded-lg flex items-center justify-center">
-            <Shield className="w-4.5 h-4.5 text-white" />
-          </div>
-          <span className="text-xl font-bold text-white">ParentShield</span>
-        </Link>
-
-        {/* Card */}
-        <div className="bg-surface-card/80 backdrop-blur-xl rounded-xl border border-white/10 p-5">
-          <div className="text-center mb-5">
-            <h1 className="text-xl font-bold text-white mb-1">Welcome Back</h1>
-            <p className="text-gray-400 text-sm">Sign in to your account</p>
-          </div>
-
-          {error && (
-            <motion.div
-              className="bg-red-500/10 border border-red-500/30 text-red-400 px-3 py-2 rounded-lg mb-4 text-xs"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              {error}
-            </motion.div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Email */}
-            <div>
-              <label className="block text-xs font-medium text-gray-300 mb-1.5">
-                Email
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-surface-elevated border border-white/10 rounded-lg py-2 pl-9 pr-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
-                  placeholder="you@example.com"
-                  required
-                />
-              </div>
-            </div>
-
-            {/* Password */}
-            <div>
-              <label className="block text-xs font-medium text-gray-300 mb-1.5">
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-surface-elevated border border-white/10 rounded-lg py-2 pl-9 pr-9 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
-                  placeholder="••••••••"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
-
-            {/* Forgot Password */}
-            <div className="flex justify-end">
-              <Link
-                href="/forgot-password"
-                className="text-xs text-primary-400 hover:text-primary-300 transition-colors"
-              >
-                Forgot password?
-              </Link>
-            </div>
-
-            {/* Submit */}
-            <Button type="submit" size="sm" className="w-full" disabled={isLoading}>
-              {isLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <>
-                  Sign In
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
-            </Button>
-          </form>
-
-          {/* Register Link */}
-          <p className="text-center text-gray-400 text-sm mt-4">
-            Don&apos;t have an account?{" "}
-            <Link
-              href="/register"
-              className="text-primary-400 hover:text-primary-300 font-medium transition-colors"
-            >
-              Sign up
-            </Link>
-          </p>
-        </div>
-
-        {/* Demo Accounts Info */}
+      <div className="flex-1 flex items-center justify-center p-4 pt-32 pb-16">
         <motion.div
-          className="mt-4 bg-surface-card/50 backdrop-blur rounded-lg border border-white/5 p-3"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
+          className="w-full max-w-md"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
         >
-          <p className="text-xs text-gray-500 text-center mb-1.5">Demo Accounts (click to fill)</p>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <button
-              type="button"
-              onClick={() => {
-                setEmail("admin@parentshield.app");
-                setPassword("Admin123!");
-              }}
-              className="bg-surface-elevated rounded-lg p-1.5 text-left hover:bg-white/10 transition-colors cursor-pointer"
-            >
-              <p className="text-gray-400 font-medium text-xs">Admin</p>
-              <p className="text-gray-500 text-xs truncate">admin@parentshield.app</p>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setEmail("customer@test.com");
-                setPassword("Customer123");
-              }}
-              className="bg-surface-elevated rounded-lg p-1.5 text-left hover:bg-white/10 transition-colors cursor-pointer"
-            >
-              <p className="text-gray-400 font-medium text-xs">Customer</p>
-              <p className="text-gray-500 text-xs truncate">customer@test.com</p>
-            </button>
+          {/* Header */}
+          <div className="text-center mb-10">
+            <Link href="/" className="inline-block mb-8">
+              <span className="text-2xl font-light tracking-tight text-neutral-900 dark:text-white">
+                Parent<span className="font-semibold">Shield</span>
+              </span>
+            </Link>
+            <h1 className="text-3xl font-light text-neutral-900 dark:text-white mb-2">
+              Welcome <span className="italic">back.</span>
+            </h1>
+            <p className="text-neutral-500 dark:text-neutral-400">Sign in to your account</p>
           </div>
+
+          {/* Card */}
+          <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-8">
+            {error && (
+              <motion.div
+                className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 mb-6 text-sm"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                {error}
+              </motion.div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Email */}
+              <div>
+                <label className="block text-sm text-neutral-600 dark:text-neutral-400 mb-2">
+                  Email
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full bg-transparent border border-neutral-200 dark:border-neutral-700 py-3 pl-12 pr-4 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:border-neutral-900 dark:focus:border-white transition-colors"
+                    placeholder="you@example.com"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Password */}
+              <div>
+                <label className="block text-sm text-neutral-600 dark:text-neutral-400 mb-2">
+                  Password
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full bg-transparent border border-neutral-200 dark:border-neutral-700 py-3 pl-12 pr-12 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:border-neutral-900 dark:focus:border-white transition-colors"
+                    placeholder="••••••••"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Forgot Password */}
+              <div className="flex justify-end">
+                <Link
+                  href="/forgot-password"
+                  className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+
+              {/* Submit */}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full py-4 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-sm font-medium tracking-wide flex items-center justify-center gap-2 hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors disabled:opacity-50"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <>
+                    Sign In
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </button>
+            </form>
+
+            {/* Register Link */}
+            <p className="text-center text-neutral-500 dark:text-neutral-400 text-sm mt-6">
+              Don&apos;t have an account?{" "}
+              <Link
+                href="/register"
+                className="text-neutral-900 dark:text-white font-medium hover:underline"
+              >
+                Sign up
+              </Link>
+            </p>
+          </div>
+
+          {/* Demo Accounts */}
+          <motion.div
+            className="mt-6 border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            <p className="text-xs text-neutral-400 dark:text-neutral-500 text-center mb-3">Demo Accounts (click to fill)</p>
+            <div className="grid grid-cols-1 gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail("admin@parentshield.app");
+                  setPassword("Admin123!");
+                }}
+                className="border border-neutral-200 dark:border-neutral-700 p-3 text-left hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
+              >
+                <p className="text-sm font-medium text-neutral-900 dark:text-white">Admin</p>
+                <p className="text-xs text-neutral-400 dark:text-neutral-500 truncate">admin@parentshield.app</p>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail("customer@test.com");
+                  setPassword("Customer123!");
+                }}
+                className="border border-neutral-200 dark:border-neutral-700 p-3 text-left hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
+              >
+                <p className="text-sm font-medium text-neutral-900 dark:text-white">Customer 1</p>
+                <p className="text-xs text-neutral-400 dark:text-neutral-500 truncate">customer@test.com</p>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail("demo@parentshield.app");
+                  setPassword("Demo123!");
+                }}
+                className="border border-neutral-200 dark:border-neutral-700 p-3 text-left hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
+              >
+                <p className="text-sm font-medium text-neutral-900 dark:text-white">Customer 2</p>
+                <p className="text-xs text-neutral-400 dark:text-neutral-500 truncate">demo@parentshield.app</p>
+              </button>
+            </div>
+          </motion.div>
         </motion.div>
-      </motion.div>
       </div>
       <Footer />
     </main>

@@ -55,9 +55,9 @@ export function LockScreen() {
       {/* Title bar with window controls */}
       <TitleBar />
       <div className="flex-1 flex items-center justify-center p-4 overflow-y-auto scrollable-content">
-      <Card className="w-full max-w-sm fluent-card">
+      <Card className="w-full max-w-sm fluent-card rounded-none">
         <CardHeader className="text-center pb-2 pt-6 px-6">
-          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-primary">
+          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center bg-gradient-primary">
             {currentlyBlocking ? (
               <Shield className="h-7 w-7 text-white" />
             ) : (
@@ -88,7 +88,7 @@ export function LockScreen() {
                     onKeyDown={handleKeyDown}
                     placeholder="Enter your password"
                     autoFocus
-                    className="pr-10"
+                    className="pr-10 rounded-none"
                   />
                   <button
                     type="button"
@@ -105,7 +105,7 @@ export function LockScreen() {
               )}
 
               <Button
-                className="w-full"
+                className="w-full rounded-none"
                 onClick={handleLogin}
                 disabled={!password || isLoading}
               >
@@ -114,7 +114,7 @@ export function LockScreen() {
 
               <Button
                 variant="ghost"
-                className="w-full text-xs text-muted-foreground hover:text-foreground"
+                className="w-full text-xs text-muted-foreground hover:text-foreground rounded-none"
                 onClick={() => setShowRecovery(true)}
               >
                 Forgot password?
@@ -132,7 +132,7 @@ export function LockScreen() {
                     setError("");
                   }}
                   placeholder="WORD-WORD-0000-WORD"
-                  className="font-mono text-sm"
+                  className="font-mono text-sm rounded-none"
                 />
                 <p className="text-xs text-muted-foreground">
                   Enter the recovery password you saved during setup
@@ -151,6 +151,7 @@ export function LockScreen() {
                   }}
                   onKeyDown={handleKeyDown}
                   placeholder="Enter new password"
+                  className="rounded-none"
                 />
               </div>
 
@@ -159,7 +160,7 @@ export function LockScreen() {
               )}
 
               <Button
-                className="w-full"
+                className="w-full rounded-none"
                 onClick={handleRecovery}
                 disabled={!masterPassword || !newPassword || isLoading}
               >
@@ -168,7 +169,7 @@ export function LockScreen() {
 
               <Button
                 variant="ghost"
-                className="w-full text-xs text-muted-foreground hover:text-foreground"
+                className="w-full text-xs text-muted-foreground hover:text-foreground rounded-none"
                 onClick={() => {
                   setShowRecovery(false);
                   setError("");

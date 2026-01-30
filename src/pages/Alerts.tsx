@@ -99,15 +99,15 @@ export function Alerts({ onBack }: AlertsProps) {
     <div className="h-full flex flex-col bg-background overflow-hidden">
       <TitleBar>
         <div className="flex items-center px-3 gap-2 h-full">
-          <Button variant="ghost" size="sm" onClick={onBack} className="h-6 w-6 p-0 rounded">
+          <Button variant="ghost" size="sm" onClick={onBack} className="h-6 w-6 p-0 rounded-none">
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <div className="w-5 h-5 bg-gradient-primary rounded flex items-center justify-center">
+          <div className="w-5 h-5 bg-gradient-primary rounded-none flex items-center justify-center">
             <Bell className="h-3 w-3 text-white" />
           </div>
           <span className="text-xs font-semibold">Alerts</span>
           {unreadAlertCount > 0 && (
-            <Badge className="bg-destructive text-destructive-foreground text-caption-2 px-1.5 py-0 h-4 rounded-full">
+            <Badge className="bg-destructive text-destructive-foreground text-caption-2 px-1.5 py-0 h-4 rounded-none">
               {unreadAlertCount}
             </Badge>
           )}
@@ -130,7 +130,7 @@ export function Alerts({ onBack }: AlertsProps) {
                 size="sm"
                 onClick={fetchAlerts}
                 disabled={isLoading}
-                className="h-8 text-xs rounded"
+                className="h-8 text-xs rounded-none"
               >
                 <RefreshCw className={`h-3 w-3 mr-1.5 ${isLoading ? "animate-spin" : ""}`} />
                 Refresh
@@ -140,7 +140,7 @@ export function Alerts({ onBack }: AlertsProps) {
                   variant="outline"
                   size="sm"
                   onClick={markAllAlertsRead}
-                  className="h-8 text-xs rounded"
+                  className="h-8 text-xs rounded-none"
                 >
                   <CheckCheck className="h-3 w-3 mr-1.5" />
                   Mark All Read
@@ -150,7 +150,7 @@ export function Alerts({ onBack }: AlertsProps) {
           </div>
 
           {/* Alerts List */}
-          <Card className="rounded-lg">
+          <Card className="rounded-none">
             <CardContent className="p-0">
               {alerts.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
@@ -169,7 +169,7 @@ export function Alerts({ onBack }: AlertsProps) {
                       onClick={() => handleAlertClick(alert)}
                     >
                       <div className="flex items-start gap-3">
-                        <div className={`mt-0.5 p-2 rounded-lg ${getSeverityBadgeClass(alert.severity)}`}>
+                        <div className={`mt-0.5 p-2 rounded-none ${getSeverityBadgeClass(alert.severity)}`}>
                           {getAlertIcon(alert.alert_type)}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -178,11 +178,11 @@ export function Alerts({ onBack }: AlertsProps) {
                               {alert.title}
                             </span>
                             {!alert.is_read && (
-                              <span className="w-2 h-2 bg-primary rounded-full" />
+                              <span className="w-2 h-2 bg-primary rounded-none" />
                             )}
                             <Badge
                               variant="outline"
-                              className={`text-caption-2 px-1.5 py-0 h-4 rounded ml-auto ${getSeverityBadgeClass(alert.severity)}`}
+                              className={`text-caption-2 px-1.5 py-0 h-4 rounded-none ml-auto ${getSeverityBadgeClass(alert.severity)}`}
                             >
                               {alert.severity}
                             </Badge>

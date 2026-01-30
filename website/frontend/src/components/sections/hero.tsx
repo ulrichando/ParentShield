@@ -1,207 +1,135 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
-import { Shield, Star, ArrowRight, Play } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
 
 export function Hero() {
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.3 },
-    },
-  };
-
-  const item = {
-    hidden: { opacity: 0, y: 30 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-  };
-
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden bg-surface-base">
-      {/* Animated Gradient Orbs */}
-      <div className="absolute -top-50 -right-25 w-150 h-150 rounded-full bg-primary-600/50 blur-[120px] animate-float" />
-      <div className="absolute -bottom-37.5 -left-37.5 w-125 h-125 rounded-full bg-accent-500/40 blur-[120px] animate-float animation-delay-7000" />
-      <div className="absolute top-1/2 left-1/3 w-75 h-75 rounded-full bg-secondary-500/30 blur-[100px] animate-float animation-delay-4000" />
-
-      {/* Grid Pattern */}
+    <section className="min-h-screen bg-[#FAFAFA] dark:bg-neutral-950 relative overflow-hidden">
+      {/* Subtle grid */}
       <div
-        className="absolute inset-0 opacity-30"
+        className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]"
         style={{
-          backgroundImage: `linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)`,
-          backgroundSize: "80px 80px",
-          maskImage: "radial-gradient(ellipse at center, black 20%, transparent 70%)",
-          WebkitMaskImage: "radial-gradient(ellipse at center, black 20%, transparent 70%)",
+          backgroundImage: "linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)",
+          backgroundSize: "100px 100px",
         }}
       />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 pt-24 pb-16">
-        <motion.div
-          className="text-center max-w-4xl mx-auto"
-          variants={container}
-          initial="hidden"
-          animate="show"
-        >
-          {/* Trust Badge */}
-          <motion.div variants={item} className="mb-5">
-            <div className="inline-flex items-center gap-2 bg-surface-card/80 backdrop-blur-sm border border-white/10 rounded-full px-4 py-2">
-              <div className="w-6 h-6 rounded-full bg-gradient-primary flex items-center justify-center">
-                <Shield className="w-3 h-3 text-white" />
-              </div>
-              <span className="text-gray-300 text-xs font-medium">
-                Trusted by 10,000+ Families Worldwide
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 pt-32 pb-20">
+        <div className="grid lg:grid-cols-12 gap-12 items-center min-h-[80vh]">
+          {/* Left content - offset for asymmetry */}
+          <div className="lg:col-span-7 lg:pr-12">
+            {/* Eyebrow */}
+            <motion.p
+              className="text-xs uppercase tracking-[0.3em] text-neutral-400 dark:text-neutral-500 mb-8"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8 }}
+            >
+              Parental Control Software
+            </motion.p>
+
+            {/* Main headline - editorial typography */}
+            <motion.h1
+              className="mb-8"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.1 }}
+            >
+              <span className="block text-6xl md:text-7xl lg:text-8xl font-light text-neutral-900 dark:text-white leading-[0.9] tracking-tight">
+                Protect
               </span>
-              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-            </div>
-          </motion.div>
+              <span className="block text-6xl md:text-7xl lg:text-8xl font-light italic text-neutral-900 dark:text-white leading-[0.9] tracking-tight">
+                your family&apos;s
+              </span>
+              <span className="block text-6xl md:text-7xl lg:text-8xl font-semibold text-neutral-900 dark:text-white leading-[0.9] tracking-tight">
+                digital life.
+              </span>
+            </motion.h1>
 
-          {/* Headline */}
-          <motion.h1
-            variants={item}
-            className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] mb-4 tracking-tight"
-          >
-            Protect Your Family&apos;s{" "}
-            <span className="text-gradient">Digital Life</span>
-          </motion.h1>
+            {/* Description */}
+            <motion.p
+              className="text-lg text-neutral-500 dark:text-neutral-400 max-w-md leading-relaxed mb-12"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+            >
+              Screen time limits. Game blocking. Web filtering.
+              Enterprise-grade protection made simple for modern families.
+            </motion.p>
 
-          {/* Subheadline */}
-          <motion.p
-            variants={item}
-            className="text-lg text-gray-400 max-w-2xl mx-auto mb-8 leading-relaxed"
-          >
-            Take control of screen time and block distracting games and websites
-            with enterprise-grade protection. Simple setup, powerful results.
-          </motion.p>
-
-          {/* CTAs */}
-          <motion.div
-            variants={item}
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-          >
-            <Button size="lg" className="group">
-              Start Free Trial
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Button>
-            <Button variant="secondary" size="lg" className="group">
-              <Play className="w-5 h-5" />
-              Watch Demo
-            </Button>
-          </motion.div>
-
-          {/* Social Proof */}
-          <motion.div
-            variants={item}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10"
-          >
-            {/* Avatar Stack */}
-            <div className="flex -space-x-2">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div
-                  key={i}
-                  className="w-8 h-8 rounded-full border-2 border-surface-base bg-linear-to-br from-primary-400 to-secondary-500 flex items-center justify-center text-white text-xs font-bold"
+            {/* CTAs */}
+            <motion.div
+              className="flex flex-wrap gap-6 items-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+            >
+              <Link href="/register">
+                <motion.button
+                  className="group px-8 py-4 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-sm uppercase tracking-wider font-medium flex items-center gap-3"
+                  whileHover={{ x: 5 }}
                 >
-                  {String.fromCharCode(64 + i)}
+                  Start Free Trial
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </motion.button>
+              </Link>
+              <button className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors underline underline-offset-4">
+                Watch Demo
+              </button>
+            </motion.div>
+
+            {/* Stats */}
+            <motion.div
+              className="flex gap-12 mt-16 pt-12 border-t border-neutral-200 dark:border-neutral-800"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.5 }}
+            >
+              {[
+                { value: "10K+", label: "Families" },
+                { value: "99.9%", label: "Uptime" },
+                { value: "4.9", label: "Rating" },
+              ].map((stat) => (
+                <div key={stat.label}>
+                  <div className="text-3xl font-light text-neutral-900 dark:text-white">{stat.value}</div>
+                  <div className="text-xs uppercase tracking-wider text-neutral-400 dark:text-neutral-500 mt-1">{stat.label}</div>
                 </div>
               ))}
-            </div>
-
-            {/* Rating */}
-            <div className="flex flex-col items-start">
-              <div className="flex gap-0.5">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className="w-4 h-4 fill-yellow-500 text-yellow-500"
-                  />
-                ))}
-              </div>
-              <p className="text-xs text-gray-400 mt-0.5">
-                <strong className="text-white">4.9/5</strong> from 2,000+ reviews
-              </p>
-            </div>
-          </motion.div>
-        </motion.div>
-
-        {/* Dashboard Preview */}
-        <motion.div
-          className="mt-14 relative"
-          initial={{ opacity: 0, y: 60 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
-        >
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-surface-card/80 backdrop-blur-xl rounded-xl border border-white/10 p-1.5 shadow-2xl">
-              {/* Window Header */}
-              <div className="flex items-center gap-2 px-3 py-2 border-b border-white/5">
-                <div className="flex gap-1.5">
-                  <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-yellow-500" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
-                </div>
-                <span className="text-xs text-gray-500 ml-3">ParentShield Dashboard</span>
-              </div>
-
-              {/* Dashboard Content */}
-              <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-3">
-                <DashboardStat
-                  label="Screen Time Today"
-                  value="2h 34m"
-                  trend="-15%"
-                  trendUp={false}
-                />
-                <DashboardStat
-                  label="Apps Blocked"
-                  value="47"
-                  trend="+12"
-                  trendUp={true}
-                />
-                <DashboardStat
-                  label="Sites Filtered"
-                  value="156"
-                  trend="+8"
-                  trendUp={true}
-                />
-                <DashboardStat
-                  label="Safety Score"
-                  value="98%"
-                  trend="+3%"
-                  trendUp={true}
-                />
-              </div>
-            </div>
-
-            {/* Glow Effect */}
-            <div className="absolute -inset-3 bg-linear-to-r from-primary-500/20 via-secondary-500/20 to-primary-500/20 rounded-2xl blur-3xl -z-10" />
+            </motion.div>
           </div>
-        </motion.div>
-      </div>
-    </section>
-  );
-}
 
-function DashboardStat({
-  label,
-  value,
-  trend,
-  trendUp,
-}: {
-  label: string;
-  value: string;
-  trend: string;
-  trendUp: boolean;
-}) {
-  return (
-    <div className="bg-surface-overlay/50 rounded-lg p-3">
-      <p className="text-xs text-gray-500 mb-1">{label}</p>
-      <p className="text-xl font-bold text-white">{value}</p>
-      <p
-        className={`text-xs ${
-          trendUp ? "text-green-400" : "text-primary-400"
-        }`}
-      >
-        {trend} from yesterday
-      </p>
-    </div>
+          {/* Right - Editorial image placeholder */}
+          <motion.div
+            className="lg:col-span-5 relative"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1, delay: 0.3 }}
+          >
+            <div className="aspect-4/5 bg-neutral-100 dark:bg-neutral-900 relative overflow-hidden">
+              {/* Abstract shapes for visual interest */}
+              <div className="absolute top-12 left-12 w-32 h-32 border border-neutral-300 dark:border-neutral-700 rounded-full" />
+              <div className="absolute bottom-20 right-8 w-48 h-48 bg-neutral-200 dark:bg-neutral-800" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                <div className="text-[200px] font-light text-neutral-200 dark:text-neutral-800 select-none">PS</div>
+              </div>
+
+              {/* Floating label */}
+              <div className="absolute bottom-8 left-8 bg-white dark:bg-neutral-800 px-4 py-2 shadow-sm dark:shadow-none dark:border dark:border-neutral-700">
+                <p className="text-xs uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Protected</p>
+                <p className="text-sm font-medium text-neutral-900 dark:text-white">Since 2024</p>
+              </div>
+            </div>
+
+            {/* Offset accent line */}
+            <div className="absolute -left-8 top-20 w-px h-32 bg-neutral-900 dark:bg-white" />
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Bottom line */}
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-neutral-200 dark:bg-neutral-800" />
+    </section>
   );
 }

@@ -17,17 +17,17 @@ interface SettingsSectionProps {
 function SettingsSection({ title, description, icon: Icon, children }: SettingsSectionProps) {
   return (
     <motion.div
-      className="bg-surface-card rounded-xl border border-white/5 p-4"
+      className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
     >
       <div className="flex items-start gap-3 mb-4">
-        <div className="w-8 h-8 rounded-lg bg-surface-elevated flex items-center justify-center">
-          <Icon className="w-4 h-4 text-gray-400" />
+        <div className="w-8 h-8 bg-[#FAFAFA] dark:bg-neutral-800 flex items-center justify-center">
+          <Icon className="w-4 h-4 text-neutral-500 dark:text-neutral-400" />
         </div>
         <div>
-          <h3 className="text-sm font-semibold text-white">{title}</h3>
-          <p className="text-xs text-gray-500">{description}</p>
+          <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">{title}</h3>
+          <p className="text-xs text-neutral-500">{description}</p>
         </div>
       </div>
       {children}
@@ -42,20 +42,20 @@ function ToggleSetting({ label, description, enabled, onChange }: {
   onChange: (value: boolean) => void;
 }) {
   return (
-    <div className="flex items-start sm:items-center justify-between gap-3 py-3 border-b border-white/5 last:border-0">
+    <div className="flex items-start sm:items-center justify-between gap-3 py-3 border-b border-neutral-200 dark:border-neutral-800 last:border-0">
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-medium text-white">{label}</p>
-        <p className="text-[10px] text-gray-500 wrap-break-word">{description}</p>
+        <p className="text-xs font-medium text-neutral-900 dark:text-white">{label}</p>
+        <p className="text-[10px] text-neutral-500 wrap-break-word">{description}</p>
       </div>
       <button
         onClick={() => onChange(!enabled)}
-        className={`w-10 h-5 rounded-full transition-colors relative shrink-0 ${
-          enabled ? "bg-primary-500" : "bg-gray-600"
+        className={`w-10 h-5 transition-colors relative shrink-0 ${
+          enabled ? "bg-neutral-900 dark:bg-white" : "bg-gray-600"
         }`}
       >
         <span
-          className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-transform ${
-            enabled ? "left-5" : "left-0.5"
+          className={`absolute top-0.5 w-4 h-4 transition-transform ${
+            enabled ? "left-5 bg-white dark:bg-neutral-900" : "left-0.5 bg-white"
           }`}
         />
       </button>
@@ -91,32 +91,36 @@ export default function AdminSettingsPage() {
 
   if (isLoading || !user) {
     return (
-      <div className="min-h-screen bg-surface-base flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#FAFAFA] dark:bg-neutral-950 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-neutral-900 dark:border-white border-t-transparent animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-surface-base">
+    <div className="min-h-screen bg-[#FAFAFA] dark:bg-neutral-950">
       <AdminSidebar activePage="settings" user={user} />
 
       <main className="lg:ml-52 pt-14 lg:pt-6">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 py-4 md:py-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
-          <div>
-            <h1 className="text-xl md:text-lg font-bold text-white mb-0.5">Settings</h1>
-            <p className="text-sm md:text-base text-gray-400">Configure platform settings</p>
+        {/* Editorial Page Header */}
+        <header className="mb-8 border-b border-neutral-200 dark:border-neutral-800 pb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-neutral-500 mb-2">Administration</p>
+              <h1 className="text-2xl md:text-3xl font-bold text-neutral-900 dark:text-white tracking-tight">Settings</h1>
+              <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">Configure platform settings</p>
+            </div>
+            <Button onClick={handleSave} className="w-full sm:w-auto">
+              <Save className="w-4 h-4" />
+              {saved ? "Saved!" : "Save Changes"}
+            </Button>
           </div>
-          <Button onClick={handleSave} className="w-full sm:w-auto">
-            <Save className="w-4 h-4" />
-            {saved ? "Saved!" : "Save Changes"}
-          </Button>
-        </div>
+        </header>
 
         {saved && (
           <motion.div
-            className="bg-green-500/10 border border-green-500/30 text-green-400 px-4 py-3 rounded-lg mb-6 text-sm"
+            className="bg-green-500/10 border border-green-500/30 text-green-400 px-4 py-3 mb-6 text-sm"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
           >
@@ -189,16 +193,16 @@ export default function AdminSettingsPage() {
               enabled={settings.registrationEnabled}
               onChange={(v) => updateSetting("registrationEnabled", v)}
             />
-            <div className="py-3 border-b border-white/5">
+            <div className="py-3 border-b border-neutral-200 dark:border-neutral-800">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-medium text-white">Trial Duration</p>
-                  <p className="text-[10px] text-gray-500">Number of days for free trial</p>
+                  <p className="text-xs font-medium text-neutral-900 dark:text-white">Trial Duration</p>
+                  <p className="text-[10px] text-neutral-500">Number of days for free trial</p>
                 </div>
                 <select
                   value={settings.trialDays}
                   onChange={(e) => updateSetting("trialDays", Number(e.target.value))}
-                  className="bg-surface-elevated border border-white/10 rounded-lg py-1.5 px-2.5 text-white text-xs focus:outline-none focus:border-primary-500"
+                  className="bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 py-1.5 px-2.5 text-neutral-900 dark:text-white text-xs focus:outline-none focus:border-neutral-900 dark:focus:border-white"
                 >
                   <option value={3}>3 days</option>
                   <option value={7}>7 days</option>
@@ -217,30 +221,30 @@ export default function AdminSettingsPage() {
           >
             <div className="space-y-3">
               <div>
-                <label className="block text-xs font-medium text-gray-300 mb-1.5">
+                <label className="block text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-1.5">
                   Stripe Secret Key
                 </label>
                 <input
                   type="password"
                   value="sk_live_••••••••••••••••"
                   disabled
-                  className="w-full bg-surface-elevated border border-white/10 rounded-lg py-1.5 px-2.5 text-gray-500 text-xs"
+                  className="w-full bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 py-1.5 px-2.5 text-neutral-500 text-xs"
                 />
-                <p className="text-[10px] text-gray-500 mt-1">
+                <p className="text-[10px] text-neutral-500 mt-1">
                   Configured via environment variables
                 </p>
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-300 mb-1.5">
+                <label className="block text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-1.5">
                   SMTP Server
                 </label>
                 <input
                   type="text"
                   value="smtp.example.com"
                   disabled
-                  className="w-full bg-surface-elevated border border-white/10 rounded-lg py-1.5 px-2.5 text-gray-500 text-xs"
+                  className="w-full bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 py-1.5 px-2.5 text-neutral-500 text-xs"
                 />
-                <p className="text-[10px] text-gray-500 mt-1">
+                <p className="text-[10px] text-neutral-500 mt-1">
                   Configured via environment variables
                 </p>
               </div>

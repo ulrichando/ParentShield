@@ -109,7 +109,7 @@ export function Blocklist({ onBack }: BlocklistPageProps) {
       {/* Header - Fluent 2 Custom Title Bar */}
       <TitleBar>
         <div className="flex items-center px-2 gap-1 h-full">
-          <Button variant="ghost" size="icon" onClick={onBack} className="h-6 w-6 rounded hover:bg-foreground/10">
+          <Button variant="ghost" size="icon" onClick={onBack} className="h-6 w-6 rounded-none hover:bg-foreground/10">
             <ArrowLeft className="h-3.5 w-3.5" />
           </Button>
           <span className="text-xs font-semibold">Blocklist</span>
@@ -131,7 +131,7 @@ export function Blocklist({ onBack }: BlocklistPageProps) {
               }`}
             >
               {category.name}
-              <Badge variant="secondary" className="ml-1.5 text-xs rounded">
+              <Badge variant="secondary" className="ml-1.5 text-xs rounded-none">
                 {category.items.length}
               </Badge>
             </button>
@@ -146,7 +146,7 @@ export function Blocklist({ onBack }: BlocklistPageProps) {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search..."
-              className="pl-9 h-8 text-sm rounded-md"
+              className="pl-9 h-8 text-sm rounded-none"
             />
           </div>
           <div className="flex gap-1.5">
@@ -155,9 +155,9 @@ export function Blocklist({ onBack }: BlocklistPageProps) {
               onChange={(e) => setNewItem(e.target.value)}
               placeholder={activeTab === 0 ? "process.exe" : "example.com"}
               onKeyDown={(e) => e.key === "Enter" && handleAddItem()}
-              className="h-8 text-sm rounded-md"
+              className="h-8 text-sm rounded-none"
             />
-            <Button onClick={handleAddItem} size="sm" className="h-8 w-8 p-0 rounded-md">
+            <Button onClick={handleAddItem} size="sm" className="h-8 w-8 p-0 rounded-none">
               <Plus className="h-3.5 w-3.5" />
             </Button>
           </div>
@@ -169,10 +169,10 @@ export function Blocklist({ onBack }: BlocklistPageProps) {
             variant={filterMode === "all" ? "default" : "outline"}
             size="sm"
             onClick={() => setFilterMode("all")}
-            className="rounded-md text-xs h-7"
+            className="rounded-none text-xs h-7"
           >
             All
-            <Badge variant="secondary" className="ml-1.5 text-xs rounded">
+            <Badge variant="secondary" className="ml-1.5 text-xs rounded-none">
               {currentCategory?.items.length ?? 0}
             </Badge>
           </Button>
@@ -180,11 +180,11 @@ export function Blocklist({ onBack }: BlocklistPageProps) {
             variant={filterMode === "blocked" ? "default" : "outline"}
             size="sm"
             onClick={() => setFilterMode("blocked")}
-            className="rounded-md text-xs h-7"
+            className="rounded-none text-xs h-7"
           >
             <Shield className="h-3 w-3 mr-1 text-red-500" />
             Blocked
-            <Badge variant="secondary" className="ml-1.5 text-xs rounded">
+            <Badge variant="secondary" className="ml-1.5 text-xs rounded-none">
               {blockedCount}
             </Badge>
           </Button>
@@ -192,11 +192,11 @@ export function Blocklist({ onBack }: BlocklistPageProps) {
             variant={filterMode === "allowed" ? "default" : "outline"}
             size="sm"
             onClick={() => setFilterMode("allowed")}
-            className="rounded-md text-xs h-7"
+            className="rounded-none text-xs h-7"
           >
             <ShieldOff className="h-3 w-3 mr-1 text-green-500" />
             Allowed
-            <Badge variant="secondary" className="ml-1.5 text-xs rounded">
+            <Badge variant="secondary" className="ml-1.5 text-xs rounded-none">
               {allowedCount}
             </Badge>
           </Button>
@@ -212,7 +212,7 @@ export function Blocklist({ onBack }: BlocklistPageProps) {
                 {filteredItems.map((item) => (
                   <div
                     key={item.value}
-                    className={`flex items-center justify-between p-2 rounded-md ${
+                    className={`flex items-center justify-between p-2 ${
                       item.is_allowed
                         ? "bg-success/10"
                         : "bg-muted"
@@ -226,12 +226,12 @@ export function Blocklist({ onBack }: BlocklistPageProps) {
                       )}
                       <span className="font-mono text-xs text-foreground">{item.value}</span>
                       {item.is_default && (
-                        <Badge variant="outline" className="text-caption-2 px-1 py-0 rounded">
+                        <Badge variant="outline" className="text-caption-2 px-1 py-0 rounded-none">
                           Default
                         </Badge>
                       )}
                       {item.is_allowed && (
-                        <Badge variant="success" className="text-caption-2 px-1 py-0 rounded">
+                        <Badge variant="success" className="text-caption-2 px-1 py-0 rounded-none">
                           Allowed
                         </Badge>
                       )}
@@ -242,7 +242,7 @@ export function Blocklist({ onBack }: BlocklistPageProps) {
                         size="sm"
                         onClick={() => handleToggleWhitelist(item)}
                         title={item.is_allowed ? "Block this item" : "Allow this item"}
-                        className="h-6 w-6 p-0 rounded"
+                        className="h-6 w-6 p-0 rounded-none"
                       >
                         {item.is_allowed ? (
                           <Shield className="h-3.5 w-3.5" />
@@ -255,7 +255,7 @@ export function Blocklist({ onBack }: BlocklistPageProps) {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleRemoveItem(item.value)}
-                          className="h-6 w-6 p-0 rounded"
+                          className="h-6 w-6 p-0 rounded-none"
                         >
                           <Trash2 className="h-3.5 w-3.5 text-red-500" />
                         </Button>
