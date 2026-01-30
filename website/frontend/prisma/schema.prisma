@@ -1,0 +1,395 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  customer
+  admin
+}
+
+enum SubscriptionStatus {
+  active
+  canceled
+  past_due
+  trialing
+  incomplete
+}
+
+enum SubscriptionPlan {
+  free
+  basic
+  pro
+}
+
+enum Platform {
+  windows
+  macos
+  linux
+  android
+  ios
+}
+
+enum InstallationStatus {
+  pending
+  active
+  inactive
+  uninstalled
+}
+
+enum DownloadSource {
+  website
+  dashboard
+  email
+  referral
+  other
+}
+
+enum AlertType {
+  blocked_site
+  blocked_app
+  screen_time_limit
+  tamper_attempt
+  app_uninstall
+}
+
+enum AlertSeverity {
+  low
+  medium
+  high
+  critical
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String    @map("password_hash")
+  firstName     String?   @map("first_name")
+  lastName      String?   @map("last_name")
+  role          UserRole  @default(customer)
+  isActive      Boolean   @default(true) @map("is_active")
+  isVerified    Boolean   @default(false) @map("is_verified")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  subscriptions           Subscription[]
+  transactions            Transaction[]
+  refreshTokens           RefreshToken[]
+  emailVerificationTokens EmailVerificationToken[]
+  passwordResetTokens     PasswordResetToken[]
+  downloads               Download[]
+  installations           Installation[]
+  settings                UserSettings?
+  alerts                  Alert[]
+  apiKeys                 APIKey[]
+  webhooks                Webhook[]
+  activationCodes         ActivationCode[]
+
+  @@map("users")
+}
+
+model Subscription {
+  id                   String             @id @default(uuid())
+  userId               String             @map("user_id")
+  status               SubscriptionStatus @default(trialing)
+  plan                 SubscriptionPlan   @default(free)
+  stripeSubscriptionId String?            @unique @map("stripe_subscription_id")
+  stripeCustomerId     String?            @map("stripe_customer_id")
+  currentPeriodStart   DateTime?          @map("current_period_start")
+  currentPeriodEnd     DateTime?          @map("current_period_end")
+  canceledAt           DateTime?          @map("canceled_at")
+  createdAt            DateTime           @default(now()) @map("created_at")
+  updatedAt            DateTime           @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+model Transaction {
+  id                  String   @id @default(uuid())
+  userId              String   @map("user_id")
+  amount              Int
+  currency            String   @default("usd")
+  status              String
+  stripePaymentIntent String?  @map("stripe_payment_intent")
+  stripeInvoiceId     String?  @map("stripe_invoice_id")
+  description         String?
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("transactions")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  tokenHash String   @map("token_hash")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  revokedAt DateTime? @map("revoked_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  usedAt    DateTime? @map("used_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("email_verification_tokens")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  usedAt    DateTime? @map("used_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_reset_tokens")
+}
+
+model Download {
+  id            String         @id @default(uuid())
+  userId        String?        @map("user_id")
+  downloadToken String         @unique @map("download_token")
+  platform      Platform
+  version       String?
+  source        DownloadSource @default(website)
+  ipAddress     String?        @map("ip_address")
+  userAgent     String?        @map("user_agent")
+  referrer      String?
+  downloadedAt  DateTime?      @map("downloaded_at")
+  createdAt     DateTime       @default(now()) @map("created_at")
+
+  user          User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  installations Installation[]
+
+  @@map("downloads")
+}
+
+model Installation {
+  id           String             @id @default(uuid())
+  userId       String             @map("user_id")
+  downloadId   String?            @map("download_id")
+  deviceId     String             @unique @map("device_id")
+  deviceName   String             @map("device_name")
+  platform     Platform
+  status       InstallationStatus @default(pending)
+  isBlocked    Boolean            @default(false) @map("is_blocked")
+  blockedReason String?           @map("blocked_reason")
+  appVersion   String?            @map("app_version")
+  osVersion    String?            @map("os_version")
+  lastSeen     DateTime?          @map("last_seen")
+  createdAt    DateTime           @default(now()) @map("created_at")
+  updatedAt    DateTime           @updatedAt @map("updated_at")
+
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  download         Download?         @relation(fields: [downloadId], references: [id], onDelete: SetNull)
+  screenTimeConfig ScreenTimeConfig?
+  blockedApps      BlockedApp[]
+  webFilterConfig  WebFilterConfig?
+  alerts           Alert[]
+  syncMetadata     SyncMetadata?
+
+  @@map("installations")
+}
+
+model ScreenTimeConfig {
+  id             String  @id @default(uuid())
+  installationId String  @unique @map("installation_id")
+  enabled        Boolean @default(false)
+  mondayLimit    Int?    @map("monday_limit")
+  tuesdayLimit   Int?    @map("tuesday_limit")
+  wednesdayLimit Int?    @map("wednesday_limit")
+  thursdayLimit  Int?    @map("thursday_limit")
+  fridayLimit    Int?    @map("friday_limit")
+  saturdayLimit  Int?    @map("saturday_limit")
+  sundayLimit    Int?    @map("sunday_limit")
+  allowedStart   String? @map("allowed_start")
+  allowedEnd     String? @map("allowed_end")
+
+  installation Installation @relation(fields: [installationId], references: [id], onDelete: Cascade)
+
+  @@map("screen_time_configs")
+}
+
+model BlockedApp {
+  id             String   @id @default(uuid())
+  installationId String   @map("installation_id")
+  appName        String   @map("app_name")
+  appPath        String?  @map("app_path")
+  isGame         Boolean  @default(false) @map("is_game")
+  scheduleOnly   Boolean  @default(false) @map("schedule_only")
+  scheduleStart  String?  @map("schedule_start")
+  scheduleEnd    String?  @map("schedule_end")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  installation Installation @relation(fields: [installationId], references: [id], onDelete: Cascade)
+
+  @@map("blocked_apps")
+}
+
+model WebFilterConfig {
+  id               String  @id @default(uuid())
+  installationId   String  @unique @map("installation_id")
+  enabled          Boolean @default(false)
+  blockAdult       Boolean @default(true) @map("block_adult")
+  blockGambling    Boolean @default(true) @map("block_gambling")
+  blockSocialMedia Boolean @default(false) @map("block_social_media")
+  blockGaming      Boolean @default(false) @map("block_gaming")
+  blockStreaming   Boolean @default(false) @map("block_streaming")
+  safeSearch       Boolean @default(true) @map("safe_search")
+
+  installation Installation     @relation(fields: [installationId], references: [id], onDelete: Cascade)
+  rules        WebFilterRule[]
+
+  @@map("web_filter_configs")
+}
+
+model WebFilterRule {
+  id              String  @id @default(uuid())
+  webFilterId     String  @map("web_filter_id")
+  pattern         String
+  isBlocked       Boolean @default(true) @map("is_blocked")
+  isRegex         Boolean @default(false) @map("is_regex")
+
+  webFilter WebFilterConfig @relation(fields: [webFilterId], references: [id], onDelete: Cascade)
+
+  @@map("web_filter_rules")
+}
+
+model Alert {
+  id             String        @id @default(uuid())
+  userId         String        @map("user_id")
+  installationId String?       @map("installation_id")
+  type           AlertType
+  severity       AlertSeverity @default(medium)
+  title          String
+  message        String
+  metadata       Json?
+  isRead         Boolean       @default(false) @map("is_read")
+  isDismissed    Boolean       @default(false) @map("is_dismissed")
+  createdAt      DateTime      @default(now()) @map("created_at")
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  installation Installation? @relation(fields: [installationId], references: [id], onDelete: SetNull)
+
+  @@map("alerts")
+}
+
+model UserSettings {
+  id                   String  @id @default(uuid())
+  userId               String  @unique @map("user_id")
+  emailAlerts          Boolean @default(true) @map("email_alerts")
+  pushNotifications    Boolean @default(true) @map("push_notifications")
+  weeklyReport         Boolean @default(true) @map("weekly_report")
+  alertOnBlockedSite   Boolean @default(true) @map("alert_on_blocked_site")
+  alertOnBlockedApp    Boolean @default(true) @map("alert_on_blocked_app")
+  alertOnScreenTime    Boolean @default(true) @map("alert_on_screen_time")
+  alertOnTamper        Boolean @default(true) @map("alert_on_tamper")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_settings")
+}
+
+model APIKey {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  name      String
+  keyHash   String    @map("key_hash")
+  prefix    String
+  scopes    String[]
+  expiresAt DateTime? @map("expires_at")
+  lastUsed  DateTime? @map("last_used")
+  createdAt DateTime  @default(now()) @map("created_at")
+  revokedAt DateTime? @map("revoked_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("api_keys")
+}
+
+model Webhook {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  url        String
+  secret     String
+  events     String[]
+  isActive   Boolean  @default(true) @map("is_active")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deliveries WebhookDelivery[]
+
+  @@map("webhooks")
+}
+
+model WebhookDelivery {
+  id           String   @id @default(uuid())
+  webhookId    String   @map("webhook_id")
+  event        String
+  payload      Json
+  statusCode   Int?     @map("status_code")
+  response     String?
+  attempts     Int      @default(0)
+  deliveredAt  DateTime? @map("delivered_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  webhook Webhook @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+
+  @@map("webhook_deliveries")
+}
+
+model ActivationCode {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  code      String    @unique
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("activation_codes")
+}
+
+model DeviceLinkingCode {
+  id             String    @id @default(uuid())
+  installationId String    @map("installation_id")
+  code           String    @unique
+  expiresAt      DateTime  @map("expires_at")
+  linkedAt       DateTime? @map("linked_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  @@map("device_linking_codes")
+}
+
+model SyncMetadata {
+  id             String   @id @default(uuid())
+  installationId String   @unique @map("installation_id")
+  lastSyncAt     DateTime? @map("last_sync_at")
+  syncData       Json?    @map("sync_data")
+
+  installation Installation @relation(fields: [installationId], references: [id], onDelete: Cascade)
+
+  @@map("sync_metadata")
+}
