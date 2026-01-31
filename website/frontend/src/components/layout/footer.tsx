@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, ShieldCheck } from "lucide-react";
 
 const footerLinks = {
   product: [
@@ -48,7 +48,10 @@ export function Footer() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <Link href="/" className="inline-block mb-6">
+            <Link href="/" className="inline-flex items-center gap-2 mb-6">
+              <div className="w-8 h-8 bg-neutral-900 dark:bg-white rounded-lg flex items-center justify-center">
+                <ShieldCheck className="w-5 h-5 text-white dark:text-neutral-900" />
+              </div>
               <span className="text-2xl font-light tracking-tight text-neutral-900 dark:text-white">
                 Parent<span className="font-medium">Shield</span>
               </span>
