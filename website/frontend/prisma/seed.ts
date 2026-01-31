@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 async function main() {
   const adminEmail = process.env.ADMIN_EMAIL || 'admin@parentshield.com';
-  const adminPassword = process.env.ADMIN_PASSWORD || 'ChangeThisPassword123!';
+  const adminPassword = process.env.ADMIN_PASSWORD || 'Demo123!';
 
   const existingAdmin = await prisma.user.findUnique({
     where: { email: adminEmail },
