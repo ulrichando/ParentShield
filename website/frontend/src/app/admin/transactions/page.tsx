@@ -59,10 +59,11 @@ export default function AdminTransactionsPage() {
           params.append("status", statusFilter);
         }
 
-        const res = await authFetch(`/api/admin/api/transactions?${params}`);
+        const res = await authFetch(`/api/admin/transactions?${params}`);
         if (!res.ok) throw new Error("Failed to fetch transactions");
 
-        const data: TransactionListResponse = await res.json();
+        const json = await res.json();
+        const data: TransactionListResponse = json.data;
         setTransactions(data.transactions);
         setTotalPages(data.total_pages);
         setTotal(data.total);

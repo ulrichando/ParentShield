@@ -62,10 +62,11 @@ export default function AdminSubscriptionsPage() {
           params.append("status", statusFilter);
         }
 
-        const res = await authFetch(`/api/admin/api/subscriptions?${params}`);
+        const res = await authFetch(`/api/admin/subscriptions?${params}`);
         if (!res.ok) throw new Error("Failed to fetch subscriptions");
 
-        const data: SubscriptionListResponse = await res.json();
+        const json = await res.json();
+        const data: SubscriptionListResponse = json.data;
         setSubscriptions(data.subscriptions);
         setTotalPages(data.total_pages);
         setTotal(data.total);

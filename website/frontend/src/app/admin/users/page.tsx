@@ -59,10 +59,11 @@ export default function AdminUsersPage() {
           params.append("search", search);
         }
 
-        const res = await authFetch(`/api/admin/api/customers?${params}`);
+        const res = await authFetch(`/api/admin/customers?${params}`);
         if (!res.ok) throw new Error("Failed to fetch customers");
 
-        const data: CustomerListResponse = await res.json();
+        const json = await res.json();
+        const data: CustomerListResponse = json.data;
         setCustomers(data.customers);
         setTotalPages(data.total_pages);
         setTotal(data.total);

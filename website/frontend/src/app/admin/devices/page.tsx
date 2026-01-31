@@ -125,13 +125,14 @@ export default function AdminDevicesPage() {
         }
 
         const endpoint = activeTab === "installations"
-          ? `/api/admin/api/installations?${params}`
-          : `/api/admin/api/downloads?${params}`;
+          ? `/api/admin/installations?${params}`
+          : `/api/admin/downloads?${params}`;
 
         const res = await authFetch(endpoint);
         if (!res.ok) throw new Error(`Failed to fetch ${activeTab}`);
 
-        const data = await res.json();
+        const json = await res.json();
+        const data = json.data;
         if (activeTab === "installations") {
           setInstallations(data.installations);
         } else {
