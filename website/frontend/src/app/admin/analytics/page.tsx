@@ -7,13 +7,13 @@ import { AdminSidebar } from "@/components/admin/sidebar";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 
 interface DashboardStats {
-  total_customers: number;
-  active_subscriptions: number;
-  revenue_today: number;
-  revenue_this_month: number;
-  revenue_total: number;
-  new_customers_today: number;
-  new_customers_this_month: number;
+  totalCustomers: number;
+  activeSubscriptions: number;
+  totalRevenue: number;
+  totalDownloads: number;
+  totalInstallations: number;
+  recentCustomers: number;
+  conversionRate: number | string;
 }
 
 interface ChartDataPoint {
@@ -112,15 +112,15 @@ export default function AdminAnalyticsPage() {
           throw new Error("Failed to fetch analytics data");
         }
 
-        const [statsData, revenueRaw, customersRaw] = await Promise.all([
+        const [statsJson, revenueJson, customersJson] = await Promise.all([
           statsRes.json(),
           revenueRes.json(),
           customersRes.json(),
         ]);
 
-        setStats(statsData);
-        setRevenueData(revenueRaw || []);
-        setCustomerData(customersRaw || []);
+        setStats(statsJson.data);
+        setRevenueData(revenueJson.data || []);
+        setCustomerData(customersJson.data || []);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load");
       } finally {
@@ -181,25 +181,25 @@ export default function AdminAnalyticsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
               <StatCard
                 title="Total Revenue"
-                value={`$${stats?.revenue_total.toLocaleString(undefined, { minimumFractionDigits: 2 }) || "0.00"}`}
+                value={`$${stats?.totalRevenue?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || "0.00"}`}
                 icon={DollarSign}
                 color="bg-green-500"
               />
               <StatCard
-                title="Monthly Revenue"
-                value={`$${stats?.revenue_this_month.toLocaleString(undefined, { minimumFractionDigits: 2 }) || "0.00"}`}
+                title="Recent Customers"
+                value={stats?.recentCustomers?.toLocaleString() || "0"}
                 icon={TrendingUp}
                 color="bg-blue-500"
               />
               <StatCard
                 title="Total Customers"
-                value={stats?.total_customers.toLocaleString() || "0"}
+                value={stats?.totalCustomers?.toLocaleString() || "0"}
                 icon={Users}
                 color="bg-purple-500"
               />
               <StatCard
                 title="Active Subscriptions"
-                value={stats?.active_subscriptions.toLocaleString() || "0"}
+                value={stats?.activeSubscriptions?.toLocaleString() || "0"}
                 icon={Activity}
                 color="bg-orange-500"
               />
@@ -229,24 +229,24 @@ export default function AdminAnalyticsPage() {
             {/* Summary Stats */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
               <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4">
-                <h2 className="text-sm font-semibold text-neutral-900 dark:text-white mb-3">Revenue Breakdown</h2>
+                <h2 className="text-sm font-semibold text-neutral-900 dark:text-white mb-3">Platform Stats</h2>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between py-2 border-b border-neutral-200 dark:border-neutral-800">
-                    <span className="text-neutral-500 dark:text-neutral-400">Today</span>
+                    <span className="text-neutral-500 dark:text-neutral-400">Total Revenue</span>
                     <span className="text-neutral-900 dark:text-white font-medium">
-                      ${stats?.revenue_today.toFixed(2) || "0.00"}
+                      ${stats?.totalRevenue?.toFixed(2) || "0.00"}
                     </span>
                   </div>
                   <div className="flex items-center justify-between py-2 border-b border-neutral-200 dark:border-neutral-800">
-                    <span className="text-neutral-500 dark:text-neutral-400">This Month</span>
+                    <span className="text-neutral-500 dark:text-neutral-400">Total Downloads</span>
                     <span className="text-neutral-900 dark:text-white font-medium">
-                      ${stats?.revenue_this_month.toFixed(2) || "0.00"}
+                      {stats?.totalDownloads || 0}
                     </span>
                   </div>
                   <div className="flex items-center justify-between py-3">
-                    <span className="text-neutral-500 dark:text-neutral-400">All Time</span>
+                    <span className="text-neutral-500 dark:text-neutral-400">Total Installations</span>
                     <span className="text-neutral-900 dark:text-white font-medium">
-                      ${stats?.revenue_total.toFixed(2) || "0.00"}
+                      {stats?.totalInstallations || 0}
                     </span>
                   </div>
                 </div>
@@ -256,21 +256,21 @@ export default function AdminAnalyticsPage() {
                 <h2 className="text-sm font-semibold text-neutral-900 dark:text-white mb-3">Customer Metrics</h2>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between py-2 border-b border-neutral-200 dark:border-neutral-800">
-                    <span className="text-neutral-500 dark:text-neutral-400">New Today</span>
+                    <span className="text-neutral-500 dark:text-neutral-400">Total Customers</span>
                     <span className="text-neutral-900 dark:text-white font-medium">
-                      {stats?.new_customers_today || 0}
+                      {stats?.totalCustomers || 0}
                     </span>
                   </div>
                   <div className="flex items-center justify-between py-2 border-b border-neutral-200 dark:border-neutral-800">
-                    <span className="text-neutral-500 dark:text-neutral-400">New This Month</span>
+                    <span className="text-neutral-500 dark:text-neutral-400">Recent (30 days)</span>
                     <span className="text-neutral-900 dark:text-white font-medium">
-                      {stats?.new_customers_this_month || 0}
+                      {stats?.recentCustomers || 0}
                     </span>
                   </div>
                   <div className="flex items-center justify-between py-3">
-                    <span className="text-neutral-500 dark:text-neutral-400">Total Customers</span>
+                    <span className="text-neutral-500 dark:text-neutral-400">Conversion Rate</span>
                     <span className="text-neutral-900 dark:text-white font-medium">
-                      {stats?.total_customers || 0}
+                      {stats?.conversionRate || 0}%
                     </span>
                   </div>
                 </div>
