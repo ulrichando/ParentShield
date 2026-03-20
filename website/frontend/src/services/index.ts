@@ -6,18 +6,14 @@
 export * from "./api-client";
 export * from "./customer-api";
 
-// Admin types (excluding MessageResponse to avoid conflict with customer-api)
+// Admin types (excluding names that conflict with customer-api exports)
 export type {
   DashboardStats,
   ChartDataPoint,
   User,
-  Subscription,
-  Transaction,
   CustomerWithSubscription,
   Download,
   Installation,
-  DownloadStats,
-  PaginatedResponse,
   CustomerListResponse,
   SubscriptionListResponse,
   TransactionListResponse,
@@ -35,17 +31,11 @@ export {
   getDashboardStats,
   getRevenueChart,
   getCustomerChart,
-  getDownloadStats,
   listCustomers,
-  suspendCustomer,
-  activateCustomer,
   listSubscriptions,
   listTransactions,
-  getTransactionExportUrl,
   listDownloads,
   listInstallations,
-  blockInstallation,
-  unblockInstallation,
   adminApi,
 } from "./admin-api";
 

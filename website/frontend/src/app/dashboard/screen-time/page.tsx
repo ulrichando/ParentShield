@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
-  Clock,
   Laptop,
   Save,
   Loader2,
@@ -20,34 +19,33 @@ import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 
 interface Installation {
   id: string;
-  device_name: string | null;
+  deviceName: string | null;
   platform: string;
 }
 
 interface ScreenTimeConfig {
-  id: string;
-  installation_id: string;
-  is_enabled: boolean;
-  monday_limit: number;
-  tuesday_limit: number;
-  wednesday_limit: number;
-  thursday_limit: number;
-  friday_limit: number;
-  saturday_limit: number;
-  sunday_limit: number;
-  allowed_start_time: string | null;
-  allowed_end_time: string | null;
-  grace_period: number;
+  id?: string;
+  installationId?: string;
+  enabled: boolean;
+  mondayLimit: number | null;
+  tuesdayLimit: number | null;
+  wednesdayLimit: number | null;
+  thursdayLimit: number | null;
+  fridayLimit: number | null;
+  saturdayLimit: number | null;
+  sundayLimit: number | null;
+  allowedStart: string | null;
+  allowedEnd: string | null;
 }
 
 const DAYS = [
-  { key: "monday_limit", label: "Monday" },
-  { key: "tuesday_limit", label: "Tuesday" },
-  { key: "wednesday_limit", label: "Wednesday" },
-  { key: "thursday_limit", label: "Thursday" },
-  { key: "friday_limit", label: "Friday" },
-  { key: "saturday_limit", label: "Saturday" },
-  { key: "sunday_limit", label: "Sunday" },
+  { key: "mondayLimit", label: "Monday" },
+  { key: "tuesdayLimit", label: "Tuesday" },
+  { key: "wednesdayLimit", label: "Wednesday" },
+  { key: "thursdayLimit", label: "Thursday" },
+  { key: "fridayLimit", label: "Friday" },
+  { key: "saturdayLimit", label: "Saturday" },
+  { key: "sundayLimit", label: "Sunday" },
 ];
 
 function formatMinutes(minutes: number): string {
@@ -74,9 +72,9 @@ export default function ScreenTimePage() {
       const response = await authFetch(`/api/device/installations`);
       if (!response.ok) throw new Error("Failed to fetch devices");
       const data = await response.json();
-      setDevices(data.filter((d: Installation & { status: string }) => d.status === "active"));
-      if (data.length > 0 && !selectedDevice) {
-        setSelectedDevice(data[0].id);
+      setDevices(data.data.filter((d: Installation & { status: string }) => d.status === "active"));
+      if (data.data.length > 0 && !selectedDevice) {
+        setSelectedDevice(data.data[0].id);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load devices");
@@ -90,7 +88,7 @@ export default function ScreenTimePage() {
       const response = await authFetch(`/api/parental/screen-time/${deviceId}`);
       if (!response.ok) throw new Error("Failed to fetch configuration");
       const data = await response.json();
-      setConfig(data);
+      setConfig(data.data);
       setHasChanges(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load configuration");
@@ -196,7 +194,7 @@ export default function ScreenTimePage() {
           >
             {devices.map((device) => (
               <option key={device.id} value={device.id}>
-                {device.device_name || `${device.platform} Device`}
+                {device.deviceName || `${device.platform} Device`}
               </option>
             ))}
           </select>
@@ -254,10 +252,10 @@ export default function ScreenTimePage() {
                 </p>
               </div>
               <button
-                onClick={() => updateConfig("is_enabled", !config.is_enabled)}
+                onClick={() => updateConfig("enabled", !config.enabled)}
                 className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
               >
-                {config.is_enabled ? (
+                {config.enabled ? (
                   <ToggleRight className="w-8 h-8" />
                 ) : (
                   <ToggleLeft className="w-8 h-8 text-neutral-500" />
@@ -269,7 +267,7 @@ export default function ScreenTimePage() {
           {/* Daily Limits */}
           <motion.div
             className={`bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4 ${
-              !config.is_enabled ? "opacity-50" : ""
+              !config.enabled ? "opacity-50" : ""
             }`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -291,7 +289,7 @@ export default function ScreenTimePage() {
                       step="15"
                       value={config[day.key as keyof ScreenTimeConfig] as number}
                       onChange={(e) => updateConfig(day.key, parseInt(e.target.value))}
-                      disabled={!config.is_enabled}
+                      disabled={!config.enabled}
                       className="w-24 accent-neutral-900 dark:accent-white"
                     />
                     <span className="text-sm text-neutral-500 dark:text-neutral-400 w-20 text-right">
@@ -306,7 +304,7 @@ export default function ScreenTimePage() {
           {/* Time Window */}
           <motion.div
             className={`bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4 ${
-              !config.is_enabled ? "opacity-50" : ""
+              !config.enabled ? "opacity-50" : ""
             }`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -321,9 +319,9 @@ export default function ScreenTimePage() {
                 <label className="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2">Start Time</label>
                 <input
                   type="time"
-                  value={config.allowed_start_time || ""}
-                  onChange={(e) => updateConfig("allowed_start_time", e.target.value || null)}
-                  disabled={!config.is_enabled}
+                  value={config.allowedStart || ""}
+                  onChange={(e) => updateConfig("allowedStart", e.target.value || null)}
+                  disabled={!config.enabled}
                   className="w-full bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 px-4 py-2 text-neutral-900 dark:text-white focus:outline-none focus:border-neutral-900 dark:focus:border-white"
                 />
               </div>
@@ -331,44 +329,15 @@ export default function ScreenTimePage() {
                 <label className="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2">End Time</label>
                 <input
                   type="time"
-                  value={config.allowed_end_time || ""}
-                  onChange={(e) => updateConfig("allowed_end_time", e.target.value || null)}
-                  disabled={!config.is_enabled}
+                  value={config.allowedEnd || ""}
+                  onChange={(e) => updateConfig("allowedEnd", e.target.value || null)}
+                  disabled={!config.enabled}
                   className="w-full bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 px-4 py-2 text-neutral-900 dark:text-white focus:outline-none focus:border-neutral-900 dark:focus:border-white"
                 />
               </div>
             </div>
           </motion.div>
 
-          {/* Grace Period */}
-          <motion.div
-            className={`bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4 ${
-              !config.is_enabled ? "opacity-50" : ""
-            }`}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            <h3 className="text-sm font-semibold text-neutral-900 dark:text-white mb-4">Grace Period</h3>
-            <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
-              Allow a warning period before enforcing limits.
-            </p>
-            <div className="flex items-center gap-4">
-              <input
-                type="range"
-                min="0"
-                max="30"
-                step="5"
-                value={config.grace_period}
-                onChange={(e) => updateConfig("grace_period", parseInt(e.target.value))}
-                disabled={!config.is_enabled}
-                className="flex-1 accent-neutral-900 dark:accent-white"
-              />
-              <span className="text-neutral-900 dark:text-white font-medium w-24 text-right">
-                {config.grace_period} minutes
-              </span>
-            </div>
-          </motion.div>
         </div>
       ) : null}
     </DashboardLayout>

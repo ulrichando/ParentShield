@@ -105,7 +105,7 @@ export function AdminSidebar({ activePage, user }: AdminSidebarProps) {
       )}
 
       {/* Sidebar */}
-      <aside className={`fixed left-0 top-0 h-full w-56 bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 p-5 flex flex-col z-50 transition-transform duration-300 ${
+      <aside className={`fixed left-0 top-0 h-full w-52 bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 p-5 flex flex-col z-50 transition-transform duration-300 ${
         mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       }`}>
         {/* Logo */}

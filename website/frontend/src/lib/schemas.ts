@@ -114,6 +114,54 @@ export const BlockedAppSchema = z.object({
   scheduleEnd: timePattern,
 });
 
+// ─── Web filter ───────────────────────────────────────────────────────────────
+
+export const WebFilterConfigUpdateSchema = z.object({
+  enabled: z.boolean(),
+  blockAdult: z.boolean(),
+  blockGambling: z.boolean(),
+  blockSocialMedia: z.boolean(),
+  blockGaming: z.boolean(),
+  blockStreaming: z.boolean(),
+  safeSearch: z.boolean(),
+});
+
+export const WebFilterRuleCreateSchema = z.object({
+  pattern: z.string().min(1).max(500),
+  isBlocked: z.boolean(),
+  isRegex: z.boolean().optional().default(false),
+});
+
+// ─── Download ─────────────────────────────────────────────────────────────────
+
+export const DownloadRequestSchema = z.object({
+  platform: z.enum(['windows', 'macos', 'linux', 'android', 'ios']),
+  source: z.enum(['website', 'dashboard', 'email', 'referral', 'other']).optional(),
+  appVersion: z.string().max(50).optional(),
+});
+
+// ─── API keys ─────────────────────────────────────────────────────────────────
+
+export const APIKeyCreateSchema = z.object({
+  name: z.string().min(1).max(100),
+  scopes: z.array(z.string().min(1)).min(1),
+  expiresAt: z.string().datetime().optional(),
+});
+
+// ─── Webhooks ─────────────────────────────────────────────────────────────────
+
+export const WebhookCreateSchema = z.object({
+  url: z.string().url().max(500),
+  events: z.array(z.string().min(1)).min(1),
+  description: z.string().max(500).nullable().optional(),
+});
+
+export const WebhookUpdateSchema = z.object({
+  isActive: z.boolean().optional(),
+  url: z.string().url().max(500).optional(),
+  events: z.array(z.string().min(1)).min(1).optional(),
+});
+
 // ─── Helper ───────────────────────────────────────────────────────────────────
 
 import { NextResponse } from 'next/server';

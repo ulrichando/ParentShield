@@ -151,7 +151,7 @@ export default function DownloadPage() {
         body: JSON.stringify({
           platform: platformId,
           source: "dashboard",
-          app_version: availableDownloads?.version || "0.2.0",
+          appVersion: availableDownloads?.version || "0.2.0",
         }),
       });
 
@@ -159,10 +159,10 @@ export default function DownloadPage() {
         throw new Error("Failed to initiate download");
       }
 
-      const data = await response.json();
+      const { data } = await response.json();
 
       // Store the download token for later use
-      localStorage.setItem("download_token", data.download_token);
+      localStorage.setItem("download_token", data.downloadToken);
 
       // Mark as downloaded
       setDownloaded((prev) => [...prev, downloadKey]);

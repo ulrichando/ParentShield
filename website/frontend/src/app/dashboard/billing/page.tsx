@@ -562,7 +562,7 @@ export default function BillingPage() {
                                 : "bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-700"
                             }`}
                             size="sm"
-                            onClick={() => window.open("https://parentshield.app/pricing", "_blank")}
+                            onClick={() => window.open("/pricing", "_self")}
                           >
                             <ExternalLink className="w-3.5 h-3.5" />
                             Subscribe
@@ -634,7 +634,7 @@ export default function BillingPage() {
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-medium text-neutral-900 dark:text-white">
-                      ${tx.amount.toFixed(2)} {tx.currency.toUpperCase()}
+                      ${(tx.amount / 100).toFixed(2)} {tx.currency.toUpperCase()}
                     </p>
                     <span className={`text-xs ${
                       tx.status === "succeeded" ? "text-green-400" : "text-yellow-400"

@@ -40,3 +40,5 @@ export async function PUT(
     return serverError(requestId);
   }
 }
+
+export const PATCH = PUT;

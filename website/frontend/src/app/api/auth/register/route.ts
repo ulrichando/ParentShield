@@ -36,36 +36,40 @@ export async function POST(request: NextRequest) {
 
     const passwordHash = await hashPassword(password);
 
-    const user = await prisma.user.create({
-      data: {
-        email: sanitizedEmail,
-        passwordHash,
-        firstName: sanitizedFirstName,
-        lastName: sanitizedLastName,
-        isVerified: true,
-        subscriptions: {
-          create: {
-            status: 'trialing',
-            plan: 'free',
-            currentPeriodStart: new Date(),
-            currentPeriodEnd: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    const { user, accessToken, refreshToken } = await prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          email: sanitizedEmail,
+          passwordHash,
+          firstName: sanitizedFirstName,
+          lastName: sanitizedLastName,
+          isVerified: true,
+          subscriptions: {
+            create: {
+              status: 'trialing',
+              plan: 'free',
+              currentPeriodStart: new Date(),
+              currentPeriodEnd: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+            },
+          },
+          settings: {
+            create: {},
           },
         },
-        settings: {
-          create: {},
+      });
+
+      const accessToken = createAccessToken(user.id, user.email, user.role);
+      const refreshToken = createRefreshToken(user.id, user.email, user.role);
+
+      await tx.refreshToken.create({
+        data: {
+          userId: user.id,
+          tokenHash: hashToken(refreshToken),
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         },
-      },
-    });
+      });
 
-    const accessToken = createAccessToken(user.id, user.email, user.role);
-    const refreshToken = createRefreshToken(user.id, user.email, user.role);
-
-    await prisma.refreshToken.create({
-      data: {
-        userId: user.id,
-        tokenHash: hashToken(refreshToken),
-        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      },
+      return { user, accessToken, refreshToken };
     });
 
     return success(

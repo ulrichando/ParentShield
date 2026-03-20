@@ -6,7 +6,7 @@ use std::sync::Mutex;
 use once_cell::sync::Lazy;
 
 // Platform API URL
-const API_BASE_URL: &str = "https://parentshield.app/api/v1/app";
+const API_BASE_URL: &str = "https://parentshield.app/api/app";
 
 // License state (cached locally)
 pub static LICENSE_STATE: Lazy<Mutex<LicenseState>> = Lazy::new(|| {
@@ -97,11 +97,11 @@ pub async fn platform_login(email: String, password: String) -> Result<PlatformL
 
     let client = reqwest::Client::new();
     let response = client
-        .post(&format!("{}/auth/login", API_BASE_URL))
+        .post(&format!("{}/login", API_BASE_URL))
         .json(&serde_json::json!({
             "email": email,
             "password": password,
-            "device_id": device_id
+            "deviceId": device_id
         }))
         .send()
         .await
@@ -115,10 +115,13 @@ pub async fn platform_login(email: String, password: String) -> Result<PlatformL
         });
     }
 
+    #[derive(Deserialize)]
+    struct Envelope { data: LoginResponse }
     let login_response: LoginResponse = response
-        .json()
+        .json::<Envelope>()
         .await
-        .map_err(|e| format!("Failed to parse response: {}", e))?;
+        .map_err(|e| format!("Failed to parse response: {}", e))?
+        .data;
 
     if login_response.success {
         // Store the license state
@@ -160,24 +163,22 @@ pub async fn check_license() -> Result<LicenseState, String> {
 
     // If we have a token, verify it with the server
     if let Some(ref token) = state.access_token {
-        let device_id = get_device_id();
-
         let client = reqwest::Client::new();
         let response = client
-            .post(&format!("{}/license/check", API_BASE_URL))
+            .get(&format!("{}/license", API_BASE_URL))
             .header("Authorization", format!("Bearer {}", token))
-            .json(&serde_json::json!({
-                "device_id": device_id
-            }))
             .send()
             .await;
 
         match response {
             Ok(resp) if resp.status().is_success() => {
+                #[derive(Deserialize)]
+                struct Envelope { data: LicenseCheckResponse }
                 let check_response: LicenseCheckResponse = resp
-                    .json()
+                    .json::<Envelope>()
                     .await
-                    .map_err(|e| format!("Failed to parse response: {}", e))?;
+                    .map_err(|e| format!("Failed to parse response: {}", e))?
+                    .data;
 
                 // Update the state
                 let mut state = LICENSE_STATE.lock().map_err(|e| e.to_string())?;

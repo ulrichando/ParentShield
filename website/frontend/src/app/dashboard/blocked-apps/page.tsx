@@ -23,19 +23,17 @@ import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 
 interface Installation {
   id: string;
-  device_name: string | null;
+  deviceName: string | null;
   platform: string;
 }
 
 interface BlockedApp {
   id: string;
-  app_name: string;
-  app_identifier: string;
-  platform: string;
-  is_game: boolean;
-  is_enabled: boolean;
-  schedule: Record<string, unknown> | null;
-  created_at: string;
+  appName: string;
+  appPath: string | null;
+  isGame: boolean;
+  isEnabled: boolean;
+  createdAt: string;
 }
 
 export default function BlockedAppsPage() {
@@ -50,9 +48,9 @@ export default function BlockedAppsPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [newApp, setNewApp] = useState({
-    app_name: "",
-    app_identifier: "",
-    is_game: false,
+    appName: "",
+    appPath: "",
+    isGame: false,
   });
   const [isAdding, setIsAdding] = useState(false);
 
@@ -61,7 +59,7 @@ export default function BlockedAppsPage() {
       const response = await authFetch(`/api/device/installations`);
       if (!response.ok) throw new Error("Failed to fetch devices");
       const data = await response.json();
-      const activeDevices = data.filter((d: Installation & { status: string }) => d.status === "active");
+      const activeDevices = data.data.filter((d: Installation & { status: string }) => d.status === "active");
       setDevices(activeDevices);
       if (activeDevices.length > 0 && !selectedDevice) {
         setSelectedDevice(activeDevices[0].id);
@@ -78,7 +76,7 @@ export default function BlockedAppsPage() {
       const response = await authFetch(`/api/parental/blocked-apps/${deviceId}`);
       if (!response.ok) throw new Error("Failed to fetch blocked apps");
       const data = await response.json();
-      setApps(data);
+      setApps(data.data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load blocked apps");
     } finally {
@@ -87,7 +85,7 @@ export default function BlockedAppsPage() {
   };
 
   const addApp = async () => {
-    if (!selectedDevice || !newApp.app_name || !newApp.app_identifier) return;
+    if (!selectedDevice || !newApp.appName) return;
 
     setIsAdding(true);
     setError(null);
@@ -97,19 +95,19 @@ export default function BlockedAppsPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...newApp,
-          platform: device?.platform || "windows",
-          is_enabled: true,
+          appName: newApp.appName,
+          appPath: newApp.appPath || undefined,
+          isGame: newApp.isGame,
         }),
       });
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.detail || "Failed to add app");
+        throw new Error(data.error || "Failed to add app");
       }
-      const addedApp = await response.json();
+      const { data: addedApp } = await response.json();
       setApps([...apps, addedApp]);
       setShowAddModal(false);
-      setNewApp({ app_name: "", app_identifier: "", is_game: false });
+      setNewApp({ appName: "", appPath: "", isGame: false });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to add app");
     } finally {
@@ -122,12 +120,12 @@ export default function BlockedAppsPage() {
 
     try {
       const response = await authFetch(`/api/parental/blocked-apps/${selectedDevice}/${appId}`, {
-        method: "PUT",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ is_enabled: isEnabled }),
+        body: JSON.stringify({ isEnabled: isEnabled }),
       });
       if (!response.ok) throw new Error("Failed to update app");
-      setApps(apps.map((app) => (app.id === appId ? { ...app, is_enabled: isEnabled } : app)));
+      setApps(apps.map((app) => (app.id === appId ? { ...app, isEnabled: isEnabled } : app)));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update app");
     }
@@ -164,8 +162,8 @@ export default function BlockedAppsPage() {
 
   const filteredApps = apps.filter((app) => {
     if (filter === "all") return true;
-    if (filter === "games") return app.is_game;
-    return !app.is_game;
+    if (filter === "games") return app.isGame;
+    return !app.isGame;
   });
 
   if (authLoading) {
@@ -232,7 +230,7 @@ export default function BlockedAppsPage() {
             >
               {devices.map((device) => (
                 <option key={device.id} value={device.id}>
-                  {device.device_name || `${device.platform} Device`}
+                  {device.deviceName || `${device.platform} Device`}
                 </option>
               ))}
             </select>
@@ -324,36 +322,36 @@ export default function BlockedAppsPage() {
               <div className="flex items-center gap-4">
                 <div
                   className={`w-10 h-10 flex items-center justify-center ${
-                    app.is_game ? "bg-purple-500/10" : "bg-blue-500/10"
+                    app.isGame ? "bg-purple-500/10" : "bg-blue-500/10"
                   }`}
                 >
-                  {app.is_game ? (
+                  {app.isGame ? (
                     <Gamepad2 className="w-5 h-5 text-purple-400" />
                   ) : (
                     <AppWindow className="w-5 h-5 text-blue-400" />
                   )}
                 </div>
                 <div>
-                  <h3 className="font-medium text-neutral-900 dark:text-white">{app.app_name}</h3>
-                  <p className="text-sm text-neutral-500 truncate max-w-xs">{app.app_identifier}</p>
+                  <h3 className="font-medium text-neutral-900 dark:text-white">{app.appName}</h3>
+                  <p className="text-sm text-neutral-500 truncate max-w-xs">{app.appPath}</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
                 <span
                   className={`text-xs px-2 py-1 ${
-                    app.is_game
+                    app.isGame
                       ? "bg-purple-500/10 text-purple-400"
                       : "bg-blue-500/10 text-blue-400"
                   }`}
                 >
-                  {app.is_game ? "Game" : "App"}
+                  {app.isGame ? "Game" : "App"}
                 </span>
                 <button
-                  onClick={() => toggleApp(app.id, !app.is_enabled)}
+                  onClick={() => toggleApp(app.id, !app.isEnabled)}
                   className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
                 >
-                  {app.is_enabled ? (
+                  {app.isEnabled ? (
                     <ToggleRight className="w-8 h-8" />
                   ) : (
                     <ToggleLeft className="w-8 h-8 text-neutral-500" />
@@ -399,8 +397,8 @@ export default function BlockedAppsPage() {
                 <label className="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2">App Name</label>
                 <input
                   type="text"
-                  value={newApp.app_name}
-                  onChange={(e) => setNewApp({ ...newApp, app_name: e.target.value })}
+                  value={newApp.appName}
+                  onChange={(e) => setNewApp({ ...newApp, appName: e.target.value })}
                   placeholder="e.g., Chrome, Minecraft"
                   className="w-full bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 px-4 py-2 text-neutral-900 dark:text-white placeholder-neutral-500 focus:outline-none focus:border-neutral-900 dark:focus:border-white"
                 />
@@ -408,12 +406,12 @@ export default function BlockedAppsPage() {
 
               <div>
                 <label className="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2">
-                  App Identifier / Path
+                  App Path / Identifier
                 </label>
                 <input
                   type="text"
-                  value={newApp.app_identifier}
-                  onChange={(e) => setNewApp({ ...newApp, app_identifier: e.target.value })}
+                  value={newApp.appPath}
+                  onChange={(e) => setNewApp({ ...newApp, appPath: e.target.value })}
                   placeholder="e.g., chrome.exe, com.mojang.minecraft"
                   className="w-full bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 px-4 py-2 text-neutral-900 dark:text-white placeholder-neutral-500 focus:outline-none focus:border-neutral-900 dark:focus:border-white"
                 />
@@ -424,10 +422,10 @@ export default function BlockedAppsPage() {
 
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => setNewApp({ ...newApp, is_game: !newApp.is_game })}
+                  onClick={() => setNewApp({ ...newApp, isGame: !newApp.isGame })}
                   className="text-neutral-600 dark:text-neutral-400"
                 >
-                  {newApp.is_game ? (
+                  {newApp.isGame ? (
                     <ToggleRight className="w-8 h-8" />
                   ) : (
                     <ToggleLeft className="w-8 h-8 text-neutral-500" />
@@ -443,7 +441,7 @@ export default function BlockedAppsPage() {
               </Button>
               <Button
                 onClick={addApp}
-                disabled={!newApp.app_name || !newApp.app_identifier || isAdding}
+                disabled={!newApp.appName || isAdding}
                 className="flex-1"
               >
                 {isAdding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}

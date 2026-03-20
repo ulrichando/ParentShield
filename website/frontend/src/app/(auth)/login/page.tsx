@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
+import { TOKEN_KEYS, setTokens } from "@/lib/auth-client";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -36,11 +37,10 @@ export default function LoginPage() {
       const data = await res.json();
 
       const { accessToken, refreshToken, user } = data.data;
-      localStorage.setItem("access_token", accessToken);
-      localStorage.setItem("refresh_token", refreshToken);
-      localStorage.setItem("user_role", user.role);
-      localStorage.setItem("user_email", user.email);
-      localStorage.setItem("user_name", user.firstName || "User");
+      setTokens(accessToken, refreshToken);
+      localStorage.setItem(TOKEN_KEYS.role, user.role);
+      localStorage.setItem(TOKEN_KEYS.email, user.email);
+      localStorage.setItem(TOKEN_KEYS.name, user.firstName || "User");
 
       if (user.role === "admin") {
         router.push("/admin");

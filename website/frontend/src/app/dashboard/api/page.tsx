@@ -33,12 +33,12 @@ import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 interface APIKey {
   id: string;
   name: string;
-  key_prefix: string;
+  prefix: string;
   scopes: string[];
-  expires_at: string | null;
-  is_revoked: boolean;
-  last_used_at: string | null;
-  created_at: string;
+  expiresAt: string | null;
+  revokedAt: string | null;
+  lastUsed: string | null;
+  createdAt: string;
 }
 
 interface NewAPIKey extends APIKey {
@@ -49,10 +49,10 @@ interface Webhook {
   id: string;
   url: string;
   events: string[];
-  is_active: boolean;
+  isActive: boolean;
   description: string | null;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface WebhookWithSecret extends Webhook {
@@ -110,7 +110,7 @@ export default function APIPage() {
     try {
       const response = await authFetch(`/api/v1/api-keys`);
       if (response.ok) {
-        const data = await response.json();
+        const { data } = await response.json();
         setApiKeys(data);
       }
     } catch (err) {
@@ -128,10 +128,10 @@ export default function APIPage() {
     try {
       const body: Record<string, unknown> = {
         name: newKeyName,
-        scopes: newKeyScopes
+        scopes: newKeyScopes,
       };
       if (newKeyExpiry) {
-        body.expires_at = new Date(newKeyExpiry).toISOString();
+        body.expiresAt = new Date(newKeyExpiry).toISOString();
       }
 
       const response = await authFetch(`/api/v1/api-keys`, {
@@ -142,9 +142,9 @@ export default function APIPage() {
 
       if (!response.ok) throw new Error("Failed to create API key");
 
-      const data: NewAPIKey = await response.json();
-      setNewlyCreatedKey(data.key);
-      setApiKeys((prev) => [{ ...data, key: undefined } as unknown as APIKey, ...prev]);
+      const { data } = await response.json();
+      setNewlyCreatedKey((data as NewAPIKey).key);
+      setApiKeys((prev) => [{ ...(data as NewAPIKey), key: undefined } as unknown as APIKey, ...prev]);
       setNewKeyName("");
       setNewKeyScopes(["read"]);
       setNewKeyExpiry("");
@@ -196,12 +196,12 @@ export default function APIPage() {
       ]);
 
       if (webhooksRes.ok) {
-        const data = await webhooksRes.json();
+        const { data } = await webhooksRes.json();
         setWebhooks(data);
       }
 
       if (eventsRes.ok) {
-        const data = await eventsRes.json();
+        const { data } = await eventsRes.json();
         setAvailableEvents(data.events || []);
       }
     } catch (err) {
@@ -228,13 +228,13 @@ export default function APIPage() {
       });
 
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.detail || "Failed to create webhook");
+        const errData = await response.json();
+        throw new Error(errData.error || "Failed to create webhook");
       }
 
-      const data: WebhookWithSecret = await response.json();
-      setNewlyCreatedWebhook(data);
-      setWebhooks((prev) => [{ ...data, secret: undefined } as unknown as Webhook, ...prev]);
+      const { data } = await response.json();
+      setNewlyCreatedWebhook(data as WebhookWithSecret);
+      setWebhooks((prev) => [{ ...(data as WebhookWithSecret), secret: undefined } as unknown as Webhook, ...prev]);
       setNewWebhookUrl("");
       setNewWebhookDescription("");
       setNewWebhookEvents([]);
@@ -338,7 +338,7 @@ export default function APIPage() {
   }
 
   const tabs = [
-    { id: "keys" as TabType, label: "API Keys", icon: Key, count: apiKeys.filter(k => !k.is_revoked).length },
+    { id: "keys" as TabType, label: "API Keys", icon: Key, count: apiKeys.filter(k => k.revokedAt === null).length },
     { id: "webhooks" as TabType, label: "Webhooks", icon: Globe, count: webhooks.length },
     { id: "docs" as TabType, label: "Documentation", icon: BookOpen },
   ];
@@ -424,7 +424,7 @@ export default function APIPage() {
                   <Key className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-neutral-900 dark:text-white">{apiKeys.filter(k => !k.is_revoked).length}</p>
+                  <p className="text-2xl font-bold text-neutral-900 dark:text-white">{apiKeys.filter(k => k.revokedAt === null).length}</p>
                   <p className="text-sm text-neutral-500">Active Keys</p>
                 </div>
               </div>
@@ -447,7 +447,7 @@ export default function APIPage() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-neutral-900 dark:text-white">
-                    {apiKeys.filter(k => k.expires_at && new Date(k.expires_at) < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)).length}
+                    {apiKeys.filter(k => k.expiresAt && new Date(k.expiresAt) < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)).length}
                   </p>
                   <p className="text-sm text-neutral-500">Expiring Soon</p>
                 </div>
@@ -625,7 +625,7 @@ export default function APIPage() {
                   <div
                     key={key.id}
                     className={`flex items-center justify-between p-4 border transition-all ${
-                      key.is_revoked
+                      key.revokedAt !== null
                         ? "bg-red-500/5 border-red-500/20 opacity-50"
                         : "bg-[#FAFAFA] dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600"
                     }`}
@@ -633,26 +633,26 @@ export default function APIPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-1">
                         <span className="font-semibold text-neutral-900 dark:text-white">{key.name}</span>
-                        {key.is_revoked && (
+                        {key.revokedAt !== null && (
                           <span className="text-xs px-2 py-0.5 bg-red-500/20 text-red-400 font-medium">
                             Revoked
                           </span>
                         )}
-                        {key.expires_at && new Date(key.expires_at) < new Date() && (
+                        {key.expiresAt && new Date(key.expiresAt) < new Date() && (
                           <span className="text-xs px-2 py-0.5 bg-yellow-500/20 text-yellow-400 font-medium">
                             Expired
                           </span>
                         )}
                       </div>
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-neutral-500">
-                        <code className="font-mono text-neutral-500 dark:text-neutral-400">{key.key_prefix}...</code>
-                        <span>Created {new Date(key.created_at).toLocaleDateString()}</span>
-                        {key.last_used_at && (
-                          <span>Last used {new Date(key.last_used_at).toLocaleDateString()}</span>
+                        <code className="font-mono text-neutral-500 dark:text-neutral-400">{key.prefix}...</code>
+                        <span>Created {new Date(key.createdAt).toLocaleDateString()}</span>
+                        {key.lastUsed && (
+                          <span>Last used {new Date(key.lastUsed).toLocaleDateString()}</span>
                         )}
-                        {key.expires_at && (
-                          <span className={new Date(key.expires_at) < new Date() ? "text-red-400" : ""}>
-                            Expires {new Date(key.expires_at).toLocaleDateString()}
+                        {key.expiresAt && (
+                          <span className={new Date(key.expiresAt) < new Date() ? "text-red-400" : ""}>
+                            Expires {new Date(key.expiresAt).toLocaleDateString()}
                           </span>
                         )}
                       </div>
@@ -671,7 +671,7 @@ export default function APIPage() {
                       <Button
                         size="sm"
                         variant="ghost"
-                        onClick={() => copyToClipboard(key.key_prefix, key.id)}
+                        onClick={() => copyToClipboard(key.prefix, key.id)}
                         title="Copy key prefix"
                       >
                         {copiedKeyId === key.id ? (
@@ -680,7 +680,7 @@ export default function APIPage() {
                           <Copy className="w-4 h-4" />
                         )}
                       </Button>
-                      {!key.is_revoked && (
+                      {!key.revokedAt !== null && (
                         <Button
                           size="sm"
                           variant="ghost"
@@ -867,7 +867,7 @@ export default function APIPage() {
                   <div
                     key={webhook.id}
                     className={`p-4 border transition-all ${
-                      webhook.is_active
+                      webhook.isActive
                         ? "bg-[#FAFAFA] dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600"
                         : "bg-[#FAFAFA]/50 dark:bg-neutral-800/50 border-neutral-200 dark:border-neutral-800 opacity-60"
                     }`}
@@ -875,7 +875,7 @@ export default function APIPage() {
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          {webhook.is_active ? (
+                          {webhook.isActive ? (
                             <CheckCircle className="w-4 h-4 text-green-400 shrink-0" />
                           ) : (
                             <XCircle className="w-4 h-4 text-neutral-500 shrink-0" />
@@ -901,7 +901,7 @@ export default function APIPage() {
                           size="sm"
                           variant="ghost"
                           onClick={() => testWebhook(webhook.id)}
-                          disabled={testingWebhookId === webhook.id || !webhook.is_active}
+                          disabled={testingWebhookId === webhook.id || !webhook.isActive}
                           title="Send test webhook"
                         >
                           {testingWebhookId === webhook.id ? (
@@ -911,11 +911,11 @@ export default function APIPage() {
                           )}
                         </Button>
                         <button
-                          onClick={() => toggleWebhook(webhook.id, webhook.is_active)}
+                          onClick={() => toggleWebhook(webhook.id, webhook.isActive)}
                           className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
-                          title={webhook.is_active ? "Disable webhook" : "Enable webhook"}
+                          title={webhook.isActive ? "Disable webhook" : "Enable webhook"}
                         >
-                          {webhook.is_active ? (
+                          {webhook.isActive ? (
                             <ToggleRight className="w-7 h-7" />
                           ) : (
                             <ToggleLeft className="w-7 h-7 text-neutral-500" />
@@ -933,7 +933,7 @@ export default function APIPage() {
                       </div>
                     </div>
                     <div className="mt-3 pt-3 border-t border-neutral-200 dark:border-neutral-800 text-xs text-neutral-500">
-                      Created {new Date(webhook.created_at).toLocaleDateString()}
+                      Created {new Date(webhook.createdAt).toLocaleDateString()}
                     </div>
                   </div>
                 ))}

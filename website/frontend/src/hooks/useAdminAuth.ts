@@ -54,25 +54,44 @@ export function useAdminAuth() {
 
   useEffect(() => {
     const accessToken = getAccessToken();
-    const role = localStorage.getItem(TOKEN_KEYS.role);
-
     if (!accessToken) {
       router.push("/login");
       return;
     }
 
-    if (role !== "admin") {
-      router.push("/dashboard");
-      return;
-    }
-
-    setToken(accessToken);
-    setUser({
-      email: localStorage.getItem(TOKEN_KEYS.email) || "admin@parentshield.app",
-      role,
-      firstName: localStorage.getItem(TOKEN_KEYS.name) || "Admin",
-    });
-    setIsLoading(false);
+    fetch("/api/account/profile", {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
+      .then((res) => {
+        if (res.ok) return res.json();
+        throw new Error("Profile fetch failed");
+      })
+      .then(({ data: profile }) => {
+        if (profile.role !== "admin") {
+          router.push("/dashboard");
+          return;
+        }
+        localStorage.setItem(TOKEN_KEYS.email, profile.email);
+        localStorage.setItem(TOKEN_KEYS.role, profile.role);
+        localStorage.setItem(TOKEN_KEYS.name, profile.firstName || "Admin");
+        setToken(accessToken);
+        setUser({ email: profile.email, role: profile.role, firstName: profile.firstName || "Admin" });
+      })
+      .catch(() => {
+        // Fallback to cached role on network error — still reject non-admins
+        const role = localStorage.getItem(TOKEN_KEYS.role);
+        if (role !== "admin") {
+          router.push("/dashboard");
+          return;
+        }
+        setToken(accessToken);
+        setUser({
+          email: localStorage.getItem(TOKEN_KEYS.email) || "admin@parentshield.app",
+          role,
+          firstName: localStorage.getItem(TOKEN_KEYS.name) || "Admin",
+        });
+      })
+      .finally(() => setIsLoading(false));
   }, [router]);
 
   return { user, isLoading, token, router, authFetch, logout };

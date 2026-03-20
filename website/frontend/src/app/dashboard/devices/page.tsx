@@ -29,27 +29,24 @@ import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 
 interface Installation {
   id: string;
-  device_id: string;
-  device_name: string | null;
+  deviceId: string;
+  deviceName: string | null;
   platform: string;
-  os_version: string | null;
-  app_version: string;
+  osVersion: string | null;
+  appVersion: string | null;
   status: string;
-  is_blocked: boolean;
-  blocked_reason: string | null;
-  last_seen: string;
-  created_at: string;
+  isBlocked: boolean;
+  blockedReason: string | null;
+  lastSeen: string | null;
+  createdAt: string;
 }
 
 interface ActivationCode {
   id: string;
   code: string;
-  expires_at: string;
-  is_used: boolean;
-  is_expired: boolean;
-  used_at: string | null;
-  used_device_id: string | null;
-  created_at: string;
+  expiresAt: string;
+  usedAt: string | null;
+  createdAt: string;
 }
 
 const platformIcons: Record<string, React.ElementType> = {
@@ -100,8 +97,8 @@ export default function DevicesPage() {
     try {
       const response = await authFetch(`/api/device/installations`);
       if (!response.ok) throw new Error("Failed to fetch devices");
-      const data = await response.json();
-      setDevices(data);
+      const { data } = await response.json();
+      setDevices(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load devices");
     } finally {
@@ -109,21 +106,21 @@ export default function DevicesPage() {
     }
   };
 
-  const deleteDevice = async (deviceId: string, deviceName: string) => {
+  const deleteDevice = async (installationId: string, deviceName: string) => {
     if (!confirm(`Are you sure you want to remove "${deviceName || 'this device'}"?\n\nThis will remove it from your account.`)) {
       return;
     }
 
-    setDeletingId(deviceId);
+    setDeletingId(installationId);
     try {
-      const response = await authFetch(`/api/device/installation/${deviceId}`, {
+      const response = await authFetch(`/api/device/installations/${installationId}`, {
         method: "DELETE",
       });
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.detail || "Failed to delete device");
+        throw new Error(data.error || "Failed to delete device");
       }
-      setDevices(devices.filter((d) => d.id !== deviceId));
+      setDevices(devices.filter((d) => d.id !== installationId));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete device");
     } finally {
@@ -135,11 +132,11 @@ export default function DevicesPage() {
     try {
       const response = await authFetch(`/api/device/activation-codes`);
       if (response.ok) {
-        const data = await response.json();
-        setActivationCodes(data);
+        const { data } = await response.json();
+        setActivationCodes(Array.isArray(data) ? data : []);
       }
-    } catch (err) {
-      console.error("Failed to fetch activation codes:", err);
+    } catch {
+      // Silent fail
     }
   };
 
@@ -151,9 +148,9 @@ export default function DevicesPage() {
       });
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.detail || "Failed to generate code");
+        throw new Error(data.error || "Failed to generate code");
       }
-      const newCode = await response.json();
+      const { data: newCode } = await response.json();
       setActivationCodes([newCode, ...activationCodes]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to generate code");
@@ -170,8 +167,8 @@ export default function DevicesPage() {
       if (response.ok) {
         setActivationCodes(activationCodes.filter((c) => c.id !== codeId));
       }
-    } catch (err) {
-      console.error("Failed to delete code:", err);
+    } catch {
+      // Silent fail
     }
   };
 
@@ -192,9 +189,9 @@ export default function DevicesPage() {
         body: JSON.stringify({ code: linkCode }),
       });
 
-      const data = await response.json();
-      if (!response.ok || !data.success) {
-        throw new Error(data.error || data.detail || "Failed to link device");
+      const json = await response.json();
+      if (!response.ok) {
+        throw new Error(json.error || "Failed to link device");
       }
 
       await fetchDevices();
@@ -300,7 +297,7 @@ export default function DevicesPage() {
               <motion.div
                 key={device.id}
                 className={`bg-white dark:bg-neutral-900 border p-6 ${
-                  device.is_blocked
+                  device.isBlocked
                     ? "border-red-300 dark:border-red-800"
                     : "border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700"
                 } transition-all`}
@@ -315,29 +312,33 @@ export default function DevicesPage() {
                     </div>
                     <div>
                       <h3 className="font-medium text-neutral-900 dark:text-white mb-1">
-                        {device.device_name || `${device.platform} Device`}
+                        {device.deviceName || `${device.platform} Device`}
                       </h3>
                       <div className="flex items-center gap-3 text-sm text-neutral-500">
                         <span className="capitalize">{device.platform}</span>
-                        <span>•</span>
-                        <span>v{device.app_version}</span>
-                        {device.os_version && (
+                        {device.appVersion && (
                           <>
                             <span>•</span>
-                            <span>{device.os_version}</span>
+                            <span>v{device.appVersion}</span>
+                          </>
+                        )}
+                        {device.osVersion && (
+                          <>
+                            <span>•</span>
+                            <span>{device.osVersion}</span>
                           </>
                         )}
                       </div>
                       <div className="flex items-center gap-2 mt-2 text-xs text-neutral-400 dark:text-neutral-500">
                         <Clock className="w-3 h-3" />
-                        Last seen: {formatTimeAgo(device.last_seen)}
+                        Last seen: {device.lastSeen ? formatTimeAgo(device.lastSeen) : "Never"}
                       </div>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
                     <div className="flex flex-col items-end gap-2">
-                      {device.is_blocked ? (
+                      {device.isBlocked ? (
                         <div className="flex items-center gap-2 px-3 py-1.5 bg-red-50 dark:bg-red-900/20">
                           <XCircle className="w-4 h-4 text-red-600 dark:text-red-400" />
                           <span className="text-sm font-medium text-red-600 dark:text-red-400">Blocked</span>
@@ -350,12 +351,12 @@ export default function DevicesPage() {
                           </span>
                         </div>
                       )}
-                      {device.blocked_reason && (
-                        <p className="text-xs text-red-600 dark:text-red-400">{device.blocked_reason}</p>
+                      {device.blockedReason && (
+                        <p className="text-xs text-red-600 dark:text-red-400">{device.blockedReason}</p>
                       )}
                     </div>
                     <button
-                      onClick={() => deleteDevice(device.id, device.device_name || `${device.platform} Device`)}
+                      onClick={() => deleteDevice(device.id, device.deviceName || `${device.platform} Device`)}
                       disabled={deletingId === device.id}
                       className="p-2 text-neutral-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50"
                     >
@@ -423,10 +424,10 @@ export default function DevicesPage() {
           </div>
         )}
 
-        {activationCodes.filter(c => !c.is_used && !c.is_expired).length > 0 && (
+        {activationCodes.filter(c => !c.usedAt && new Date(c.expiresAt) > new Date()).length > 0 && (
           <div className="space-y-2">
             <p className="text-xs uppercase tracking-wider text-neutral-400 dark:text-neutral-500">Active Codes</p>
-            {activationCodes.filter(c => !c.is_used && !c.is_expired).map((code) => (
+            {activationCodes.filter(c => !c.usedAt && new Date(c.expiresAt) > new Date()).map((code) => (
               <div
                 key={code.id}
                 className="flex items-center justify-between p-3 bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700"
@@ -437,7 +438,7 @@ export default function DevicesPage() {
                   </div>
                   <div>
                     <p className="font-mono text-lg text-neutral-900 dark:text-white tracking-wider">{code.code}</p>
-                    <p className="text-xs text-neutral-500">Expires: {new Date(code.expires_at).toLocaleTimeString()}</p>
+                    <p className="text-xs text-neutral-500">Expires: {new Date(code.expiresAt).toLocaleTimeString()}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -463,7 +464,7 @@ export default function DevicesPage() {
           </div>
         )}
 
-        {activationCodes.filter(c => !c.is_used && !c.is_expired).length === 0 && (
+        {activationCodes.filter(c => !c.usedAt && new Date(c.expiresAt) > new Date()).length === 0 && (
           <div className="text-center py-4 text-neutral-500 dark:text-neutral-400 text-sm">
             No active codes. Generate one to quickly link a new device.
           </div>

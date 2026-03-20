@@ -9,23 +9,24 @@ import { useAdminAuth } from "@/hooks/useAdminAuth";
 
 interface TransactionData {
   id: string;
-  user_id: string;
-  user_email: string;
-  user_name: string | null;
   amount: number;
   currency: string;
   status: string;
   description: string | null;
-  invoice_url: string | null;
-  created_at: string;
+  createdAt: string;
+  user: {
+    id: string;
+    email: string;
+    name: string;
+  };
 }
 
 interface TransactionListResponse {
   transactions: TransactionData[];
   total: number;
   page: number;
-  per_page: number;
-  total_pages: number;
+  perPage: number;
+  totalPages: number;
 }
 
 const statusColors: Record<string, string> = {
@@ -65,7 +66,7 @@ export default function AdminTransactionsPage() {
         const json = await res.json();
         const data: TransactionListResponse = json.data;
         setTransactions(data.transactions);
-        setTotalPages(data.total_pages);
+        setTotalPages(data.totalPages);
         setTotal(data.total);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load");
@@ -182,16 +183,16 @@ export default function AdminTransactionsPage() {
                     >
                       <td className="px-4 py-3">
                         <span className="text-sm text-neutral-900 dark:text-white">
-                          {new Date(tx.created_at).toLocaleDateString()}
+                          {new Date(tx.createdAt).toLocaleDateString()}
                         </span>
                         <p className="text-xs text-neutral-500">
-                          {new Date(tx.created_at).toLocaleTimeString()}
+                          {new Date(tx.createdAt).toLocaleTimeString()}
                         </p>
                       </td>
                       <td className="px-4 py-3">
                         <div>
-                          <p className="text-sm font-medium text-neutral-900 dark:text-white">{tx.user_name || "No name"}</p>
-                          <p className="text-xs text-neutral-500">{tx.user_email}</p>
+                          <p className="text-sm font-medium text-neutral-900 dark:text-white">{tx.user.name || "No name"}</p>
+                          <p className="text-xs text-neutral-500">{tx.user.email}</p>
                         </div>
                       </td>
                       <td className="px-4 py-3">

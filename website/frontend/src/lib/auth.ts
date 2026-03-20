@@ -78,13 +78,14 @@ export function generateToken(length: number = 32): string {
 export function generateActivationCode(): string {
   const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
   const numbers = '0123456789';
+  const randomBytes = crypto.randomBytes(6);
   let code = '';
   for (let i = 0; i < 3; i++) {
-    code += letters[Math.floor(Math.random() * letters.length)];
+    code += letters[randomBytes[i] % letters.length];
   }
   code += '-';
-  for (let i = 0; i < 3; i++) {
-    code += numbers[Math.floor(Math.random() * numbers.length)];
+  for (let i = 3; i < 6; i++) {
+    code += numbers[randomBytes[i] % numbers.length];
   }
   return code;
 }

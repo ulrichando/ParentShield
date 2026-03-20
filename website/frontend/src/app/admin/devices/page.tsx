@@ -22,41 +22,38 @@ import { useAdminAuth } from "@/hooks/useAdminAuth";
 
 interface DownloadItem {
   id: string;
-  user_id: string | null;
-  user_email: string | null;
-  download_token: string;
+  downloadToken: string;
   platform: string;
-  app_version: string;
+  version: string | null;
   source: string;
-  ip_address: string | null;
-  created_at: string;
+  ipAddress: string | null;
+  createdAt: string;
+  user: { id: string; email: string; name: string } | null;
 }
 
 interface InstallationItem {
   id: string;
-  user_id: string;
-  user_email: string | null;
-  user_name: string | null;
-  device_id: string;
-  device_name: string | null;
+  deviceId: string;
+  deviceName: string | null;
   platform: string;
-  os_version: string | null;
-  app_version: string;
+  osVersion: string | null;
+  appVersion: string | null;
   status: string;
-  is_blocked: boolean;
-  blocked_reason: string | null;
-  last_seen: string;
-  created_at: string;
+  isBlocked: boolean;
+  blockedReason: string | null;
+  lastSeen: string | null;
+  createdAt: string;
+  user: { id: string; email: string; name: string };
 }
 
 interface DownloadStats {
-  total_downloads: number;
-  total_installations: number;
-  active_installations: number;
-  recent_downloads_30d: number;
-  conversion_rate: number;
-  downloads_by_platform: Record<string, number>;
-  installations_by_platform: Record<string, number>;
+  totalDownloads: number;
+  totalInstallations: number;
+  activeInstallations: number;
+  recentDownloads30d: number;
+  conversionRate: number;
+  downloadsByPlatform: Record<string, number>;
+  installationsByPlatform: Record<string, number>;
 }
 
 const platformIcons: Record<string, React.ReactNode> = {
@@ -160,17 +157,16 @@ export default function AdminDevicesPage() {
   const handleToggleBlock = async (installation: InstallationItem) => {
     setActionLoading(installation.id);
     try {
-      const endpoint = installation.is_blocked
-        ? `/api/admin/api/installations/${installation.id}/unblock`
-        : `/api/admin/api/installations/${installation.id}/block?reason=Subscription%20required`;
+      const endpoint = installation.isBlocked
+        ? `/api/admin/installations/${installation.id}/unblock`
+        : `/api/admin/installations/${installation.id}/block`;
 
       const res = await authFetch(endpoint, { method: "PUT" });
       if (res.ok) {
-        // Update local state
         setInstallations(prev =>
           prev.map(i =>
             i.id === installation.id
-              ? { ...i, is_blocked: !i.is_blocked, blocked_reason: i.is_blocked ? null : "Subscription required" }
+              ? { ...i, isBlocked: !i.isBlocked, blockedReason: i.isBlocked ? null : "Subscription required" }
               : i
           )
         );
@@ -219,8 +215,8 @@ export default function AdminDevicesPage() {
                 </div>
                 <span className="text-neutral-500 dark:text-neutral-400 text-sm">Total Downloads</span>
               </div>
-              <p className="text-lg font-bold text-neutral-900 dark:text-white">{stats.total_downloads.toLocaleString()}</p>
-              <p className="text-xs text-neutral-500 mt-1">{stats.recent_downloads_30d} in last 30 days</p>
+              <p className="text-lg font-bold text-neutral-900 dark:text-white">{stats.totalDownloads.toLocaleString()}</p>
+              <p className="text-xs text-neutral-500 mt-1">{stats.recentDownloads30d} in last 30 days</p>
             </motion.div>
 
             <motion.div
@@ -235,7 +231,7 @@ export default function AdminDevicesPage() {
                 </div>
                 <span className="text-neutral-500 dark:text-neutral-400 text-sm">Total Installations</span>
               </div>
-              <p className="text-lg font-bold text-neutral-900 dark:text-white">{stats.total_installations.toLocaleString()}</p>
+              <p className="text-lg font-bold text-neutral-900 dark:text-white">{stats.totalInstallations.toLocaleString()}</p>
             </motion.div>
 
             <motion.div
@@ -250,7 +246,7 @@ export default function AdminDevicesPage() {
                 </div>
                 <span className="text-neutral-500 dark:text-neutral-400 text-sm">Active Devices</span>
               </div>
-              <p className="text-lg font-bold text-neutral-900 dark:text-white">{stats.active_installations.toLocaleString()}</p>
+              <p className="text-lg font-bold text-neutral-900 dark:text-white">{stats.activeInstallations.toLocaleString()}</p>
               <p className="text-xs text-neutral-500 mt-1">Active in last 7 days</p>
             </motion.div>
 
@@ -266,7 +262,7 @@ export default function AdminDevicesPage() {
                 </div>
                 <span className="text-neutral-500 dark:text-neutral-400 text-sm">Conversion Rate</span>
               </div>
-              <p className="text-lg font-bold text-neutral-900 dark:text-white">{stats.conversion_rate}%</p>
+              <p className="text-lg font-bold text-neutral-900 dark:text-white">{stats.conversionRate}%</p>
               <p className="text-xs text-neutral-500 mt-1">Downloads to installs</p>
             </motion.div>
           </div>
@@ -373,31 +369,31 @@ export default function AdminDevicesPage() {
                             </div>
                             <div>
                               <p className="text-sm font-medium text-neutral-900 dark:text-white">
-                                {item.device_name || "Unknown Device"}
+                                {item.deviceName || "Unknown Device"}
                               </p>
-                              <p className="text-xs text-neutral-500">{item.device_id}</p>
+                              <p className="text-xs text-neutral-500">{item.deviceId}</p>
                             </div>
                           </div>
                         </td>
                         <td className="px-4 py-3">
-                          <p className="text-sm text-neutral-900 dark:text-white">{item.user_name || "—"}</p>
-                          <p className="text-xs text-neutral-500">{item.user_email}</p>
+                          <p className="text-sm text-neutral-900 dark:text-white">{item.user.name || "—"}</p>
+                          <p className="text-xs text-neutral-500">{item.user.email}</p>
                         </td>
                         <td className="px-4 py-3">
                           <span className="text-sm text-neutral-900 dark:text-white capitalize">{item.platform}</span>
-                          {item.os_version && (
-                            <p className="text-xs text-neutral-500">{item.os_version}</p>
+                          {item.osVersion && (
+                            <p className="text-xs text-neutral-500">{item.osVersion}</p>
                           )}
                         </td>
                         <td className="px-4 py-3">
-                          <span className="text-sm text-neutral-900 dark:text-white">{item.app_version}</span>
+                          <span className="text-sm text-neutral-900 dark:text-white">{item.appVersion}</span>
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex flex-col gap-1">
                             <span className={`text-xs font-medium px-2 py-1 inline-block w-fit ${statusColors[item.status] || "bg-gray-500/20 text-neutral-500 dark:text-neutral-400"}`}>
                               {item.status}
                             </span>
-                            {item.is_blocked && (
+                            {item.isBlocked && (
                               <span className="text-xs font-medium px-2 py-1 bg-red-500/20 text-red-600 dark:text-red-400 inline-block w-fit">
                                 BLOCKED
                               </span>
@@ -406,12 +402,12 @@ export default function AdminDevicesPage() {
                         </td>
                         <td className="px-4 py-3">
                           <span className="text-neutral-500 dark:text-neutral-400 text-sm">
-                            {new Date(item.last_seen).toLocaleString()}
+                            {item.lastSeen ? new Date(item.lastSeen).toLocaleString() : "—"}
                           </span>
                         </td>
                         <td className="px-4 py-3">
                           <Button
-                            variant={item.is_blocked ? "success" : "destructive"}
+                            variant={item.isBlocked ? "success" : "destructive"}
                             size="sm"
                             onClick={() => handleToggleBlock(item)}
                             disabled={actionLoading === item.id}
@@ -419,7 +415,7 @@ export default function AdminDevicesPage() {
                           >
                             {actionLoading === item.id ? (
                               <Loader2 className="w-3 h-3 animate-spin" />
-                            ) : item.is_blocked ? (
+                            ) : item.isBlocked ? (
                               <>
                                 <CheckCircle className="w-3 h-3" />
                                 Unblock
@@ -503,11 +499,11 @@ export default function AdminDevicesPage() {
                       </td>
                       <td className="px-4 py-3">
                         <span className="text-sm text-neutral-900 dark:text-white">
-                          {item.user_email || <span className="text-neutral-500">Anonymous</span>}
+                          {item.user?.email || <span className="text-neutral-500">Anonymous</span>}
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <span className="text-sm text-neutral-900 dark:text-white">{item.app_version}</span>
+                        <span className="text-sm text-neutral-900 dark:text-white">{item.version || "—"}</span>
                       </td>
                       <td className="px-4 py-3">
                         <span className="text-xs font-medium px-2 py-1 bg-blue-500/20 text-blue-600 dark:text-blue-400 capitalize">
@@ -515,11 +511,11 @@ export default function AdminDevicesPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <span className="text-neutral-500 dark:text-neutral-400 text-sm">{item.ip_address || "—"}</span>
+                        <span className="text-neutral-500 dark:text-neutral-400 text-sm">{item.ipAddress || "—"}</span>
                       </td>
                       <td className="px-4 py-3">
                         <span className="text-neutral-500 dark:text-neutral-400 text-sm">
-                          {new Date(item.created_at).toLocaleString()}
+                          {new Date(item.createdAt).toLocaleString()}
                         </span>
                       </td>
                     </motion.tr>

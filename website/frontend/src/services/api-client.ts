@@ -106,7 +106,7 @@ export async function apiRequest<T>(
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     throw new ApiClientError(
-      errorData.detail || errorData.message || "Request failed",
+      errorData.error || errorData.detail || errorData.message || "Request failed",
       response.status,
       errorData.detail
     );
@@ -117,7 +117,9 @@ export async function apiRequest<T>(
     return {} as T;
   }
 
-  return response.json();
+  // All API routes return { data: T } — unwrap the envelope
+  const json = await response.json();
+  return (json.data !== undefined ? json.data : json) as T;
 }
 
 /**

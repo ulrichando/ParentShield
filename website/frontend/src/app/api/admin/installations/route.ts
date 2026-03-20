@@ -53,6 +53,8 @@ export async function GET(request: NextRequest) {
       deviceName: inst.deviceName,
       platform: inst.platform,
       status: inst.status,
+      isBlocked: inst.isBlocked,
+      blockedReason: inst.blockedReason,
       appVersion: inst.appVersion,
       osVersion: inst.osVersion,
       lastSeen: inst.lastSeen?.toISOString() || null,

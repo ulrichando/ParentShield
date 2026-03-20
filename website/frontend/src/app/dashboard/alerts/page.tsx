@@ -25,21 +25,20 @@ import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 
 interface Alert {
   id: string;
-  installation_id: string;
-  device_name: string | null;
-  alert_type: string;
+  installationId: string | null;
+  type: string;
   severity: string;
   title: string;
   message: string;
-  details: Record<string, unknown> | null;
-  is_read: boolean;
-  is_dismissed: boolean;
-  created_at: string;
+  isRead: boolean;
+  isDismissed: boolean;
+  createdAt: string;
+  installation?: { id: string; deviceName: string | null; platform: string } | null;
 }
 
 interface Installation {
   id: string;
-  device_name: string | null;
+  deviceName: string | null;
   platform: string;
 }
 
@@ -53,8 +52,9 @@ const ALERT_TYPE_ICONS: Record<string, React.ElementType> = {
 };
 
 const SEVERITY_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  info: { bg: "bg-blue-500/10", text: "text-blue-400", border: "border-blue-500/20" },
-  warning: { bg: "bg-yellow-500/10", text: "text-yellow-400", border: "border-yellow-500/20" },
+  low: { bg: "bg-blue-500/10", text: "text-blue-400", border: "border-blue-500/20" },
+  medium: { bg: "bg-yellow-500/10", text: "text-yellow-400", border: "border-yellow-500/20" },
+  high: { bg: "bg-orange-500/10", text: "text-orange-400", border: "border-orange-500/20" },
   critical: { bg: "bg-red-500/10", text: "text-red-400", border: "border-red-500/20" },
 };
 
@@ -85,9 +85,9 @@ export default function AlertsPage() {
     try {
       const response = await authFetch(`/api/device/installations`);
       if (!response.ok) throw new Error("Failed to fetch devices");
-      const data = await response.json();
-      setDevices(data);
-    } catch (err) {
+      const { data } = await response.json();
+      setDevices(Array.isArray(data) ? data : []);
+    } catch {
       // Silent fail - not critical
     }
   };
@@ -98,18 +98,19 @@ export default function AlertsPage() {
     try {
       let url = `/api/parental/alerts?limit=100`;
       if (filter === "unread") {
-        url += "&is_read=false";
+        url += "&unread=true";
       }
       if (selectedDevice !== "all") {
-        url += `&installation_id=${selectedDevice}`;
+        url += `&installationId=${selectedDevice}`;
       }
 
       const alertsRes = await authFetch(url);
 
       if (!alertsRes.ok) throw new Error("Failed to fetch alerts");
-      const alertsData = await alertsRes.json();
-      setAlerts(alertsData);
-      setUnreadCount(alertsData.filter((a: Alert) => !a.is_read).length);
+      const { data } = await alertsRes.json();
+      const alertList: Alert[] = data?.alerts ?? [];
+      setAlerts(alertList);
+      setUnreadCount(alertList.filter((a) => !a.isRead).length);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load alerts");
     } finally {
@@ -121,12 +122,12 @@ export default function AlertsPage() {
     setActionLoading(alertId);
     try {
       const response = await authFetch(`/api/parental/alerts/${alertId}`, {
-        method: "PATCH",
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isRead: true }),
       });
       if (!response.ok) throw new Error("Failed to mark as read");
-      setAlerts(alerts.map((a) => (a.id === alertId ? { ...a, is_read: true } : a)));
+      setAlerts(alerts.map((a) => (a.id === alertId ? { ...a, isRead: true } : a)));
       setUnreadCount(Math.max(0, unreadCount - 1));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to mark as read");
@@ -139,14 +140,14 @@ export default function AlertsPage() {
     setActionLoading(alertId);
     try {
       const response = await authFetch(`/api/parental/alerts/${alertId}`, {
-        method: "PATCH",
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isDismissed: true }),
       });
       if (!response.ok) throw new Error("Failed to dismiss");
       const alert = alerts.find((a) => a.id === alertId);
       setAlerts(alerts.filter((a) => a.id !== alertId));
-      if (alert && !alert.is_read) {
+      if (alert && !alert.isRead) {
         setUnreadCount(Math.max(0, unreadCount - 1));
       }
     } catch (err) {
@@ -159,17 +160,17 @@ export default function AlertsPage() {
   const markAllAsRead = async () => {
     setActionLoading("all");
     try {
-      const unreadAlerts = alerts.filter((a) => !a.is_read);
+      const unreadAlerts = alerts.filter((a) => !a.isRead);
       await Promise.all(
         unreadAlerts.map((a) =>
           authFetch(`/api/parental/alerts/${a.id}`, {
-            method: "PATCH",
+            method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ isRead: true }),
           })
         )
       );
-      setAlerts(alerts.map((a) => ({ ...a, is_read: true })));
+      setAlerts(alerts.map((a) => ({ ...a, isRead: true })));
       setUnreadCount(0);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to mark all as read");
@@ -286,7 +287,7 @@ export default function AlertsPage() {
                 <option value="all">All Devices</option>
                 {devices.map((device) => (
                   <option key={device.id} value={device.id}>
-                    {device.device_name || `${device.platform} Device`}
+                    {device.deviceName || `${device.platform} Device`}
                   </option>
                 ))}
               </select>
@@ -327,15 +328,15 @@ export default function AlertsPage() {
         ) : (
           <div className="space-y-3">
             {alerts.map((alert, index) => {
-              const Icon = ALERT_TYPE_ICONS[alert.alert_type] || Info;
-              const colors = SEVERITY_COLORS[alert.severity] || SEVERITY_COLORS.info;
+              const Icon = ALERT_TYPE_ICONS[alert.type] || Info;
+              const colors = SEVERITY_COLORS[alert.severity] || SEVERITY_COLORS.low;
 
               return (
                 <motion.div
                   key={alert.id}
                   className={`bg-white dark:bg-neutral-900 border p-4 ${
-                    alert.is_read ? "border-neutral-200 dark:border-neutral-800" : colors.border
-                  } ${!alert.is_read ? colors.bg : ""} transition-all`}
+                    alert.isRead ? "border-neutral-200 dark:border-neutral-800" : colors.border
+                  } ${!alert.isRead ? colors.bg : ""} transition-all`}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.03 }}
@@ -350,26 +351,26 @@ export default function AlertsPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-4">
                         <div>
-                          <h3 className={`font-medium ${alert.is_read ? "text-neutral-600 dark:text-neutral-300" : "text-neutral-900 dark:text-white"}`}>
+                          <h3 className={`font-medium ${alert.isRead ? "text-neutral-600 dark:text-neutral-300" : "text-neutral-900 dark:text-white"}`}>
                             {alert.title}
                           </h3>
                           <p className="text-xs text-neutral-500 dark:text-neutral-400">{alert.message}</p>
                           <div className="flex items-center gap-3 mt-2 text-xs text-neutral-500">
-                            {alert.device_name && (
+                            {alert.installation?.deviceName && (
                               <>
                                 <span className="flex items-center gap-1">
                                   <Laptop className="w-3 h-3" />
-                                  {alert.device_name}
+                                  {alert.installation.deviceName}
                                 </span>
                                 <span>•</span>
                               </>
                             )}
-                            <span>{formatTimeAgo(alert.created_at)}</span>
+                            <span>{formatTimeAgo(alert.createdAt)}</span>
                           </div>
                         </div>
 
                         <div className="flex items-center gap-2 shrink-0">
-                          {!alert.is_read && (
+                          {!alert.isRead && (
                             <button
                               onClick={() => markAsRead(alert.id)}
                               disabled={actionLoading === alert.id}

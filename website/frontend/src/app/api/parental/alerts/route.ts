@@ -15,11 +15,13 @@ export async function GET(request: NextRequest) {
     const limit = Math.min(parseInt(searchParams.get('limit') || '50') || 50, 100);
     const offset = Math.max(parseInt(searchParams.get('offset') || '0') || 0, 0);
     const unreadOnly = searchParams.get('unread') === 'true';
+    const installationId = searchParams.get('installationId');
 
     const where = {
       userId: user.id,
       isDismissed: false,
       ...(unreadOnly && { isRead: false }),
+      ...(installationId && { installationId }),
     };
 
     const [alerts, total] = await Promise.all([

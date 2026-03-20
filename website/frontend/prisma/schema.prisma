@@ -208,11 +208,12 @@ model Installation {
 
   user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   download         Download?         @relation(fields: [downloadId], references: [id], onDelete: SetNull)
-  screenTimeConfig ScreenTimeConfig?
-  blockedApps      BlockedApp[]
-  webFilterConfig  WebFilterConfig?
-  alerts           Alert[]
-  syncMetadata     SyncMetadata?
+  screenTimeConfig   ScreenTimeConfig?
+  blockedApps        BlockedApp[]
+  webFilterConfig    WebFilterConfig?
+  alerts             Alert[]
+  syncMetadata       SyncMetadata?
+  deviceLinkingCodes DeviceLinkingCode[]
 
   @@index([userId])
   @@index([createdAt])
@@ -243,6 +244,7 @@ model BlockedApp {
   installationId String   @map("installation_id")
   appName        String   @map("app_name")
   appPath        String?  @map("app_path")
+  isEnabled      Boolean  @default(true)  @map("is_enabled")
   isGame         Boolean  @default(false) @map("is_game")
   scheduleOnly   Boolean  @default(false) @map("schedule_only")
   scheduleStart  String?  @map("schedule_start")
@@ -336,6 +338,7 @@ model APIKey {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
   @@map("api_keys")
 }
 
@@ -352,6 +355,7 @@ model Webhook {
   user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   deliveries WebhookDelivery[]
 
+  @@index([userId])
   @@map("webhooks")
 }
 
@@ -391,6 +395,8 @@ model DeviceLinkingCode {
   expiresAt      DateTime  @map("expires_at")
   linkedAt       DateTime? @map("linked_at")
   createdAt      DateTime  @default(now()) @map("created_at")
+
+  installation Installation @relation(fields: [installationId], references: [id], onDelete: Cascade)
 
   @@map("device_linking_codes")
 }

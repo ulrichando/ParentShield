@@ -22,40 +22,38 @@ import { Button } from "@/components/ui/button";
 import { useCustomerAuth } from "@/hooks/useCustomerAuth";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 
-
 interface Installation {
   id: string;
-  device_name: string | null;
+  deviceName: string | null;
   platform: string;
 }
 
 interface WebFilterConfig {
-  id: string;
-  installation_id: string;
-  is_enabled: boolean;
-  blocked_categories: string[];
-  enforce_safe_search: boolean;
-  rules_count: number;
+  id: string | null;
+  installationId: string;
+  enabled: boolean;
+  blockAdult: boolean;
+  blockGambling: boolean;
+  blockSocialMedia: boolean;
+  blockGaming: boolean;
+  blockStreaming: boolean;
+  safeSearch: boolean;
 }
 
 interface WebFilterRule {
   id: string;
-  url_pattern: string;
-  is_blocked: boolean;
-  is_enabled: boolean;
-  notes: string | null;
-  created_at: string;
+  webFilterId: string;
+  pattern: string;
+  isBlocked: boolean;
+  isRegex: boolean;
 }
 
-const CATEGORIES = [
-  { id: "adult", name: "Adult Content", description: "Block adult and explicit content" },
-  { id: "social_media", name: "Social Media", description: "Block social networking sites" },
-  { id: "gaming", name: "Gaming", description: "Block online gaming websites" },
-  { id: "gambling", name: "Gambling", description: "Block gambling and betting sites" },
-  { id: "streaming", name: "Streaming", description: "Block video streaming services" },
-  { id: "shopping", name: "Shopping", description: "Block e-commerce and shopping sites" },
-  { id: "news", name: "News", description: "Block news websites" },
-  { id: "forums", name: "Forums", description: "Block discussion forums" },
+const CATEGORIES: { id: keyof Omit<WebFilterConfig, 'id' | 'installationId' | 'enabled' | 'safeSearch'>; name: string; description: string }[] = [
+  { id: "blockAdult", name: "Adult Content", description: "Block adult and explicit content" },
+  { id: "blockSocialMedia", name: "Social Media", description: "Block social networking sites" },
+  { id: "blockGaming", name: "Gaming", description: "Block online gaming websites" },
+  { id: "blockGambling", name: "Gambling", description: "Block gambling and betting sites" },
+  { id: "blockStreaming", name: "Streaming", description: "Block video streaming services" },
 ];
 
 export default function WebFiltersPage() {
@@ -71,19 +69,17 @@ export default function WebFiltersPage() {
   const [showAddRule, setShowAddRule] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const [newRule, setNewRule] = useState({
-    url_pattern: "",
-    is_blocked: true,
-    notes: "",
-  });
+  const [newRule, setNewRule] = useState({ pattern: "", isBlocked: true });
   const [isAddingRule, setIsAddingRule] = useState(false);
 
   const fetchDevices = async () => {
     try {
       const response = await authFetch(`/api/device/installations`);
       if (!response.ok) throw new Error("Failed to fetch devices");
-      const data = await response.json();
-      const activeDevices = data.filter((d: Installation & { status: string }) => d.status === "active");
+      const { data } = await response.json();
+      const activeDevices = (data as (Installation & { status: string })[]).filter(
+        (d) => d.status === "active"
+      );
       setDevices(activeDevices);
       if (activeDevices.length > 0 && !selectedDevice) {
         setSelectedDevice(activeDevices[0].id);
@@ -103,11 +99,11 @@ export default function WebFiltersPage() {
       ]);
 
       if (!configRes.ok) throw new Error("Failed to fetch configuration");
-      const configData = await configRes.json();
+      const { data: configData } = await configRes.json();
       setConfig(configData);
 
       if (rulesRes.ok) {
-        const rulesData = await rulesRes.json();
+        const { data: rulesData } = await rulesRes.json();
         setRules(rulesData);
       }
       setHasChanges(false);
@@ -127,7 +123,15 @@ export default function WebFiltersPage() {
       const response = await authFetch(`/api/parental/web-filters/${selectedDevice}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(config),
+        body: JSON.stringify({
+          enabled: config.enabled,
+          blockAdult: config.blockAdult,
+          blockGambling: config.blockGambling,
+          blockSocialMedia: config.blockSocialMedia,
+          blockGaming: config.blockGaming,
+          blockStreaming: config.blockStreaming,
+          safeSearch: config.safeSearch,
+        }),
       });
       if (!response.ok) throw new Error("Failed to save configuration");
       setHasChanges(false);
@@ -138,17 +142,14 @@ export default function WebFiltersPage() {
     }
   };
 
-  const toggleCategory = (categoryId: string) => {
+  const toggleCategory = (field: keyof Omit<WebFilterConfig, 'id' | 'installationId' | 'enabled' | 'safeSearch'>) => {
     if (!config) return;
-    const categories = config.blocked_categories.includes(categoryId)
-      ? config.blocked_categories.filter((c) => c !== categoryId)
-      : [...config.blocked_categories, categoryId];
-    setConfig({ ...config, blocked_categories: categories });
+    setConfig({ ...config, [field]: !config[field] });
     setHasChanges(true);
   };
 
   const addRule = async () => {
-    if (!selectedDevice || !newRule.url_pattern) return;
+    if (!selectedDevice || !newRule.pattern) return;
 
     setIsAddingRule(true);
     setError(null);
@@ -157,17 +158,16 @@ export default function WebFiltersPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          url_pattern: newRule.url_pattern,
-          is_blocked: newRule.is_blocked,
-          is_enabled: true,
-          notes: newRule.notes || null,
+          pattern: newRule.pattern,
+          isBlocked: newRule.isBlocked,
+          isRegex: false,
         }),
       });
       if (!response.ok) throw new Error("Failed to add rule");
-      const addedRule = await response.json();
+      const { data: addedRule } = await response.json();
       setRules([addedRule, ...rules]);
       setShowAddRule(false);
-      setNewRule({ url_pattern: "", is_blocked: true, notes: "" });
+      setNewRule({ pattern: "", isBlocked: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to add rule");
     } finally {
@@ -266,7 +266,7 @@ export default function WebFiltersPage() {
           >
             {devices.map((device) => (
               <option key={device.id} value={device.id}>
-                {device.device_name || `${device.platform} Device`}
+                {device.deviceName || `${device.platform} Device`}
               </option>
             ))}
           </select>
@@ -325,12 +325,12 @@ export default function WebFiltersPage() {
               </div>
               <button
                 onClick={() => {
-                  setConfig({ ...config, is_enabled: !config.is_enabled });
+                  setConfig({ ...config, enabled: !config.enabled });
                   setHasChanges(true);
                 }}
                 className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
               >
-                {config.is_enabled ? (
+                {config.enabled ? (
                   <ToggleRight className="w-8 h-8" />
                 ) : (
                   <ToggleLeft className="w-8 h-8 text-neutral-500" />
@@ -348,13 +348,13 @@ export default function WebFiltersPage() {
                 </div>
                 <button
                   onClick={() => {
-                    setConfig({ ...config, enforce_safe_search: !config.enforce_safe_search });
+                    setConfig({ ...config, safeSearch: !config.safeSearch });
                     setHasChanges(true);
                   }}
-                  disabled={!config.is_enabled}
+                  disabled={!config.enabled}
                   className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors disabled:opacity-50"
                 >
-                  {config.enforce_safe_search ? (
+                  {config.safeSearch ? (
                     <ToggleRight className="w-8 h-8" />
                   ) : (
                     <ToggleLeft className="w-8 h-8 text-neutral-500" />
@@ -367,7 +367,7 @@ export default function WebFiltersPage() {
           {/* Category Filters */}
           <motion.div
             className={`bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4 ${
-              !config.is_enabled ? "opacity-50" : ""
+              !config.enabled ? "opacity-50" : ""
             }`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -379,12 +379,12 @@ export default function WebFiltersPage() {
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {CATEGORIES.map((category) => {
-                const isSelected = config.blocked_categories.includes(category.id);
+                const isSelected = config[category.id] as boolean;
                 return (
                   <button
                     key={category.id}
                     onClick={() => toggleCategory(category.id)}
-                    disabled={!config.is_enabled}
+                    disabled={!config.enabled}
                     className={`p-4 text-left transition-all ${
                       isSelected
                         ? "bg-neutral-100 dark:bg-neutral-800 border-neutral-900 dark:border-white border"
@@ -409,7 +409,7 @@ export default function WebFiltersPage() {
           {/* Custom Rules */}
           <motion.div
             className={`bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4 ${
-              !config.is_enabled ? "opacity-50" : ""
+              !config.enabled ? "opacity-50" : ""
             }`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -425,7 +425,7 @@ export default function WebFiltersPage() {
               <Button
                 size="sm"
                 onClick={() => setShowAddRule(true)}
-                disabled={!config.is_enabled}
+                disabled={!config.enabled}
               >
                 <Plus className="w-4 h-4" />
                 Add Rule
@@ -445,27 +445,27 @@ export default function WebFiltersPage() {
                     className="flex items-center justify-between py-3 px-4 bg-[#FAFAFA] dark:bg-neutral-800"
                   >
                     <div className="flex items-center gap-3">
-                      {rule.is_blocked ? (
+                      {rule.isBlocked ? (
                         <Ban className="w-4 h-4 text-red-400" />
                       ) : (
                         <CheckCircle className="w-4 h-4 text-green-400" />
                       )}
                       <div>
-                        <p className="text-neutral-900 dark:text-white font-medium">{rule.url_pattern}</p>
-                        {rule.notes && (
-                          <p className="text-xs text-neutral-500">{rule.notes}</p>
+                        <p className="text-neutral-900 dark:text-white font-medium">{rule.pattern}</p>
+                        {rule.isRegex && (
+                          <p className="text-xs text-neutral-500">regex</p>
                         )}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <span
                         className={`text-xs px-2 py-1 ${
-                          rule.is_blocked
+                          rule.isBlocked
                             ? "bg-red-500/10 text-red-400"
                             : "bg-green-500/10 text-green-400"
                         }`}
                       >
-                        {rule.is_blocked ? "Blocked" : "Allowed"}
+                        {rule.isBlocked ? "Blocked" : "Allowed"}
                       </span>
                       <button
                         onClick={() => deleteRule(rule.id)}
@@ -512,8 +512,8 @@ export default function WebFiltersPage() {
                 </label>
                 <input
                   type="text"
-                  value={newRule.url_pattern}
-                  onChange={(e) => setNewRule({ ...newRule, url_pattern: e.target.value })}
+                  value={newRule.pattern}
+                  onChange={(e) => setNewRule({ ...newRule, pattern: e.target.value })}
                   placeholder="e.g., facebook.com, *.tiktok.com"
                   className="w-full bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 px-4 py-2 text-neutral-900 dark:text-white placeholder-neutral-500 focus:outline-none focus:border-neutral-900 dark:focus:border-white"
                 />
@@ -523,9 +523,9 @@ export default function WebFiltersPage() {
                 <label className="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2">Action</label>
                 <div className="flex gap-3">
                   <button
-                    onClick={() => setNewRule({ ...newRule, is_blocked: true })}
+                    onClick={() => setNewRule({ ...newRule, isBlocked: true })}
                     className={`flex-1 py-2 px-4 font-medium transition-colors ${
-                      newRule.is_blocked
+                      newRule.isBlocked
                         ? "bg-red-500/20 text-red-400 border border-red-500/30"
                         : "bg-[#FAFAFA] dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400"
                     }`}
@@ -533,9 +533,9 @@ export default function WebFiltersPage() {
                     Block
                   </button>
                   <button
-                    onClick={() => setNewRule({ ...newRule, is_blocked: false })}
+                    onClick={() => setNewRule({ ...newRule, isBlocked: false })}
                     className={`flex-1 py-2 px-4 font-medium transition-colors ${
-                      !newRule.is_blocked
+                      !newRule.isBlocked
                         ? "bg-green-500/20 text-green-400 border border-green-500/30"
                         : "bg-[#FAFAFA] dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400"
                     }`}
@@ -543,19 +543,6 @@ export default function WebFiltersPage() {
                     Allow
                   </button>
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2">
-                  Notes (optional)
-                </label>
-                <input
-                  type="text"
-                  value={newRule.notes}
-                  onChange={(e) => setNewRule({ ...newRule, notes: e.target.value })}
-                  placeholder="e.g., Block for homework time"
-                  className="w-full bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 px-4 py-2 text-neutral-900 dark:text-white placeholder-neutral-500 focus:outline-none focus:border-neutral-900 dark:focus:border-white"
-                />
               </div>
             </div>
 
@@ -565,7 +552,7 @@ export default function WebFiltersPage() {
               </Button>
               <Button
                 onClick={addRule}
-                disabled={!newRule.url_pattern || isAddingRule}
+                disabled={!newRule.pattern || isAddingRule}
                 className="flex-1"
               >
                 {isAddingRule ? (
