@@ -20,6 +20,7 @@ import {
   Key,
   Sun,
   Moon,
+  Home,
 } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 
@@ -136,6 +137,15 @@ export function AdminSidebar({ activePage, user }: AdminSidebarProps) {
             </button>
           ))}
         </nav>
+
+        {/* View Site */}
+        <button
+          onClick={() => handleNavClick("/")}
+          className="flex items-center gap-3 px-3 py-2.5 text-sm text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-white transition-all mb-1"
+        >
+          <Home className="w-4 h-4" />
+          View Site
+        </button>
 
         {/* Theme Toggle */}
         <button

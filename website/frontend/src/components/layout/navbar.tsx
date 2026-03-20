@@ -16,12 +16,21 @@ const navLinks = [
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [dashboardHref, setDashboardHref] = useState<string | null>(null);
   const { theme, toggleTheme, mounted } = useTheme();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    const role = localStorage.getItem("user_role");
+    if (token) {
+      setDashboardHref(role === "admin" ? "/admin" : "/dashboard");
+    }
   }, []);
 
   return (
@@ -80,20 +89,33 @@ export function Navbar() {
               )}
             </button>
 
-            <Link
-              href="/login"
-              className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
-            >
-              Sign In
-            </Link>
-            <Link href="/register">
-              <motion.button
-                className="px-6 py-2.5 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-sm font-medium tracking-wide"
-                whileHover={{ x: 3 }}
-              >
-                Start Free
-              </motion.button>
-            </Link>
+            {dashboardHref ? (
+              <Link href={dashboardHref}>
+                <motion.button
+                  className="px-6 py-2.5 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-sm font-medium tracking-wide"
+                  whileHover={{ x: 3 }}
+                >
+                  Dashboard
+                </motion.button>
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
+                >
+                  Sign In
+                </Link>
+                <Link href="/register">
+                  <motion.button
+                    className="px-6 py-2.5 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-sm font-medium tracking-wide"
+                    whileHover={{ x: 3 }}
+                  >
+                    Start Free
+                  </motion.button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile: Theme Toggle & Menu Button */}
@@ -150,14 +172,24 @@ export function Navbar() {
                 </motion.div>
               ))}
               <div className="pt-6 mt-6 border-t border-neutral-100 dark:border-neutral-800 space-y-4">
-                <Link href="/login" className="block py-2 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white">
-                  Sign In
-                </Link>
-                <Link href="/register" className="block">
-                  <button className="w-full py-3 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-medium">
-                    Start Free Trial
-                  </button>
-                </Link>
+                {dashboardHref ? (
+                  <Link href={dashboardHref} className="block">
+                    <button className="w-full py-3 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-medium">
+                      Dashboard
+                    </button>
+                  </Link>
+                ) : (
+                  <>
+                    <Link href="/login" className="block py-2 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white">
+                      Sign In
+                    </Link>
+                    <Link href="/register" className="block">
+                      <button className="w-full py-3 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-medium">
+                        Start Free Trial
+                      </button>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </motion.div>

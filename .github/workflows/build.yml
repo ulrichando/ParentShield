@@ -238,57 +238,9 @@ jobs:
           name: macos-universal
           path: macos-builds/
 
-  deploy-to-website:
-    needs: [build-linux, build-windows-x64, build-windows-x86, build-windows-arm64, build-macos-universal]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-
-      - name: Display structure
-        run: ls -R artifacts
-
-      - name: Copy to website downloads
-        run: |
-          # Linux
-          mkdir -p website/downloads/linux
-          cp artifacts/linux-builds/*.AppImage website/downloads/linux/ || true
-          cp artifacts/linux-builds/*.deb website/downloads/linux/ || true
-          cp artifacts/linux-builds/*.rpm website/downloads/linux/ || true
-
-          # Windows
-          mkdir -p website/downloads/windows
-          cp artifacts/windows-x64/*.exe website/downloads/windows/ || true
-          cp artifacts/windows-x86/*.exe website/downloads/windows/ || true
-          cp artifacts/windows-arm64/*.exe website/downloads/windows/ || true
-
-          # macOS
-          mkdir -p website/downloads/macos
-          cp artifacts/macos-universal/*.dmg website/downloads/macos/ || true
-
-          # Show what we have
-          echo "=== Linux ===" && ls -la website/downloads/linux/
-          echo "=== Windows ===" && ls -la website/downloads/windows/
-          echo "=== macOS ===" && ls -la website/downloads/macos/
-
-      - name: Commit and push downloads
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add website/downloads/
-          git commit -m "chore: update app builds v${{ env.APP_VERSION }}" || echo "No changes to commit"
-          git push
-
   release:
     needs: [build-linux, build-windows-x64, build-windows-x86, build-windows-arm64, build-macos-universal]
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
     permissions:
       contents: write
     steps:
@@ -297,14 +249,31 @@ jobs:
         with:
           path: artifacts
 
-      - name: Create Release
+      - name: Rename artifacts to match expected filenames
+        run: |
+          mkdir -p release-files
+
+          # Linux
+          cp artifacts/linux-builds/*.deb "release-files/parentshield_${{ env.APP_VERSION }}_amd64.deb" || true
+          cp artifacts/linux-builds/*.AppImage "release-files/ParentShield-${{ env.APP_VERSION }}-x86_64.AppImage" || true
+          cp artifacts/linux-builds/*.rpm "release-files/parentshield-${{ env.APP_VERSION }}-1.x86_64.rpm" || true
+
+          # Windows
+          cp artifacts/windows-x64/*.exe "release-files/ParentShield-${{ env.APP_VERSION }}-x64-setup.exe" || true
+          cp artifacts/windows-x86/*.exe "release-files/ParentShield-${{ env.APP_VERSION }}-x86-setup.exe" || true
+          cp artifacts/windows-arm64/*.exe "release-files/ParentShield-${{ env.APP_VERSION }}-arm64-setup.exe" || true
+
+          # macOS
+          cp artifacts/macos-universal/*.dmg "release-files/ParentShield-${{ env.APP_VERSION }}-universal.dmg" || true
+
+          echo "=== Release files ===" && ls -lh release-files/
+
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            artifacts/**/*.AppImage
-            artifacts/**/*.deb
-            artifacts/**/*.rpm
-            artifacts/**/*.exe
-            artifacts/**/*.dmg
-          draft: true
+          tag_name: v${{ env.APP_VERSION }}
+          name: ParentShield v${{ env.APP_VERSION }}
+          files: release-files/*
+          draft: ${{ !startsWith(github.ref, 'refs/tags/') }}
           generate_release_notes: true
+

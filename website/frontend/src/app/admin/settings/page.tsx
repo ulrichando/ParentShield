@@ -45,7 +45,7 @@ function ToggleSetting({ label, description, enabled, onChange }: {
     <div className="flex items-start sm:items-center justify-between gap-3 py-3 border-b border-neutral-200 dark:border-neutral-800 last:border-0">
       <div className="flex-1 min-w-0">
         <p className="text-xs font-medium text-neutral-900 dark:text-white">{label}</p>
-        <p className="text-[10px] text-neutral-500 wrap-break-word">{description}</p>
+        <p className="text-caption-2 text-neutral-500 wrap-break-word">{description}</p>
       </div>
       <button
         onClick={() => onChange(!enabled)}
@@ -197,7 +197,7 @@ export default function AdminSettingsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-medium text-neutral-900 dark:text-white">Trial Duration</p>
-                  <p className="text-[10px] text-neutral-500">Number of days for free trial</p>
+                  <p className="text-caption-2 text-neutral-500">Number of days for free trial</p>
                 </div>
                 <select
                   value={settings.trialDays}
@@ -230,7 +230,7 @@ export default function AdminSettingsPage() {
                   disabled
                   className="w-full bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 py-1.5 px-2.5 text-neutral-500 text-xs"
                 />
-                <p className="text-[10px] text-neutral-500 mt-1">
+                <p className="text-caption-2 text-neutral-500 mt-1">
                   Configured via environment variables
                 </p>
               </div>
@@ -244,7 +244,7 @@ export default function AdminSettingsPage() {
                   disabled
                   className="w-full bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 py-1.5 px-2.5 text-neutral-500 text-xs"
                 />
-                <p className="text-[10px] text-neutral-500 mt-1">
+                <p className="text-caption-2 text-neutral-500 mt-1">
                   Configured via environment variables
                 </p>
               </div>

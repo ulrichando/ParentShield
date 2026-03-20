@@ -50,23 +50,23 @@ export async function GET(_request: NextRequest) {
         },
       },
       linux: {
-        available: false,
+        available: true,
         formats: {
           deb: {
             id: 'deb',
             label: '.deb (Debian/Ubuntu)',
             fileName: `parentshield_${version}_amd64.deb`,
-            fileSize: null,
+            fileSize: '~45 MB',
             description: 'For Debian-based distros',
-            available: false,
+            available: true,
           },
           appimage: {
             id: 'appimage',
             label: '.AppImage',
             fileName: `ParentShield-${version}-x86_64.AppImage`,
-            fileSize: null,
+            fileSize: '~50 MB',
             description: 'Universal Linux package',
-            available: false,
+            available: true,
           },
           rpm: {
             id: 'rpm',

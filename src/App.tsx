@@ -62,6 +62,11 @@ function App() {
   // Listen for quit-requested event from tray menu
   useEffect(() => {
     const unlisten = listen("quit-requested", () => {
+      if (!isConfigured) {
+        // No password set yet — quit immediately without prompting
+        invoke("quit_with_password", { password: "" }).catch(console.error);
+        return;
+      }
       setShowQuitModal(true);
       setQuitPassword("");
       setQuitError("");
@@ -70,7 +75,7 @@ function App() {
     return () => {
       unlisten.then(fn => fn());
     };
-  }, []);
+  }, [isConfigured]);
 
   const handleQuitSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

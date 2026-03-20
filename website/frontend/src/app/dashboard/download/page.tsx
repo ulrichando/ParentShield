@@ -99,7 +99,7 @@ export default function DownloadPage() {
       try {
         const response = await fetch(`/api/device/downloads/available`);
         if (response.ok) {
-          const data = await response.json();
+          const { data } = await response.json();
           setAvailableDownloads(data);
 
           // Detect user's platform
@@ -239,7 +239,7 @@ export default function DownloadPage() {
         </motion.div>
 
         {/* Auto-detect download button */}
-        {detectedPlatform && availableDownloads?.platforms[detectedPlatform.platform]?.available && (
+        {detectedPlatform && availableDownloads?.platforms?.[detectedPlatform.platform]?.available && (
           <motion.div
             className="mb-8"
             initial={{ opacity: 0, scale: 0.95 }}
@@ -290,7 +290,7 @@ export default function DownloadPage() {
         {/* Platform Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
           {platformOrder.map((platformId, index) => {
-            const platformData = availableDownloads?.platforms[platformId];
+            const platformData = availableDownloads?.platforms?.[platformId];
             if (!platformData) return null;
 
             const Icon = platformIcons[platformId];
