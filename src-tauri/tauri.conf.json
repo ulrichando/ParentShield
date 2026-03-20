@@ -27,7 +27,7 @@
       "iconAsTemplate": false
     },
     "security": {
-      "csp": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' http://localhost:8000 https://parentshield.app https://*.parentshield.app; font-src 'self' data:; frame-ancestors 'none'"
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' http://localhost:3000 https://parentshield.app https://*.parentshield.app; font-src 'self' data:; frame-ancestors 'none'"
     }
   },
   "plugins": {

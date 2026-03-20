@@ -1,26 +1,30 @@
 // API Service for communicating with ParentShield website backend
 
-const API_URL = "http://localhost:8000";
+const API_URL = import.meta.env.VITE_API_URL ?? "https://parentshield.app";
 
 interface InstallationRegisterRequest {
-  download_token?: string;
-  device_id: string;
-  device_name?: string;
+  deviceId: string;
+  deviceName: string;
   platform: string;
-  os_version?: string;
-  app_version: string;
+  osVersion?: string;
+  appVersion: string;
 }
 
-interface InstallationResponse {
-  installation_id: string;
-  device_id: string;
-  status: string;
-  message: string;
+interface InstallationRegisterResponse {
+  data: {
+    id: string;
+    deviceId: string;
+    deviceName: string;
+    platform: string;
+    status: string;
+    deviceSecret?: string; // Only present on first registration
+  };
 }
 
 interface HeartbeatResponse {
   status: string;
-  server_time: string;
+  isBlocked: boolean;
+  blockedReason: string | null;
 }
 
 interface LicenseCheckResponse {
@@ -43,38 +47,13 @@ interface ActivationCodeResponse {
   error?: string;
 }
 
-// Generate a unique device ID based on machine characteristics
+// Generate a cryptographically random device ID, persisted in localStorage.
 function getDeviceId(): string {
-  // Use a combination of factors to create a unique ID
-  const nav = navigator;
-  const screen = window.screen;
-  const data = [
-    nav.userAgent,
-    nav.language,
-    screen.width,
-    screen.height,
-    screen.colorDepth,
-    new Date().getTimezoneOffset(),
-  ].join("|");
-
-  // Simple hash function
-  let hash = 0;
-  for (let i = 0; i < data.length; i++) {
-    const char = data.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash = hash & hash;
-  }
-
-  // Convert to hex and pad
-  const deviceId = `device_${Math.abs(hash).toString(16).padStart(12, "0")}`;
-
-  // Store in localStorage for consistency
-  const storedId = localStorage.getItem("device_id");
-  if (storedId) {
-    return storedId;
-  }
-  localStorage.setItem("device_id", deviceId);
-  return deviceId;
+  const stored = localStorage.getItem("device_id");
+  if (stored) return stored;
+  const id = `ps_${crypto.randomUUID()}`;
+  localStorage.setItem("device_id", id);
+  return id;
 }
 
 function getPlatform(): string {
@@ -124,23 +103,28 @@ class ApiService {
     }
   }
 
+  private getDeviceSecret(): string | null {
+    return localStorage.getItem("device_secret");
+  }
+
+  private saveDeviceSecret(secret: string) {
+    localStorage.setItem("device_secret", secret);
+  }
+
   async login(email: string, password: string): Promise<boolean> {
     try {
-      const response = await fetch(`${API_URL}/auth/login`, {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
       if (!response.ok) {
-        console.error("Login failed:", await response.text());
         return false;
       }
 
       const data = await response.json();
-      this.saveTokens(data.access_token, data.refresh_token);
+      this.saveTokens(data.data.accessToken, data.data.refreshToken);
 
       // Register installation after login
       await this.registerInstallation();
@@ -149,123 +133,102 @@ class ApiService {
       this.startHeartbeat();
 
       return true;
-    } catch (error) {
-      console.error("Login error:", error);
+    } catch {
       return false;
     }
   }
 
-  async registerInstallation(): Promise<InstallationResponse | null> {
+  async registerInstallation(): Promise<InstallationRegisterResponse | null> {
     if (!this.accessToken) {
-      console.log("No access token, skipping installation registration");
       return null;
     }
 
     try {
-      const request: InstallationRegisterRequest = {
-        device_id: this.deviceId,
-        device_name: `${getPlatform().toUpperCase()} Device`,
+      const payload: InstallationRegisterRequest = {
+        deviceId: this.deviceId,
+        deviceName: `${getPlatform().toUpperCase()} Device`,
         platform: getPlatform(),
-        os_version: getOsVersion(),
-        app_version: "0.2.0",
-        download_token: localStorage.getItem("download_token") || undefined,
+        osVersion: getOsVersion(),
+        appVersion: "0.2.0",
       };
 
-      const response = await fetch(`${API_URL}/device/installation/register`, {
+      const response = await fetch(`${API_URL}/api/device/installations`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${this.accessToken}`,
         },
-        body: JSON.stringify(request),
+        body: JSON.stringify(payload),
       });
 
       if (response.status === 401) {
-        // Try to refresh token
         const refreshed = await this.refreshAccessToken();
-        if (refreshed) {
-          return this.registerInstallation();
-        }
+        if (refreshed) return this.registerInstallation();
         return null;
       }
 
-      if (!response.ok) {
-        console.error("Installation registration failed:", await response.text());
-        return null;
+      if (!response.ok) return null;
+
+      const data: InstallationRegisterResponse = await response.json();
+
+      // Save the device secret returned on first registration.
+      // It is only included once — subsequent updates don't include it.
+      if (data.data.deviceSecret) {
+        this.saveDeviceSecret(data.data.deviceSecret);
       }
 
-      const data = await response.json();
-      console.log("Installation registered:", data);
       return data;
-    } catch (error) {
-      console.error("Installation registration error:", error);
+    } catch {
       return null;
     }
   }
 
   async sendHeartbeat(): Promise<HeartbeatResponse | null> {
-    if (!this.accessToken) {
+    const deviceSecret = this.getDeviceSecret();
+    if (!deviceSecret) {
+      // No secret stored yet — re-register to get one
+      await this.registerInstallation();
       return null;
     }
 
     try {
-      const response = await fetch(`${API_URL}/device/installation/heartbeat`, {
+      const response = await fetch(`${API_URL}/api/device/heartbeat`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${this.accessToken}`,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          device_id: this.deviceId,
-          app_version: "0.2.0",
+          deviceId: this.deviceId,
+          deviceSecret,
         }),
       });
 
-      if (response.status === 401) {
-        const refreshed = await this.refreshAccessToken();
-        if (refreshed) {
-          return this.sendHeartbeat();
-        }
-        return null;
-      }
+      if (!response.ok) return null;
 
-      if (!response.ok) {
-        console.error("Heartbeat failed:", await response.text());
-        return null;
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error("Heartbeat error:", error);
+      const data = await response.json();
+      return data.data as HeartbeatResponse;
+    } catch {
       return null;
     }
   }
 
   private async refreshAccessToken(): Promise<boolean> {
-    if (!this.refreshToken) {
-      return false;
-    }
+    if (!this.refreshToken) return false;
 
     try {
-      const response = await fetch(`${API_URL}/auth/refresh`, {
+      const response = await fetch(`${API_URL}/api/auth/refresh`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ refresh_token: this.refreshToken }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken: this.refreshToken }),
       });
 
       if (!response.ok) {
-        // Session expired - token was revoked (e.g., password changed)
         this.logout(true);
         return false;
       }
 
       const data = await response.json();
-      this.saveTokens(data.access_token, data.refresh_token);
+      this.saveTokens(data.data.accessToken, data.data.refreshToken);
       return true;
-    } catch (error) {
-      console.error("Token refresh error:", error);
+    } catch {
       return false;
     }
   }
@@ -291,14 +254,12 @@ class ApiService {
 
       if (!response.ok) return null;
       return await response.json();
-    } catch (error) {
-      console.error("License check error:", error);
+    } catch {
       return null;
     }
   }
 
   startHeartbeat() {
-    // Send heartbeat every 5 minutes
     if (this.heartbeatInterval) {
       clearInterval(this.heartbeatInterval);
     }
@@ -330,7 +291,6 @@ class ApiService {
     localStorage.removeItem("refresh_token");
     this.stopHeartbeat();
 
-    // Notify listeners if session expired (not user-initiated logout)
     if (sessionExpired && this.onSessionExpiredCallback) {
       this.onSessionExpiredCallback();
     }
@@ -344,60 +304,49 @@ class ApiService {
     return this.deviceId;
   }
 
-  async changePassword(currentPassword: string, newPassword: string): Promise<{ success: boolean; error: string | null }> {
+  async changePassword(
+    currentPassword: string,
+    newPassword: string
+  ): Promise<{ success: boolean; error: string | null }> {
     if (!this.accessToken) {
       return { success: false, error: "Not logged in" };
     }
 
     try {
-      const response = await fetch(`${API_URL}/account/password`, {
+      const response = await fetch(`${API_URL}/api/account/profile`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${this.accessToken}`,
         },
         body: JSON.stringify({
-          current_password: currentPassword,
-          new_password: newPassword,
-          confirm_password: newPassword, // Backend requires confirmation
+          currentPassword,
+          newPassword,
         }),
       });
 
       if (response.status === 401) {
         const refreshed = await this.refreshAccessToken();
-        if (refreshed) {
-          return this.changePassword(currentPassword, newPassword);
-        }
+        if (refreshed) return this.changePassword(currentPassword, newPassword);
         return { success: false, error: "Session expired. Please log in again." };
       }
 
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
-        // Handle validation errors (detail is an array) vs regular errors (detail is a string)
-        let errorMessage = "Failed to change password";
-        if (typeof data.detail === "string") {
-          errorMessage = data.detail;
-        } else if (Array.isArray(data.detail) && data.detail.length > 0) {
-          errorMessage = data.detail[0]?.msg || errorMessage;
-        }
-        return { success: false, error: errorMessage };
+        return { success: false, error: data.error || "Failed to change password" };
       }
 
       return { success: true, error: null };
-    } catch (error) {
-      console.error("Change password error:", error);
+    } catch {
       return { success: false, error: "Connection failed. Please try again." };
     }
   }
 
-  // Redeem an activation code to link device to account
   async redeemActivationCode(code: string): Promise<ActivationCodeResponse> {
     try {
       const response = await fetch(`${API_URL}/api/v1/app/activate`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           activation_code: code.toUpperCase().replace(/[^A-Z0-9]/g, ""),
           device_id: this.deviceId,
@@ -419,7 +368,6 @@ class ApiService {
       const data = await response.json();
 
       if (data.access_token) {
-        // Save tokens and set up session
         this.saveTokens(data.access_token, data.refresh_token);
         await this.registerInstallation();
         this.startHeartbeat();
@@ -432,8 +380,7 @@ class ApiService {
         user_email: data.user_email,
         plan: data.plan,
       };
-    } catch (error) {
-      console.error("Activation code error:", error);
+    } catch {
       return {
         success: false,
         error: "Connection failed. Please check your internet and try again.",
@@ -441,14 +388,11 @@ class ApiService {
     }
   }
 
-  // Generate a device linking code for manual linking
   async generateLinkingCode(): Promise<{ code: string; expires_in: number } | null> {
     try {
       const response = await fetch(`${API_URL}/api/v1/app/device/link-code`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           device_id: this.deviceId,
           device_name: `${getPlatform().toUpperCase()} Device`,
@@ -456,39 +400,26 @@ class ApiService {
         }),
       });
 
-      if (!response.ok) {
-        console.error("Failed to generate linking code");
-        return null;
-      }
-
+      if (!response.ok) return null;
       return await response.json();
-    } catch (error) {
-      console.error("Generate linking code error:", error);
+    } catch {
       return null;
     }
   }
 
-  // Check if device has been linked (poll after showing linking code)
   async checkDeviceLinkStatus(): Promise<ActivationCodeResponse> {
     try {
       const response = await fetch(`${API_URL}/api/v1/app/device/link-status`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          device_id: this.deviceId,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ device_id: this.deviceId }),
       });
 
-      if (!response.ok) {
-        return { success: false };
-      }
+      if (!response.ok) return { success: false };
 
       const data = await response.json();
 
       if (data.linked && data.access_token) {
-        // Device was linked - save tokens
         this.saveTokens(data.access_token, data.refresh_token);
         await this.registerInstallation();
         this.startHeartbeat();
@@ -503,13 +434,11 @@ class ApiService {
       }
 
       return { success: false };
-    } catch (error) {
-      console.error("Check link status error:", error);
+    } catch {
       return { success: false };
     }
   }
 
-  // Initialize on app start - check if logged in and register
   async initialize() {
     this.loadTokens();
     if (this.accessToken) {
