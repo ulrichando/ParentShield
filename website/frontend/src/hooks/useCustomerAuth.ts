@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useLayoutEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { getAccessToken, clearTokens, refreshTokens, TOKEN_KEYS } from "@/lib/auth-client";
 
@@ -9,6 +9,10 @@ interface UserData {
   role: string;
   firstName?: string;
 }
+
+// On the server useLayoutEffect isn't available — fall back to useEffect to avoid warnings
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 export function useCustomerAuth() {
   const router = useRouter();
@@ -52,14 +56,30 @@ export function useCustomerAuth() {
     [logout]
   );
 
-  useEffect(() => {
+  // Runs before the first paint on the client — populate user from localStorage cache
+  // immediately so navigating between tabs never triggers a loading flash.
+  useIsomorphicLayoutEffect(() => {
     const accessToken = getAccessToken();
     if (!accessToken) {
       router.push("/login");
       return;
     }
-
     setToken(accessToken);
+    const email = localStorage.getItem(TOKEN_KEYS.email);
+    if (email) {
+      setUser({
+        email,
+        role: localStorage.getItem(TOKEN_KEYS.role) || "customer",
+        firstName: localStorage.getItem(TOKEN_KEYS.name) || "User",
+      });
+      setIsLoading(false);
+    }
+  }, [router]);
+
+  // Background verification — refreshes cache but does not gate rendering
+  useEffect(() => {
+    const accessToken = getAccessToken();
+    if (!accessToken) return;
 
     fetch("/api/account/profile", {
       headers: { Authorization: `Bearer ${accessToken}` },
@@ -75,14 +95,12 @@ export function useCustomerAuth() {
         setUser({ email: profile.email, role: profile.role, firstName: profile.firstName || "User" });
       })
       .catch(() => {
-        setUser({
-          email: localStorage.getItem(TOKEN_KEYS.email) || "",
-          role: localStorage.getItem(TOKEN_KEYS.role) || "customer",
-          firstName: localStorage.getItem(TOKEN_KEYS.name) || "User",
-        });
+        if (!localStorage.getItem(TOKEN_KEYS.email)) {
+          setUser({ email: "", role: "customer", firstName: "User" });
+        }
       })
       .finally(() => setIsLoading(false));
-  }, [router]);
+  }, []);
 
   return { user, isLoading, token, router, authFetch, logout };
 }
