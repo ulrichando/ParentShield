@@ -1,21 +1,26 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import prisma from '@/lib/db';
 import { verifyPassword, createAccessToken, createRefreshToken, hashToken } from '@/lib/auth';
-import { success, error, unauthorized, serverError } from '@/lib/api-response';
-import { isValidEmail, sanitizeEmail } from '@/lib/validation';
+import { success, unauthorized, serverError, tooManyRequests } from '@/lib/api-response';
+import { sanitizeEmail } from '@/lib/validation';
+import { rateLimit } from '@/lib/rate-limit';
+import { logger } from '@/lib/logger';
+import { LoginSchema, parseBody } from '@/lib/schemas';
 
 export async function POST(request: NextRequest) {
+  const requestId = request.headers.get('x-request-id') ?? undefined;
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'unknown';
+
+  const limit = rateLimit(`login:${ip}`, 10, 60_000);
+  if (!limit.allowed) {
+    return tooManyRequests(limit.retryAfter ?? 60);
+  }
+
   try {
-    const body = await request.json();
-    const { email, password } = body;
-
-    if (!email || !password) {
-      return error('Email and password are required');
-    }
-
-    if (!isValidEmail(email)) {
-      return error('Invalid email format');
-    }
+    const body = await request.json().catch(() => null);
+    const parsed = parseBody(LoginSchema, body);
+    if (parsed.error) return parsed.error;
+    const { email, password } = parsed.data;
 
     const sanitizedEmail = sanitizeEmail(email);
 
@@ -63,19 +68,20 @@ export async function POST(request: NextRequest) {
         lastName: user.lastName,
         role: user.role,
       },
-      subscription: subscription ? {
-        id: subscription.id,
-        status: subscription.status,
-        plan: subscription.plan,
-        currentPeriodEnd: subscription.currentPeriodEnd,
-      } : null,
+      subscription: subscription
+        ? {
+            id: subscription.id,
+            status: subscription.status,
+            plan: subscription.plan,
+            currentPeriodEnd: subscription.currentPeriodEnd,
+          }
+        : null,
       accessToken,
       refreshToken,
       tokenType: 'bearer',
     });
   } catch (err) {
-    console.error('Login error:', err);
-    const message = err instanceof Error ? err.message : 'Unknown error';
-    return NextResponse.json({ error: 'Login failed', details: message }, { status: 500 });
+    logger.error('Login failed', { requestId, route: '/api/auth/login' });
+    return serverError(requestId);
   }
 }

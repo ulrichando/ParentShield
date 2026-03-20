@@ -22,7 +22,6 @@ import { Button } from "@/components/ui/button";
 import { useCustomerAuth } from "@/hooks/useCustomerAuth";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 interface Alert {
   id: string;
@@ -84,7 +83,7 @@ export default function AlertsPage() {
 
   const fetchDevices = async () => {
     try {
-      const response = await authFetch(`${API_URL}/device/installations`);
+      const response = await authFetch(`/api/device/installations`);
       if (!response.ok) throw new Error("Failed to fetch devices");
       const data = await response.json();
       setDevices(data);
@@ -97,7 +96,7 @@ export default function AlertsPage() {
     setIsLoading(true);
     setError(null);
     try {
-      let url = `${API_URL}/parental/alerts?limit=100`;
+      let url = `/api/parental/alerts?limit=100`;
       if (filter === "unread") {
         url += "&is_read=false";
       }
@@ -105,19 +104,12 @@ export default function AlertsPage() {
         url += `&installation_id=${selectedDevice}`;
       }
 
-      const [alertsRes, countRes] = await Promise.all([
-        authFetch(url),
-        authFetch(`${API_URL}/parental/alerts/unread-count`),
-      ]);
+      const alertsRes = await authFetch(url);
 
       if (!alertsRes.ok) throw new Error("Failed to fetch alerts");
       const alertsData = await alertsRes.json();
       setAlerts(alertsData);
-
-      if (countRes.ok) {
-        const countData = await countRes.json();
-        setUnreadCount(countData.unread_count);
-      }
+      setUnreadCount(alertsData.filter((a: Alert) => !a.is_read).length);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load alerts");
     } finally {
@@ -128,8 +120,10 @@ export default function AlertsPage() {
   const markAsRead = async (alertId: string) => {
     setActionLoading(alertId);
     try {
-      const response = await authFetch(`${API_URL}/parental/alerts/${alertId}/read`, {
-        method: "PUT",
+      const response = await authFetch(`/api/parental/alerts/${alertId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isRead: true }),
       });
       if (!response.ok) throw new Error("Failed to mark as read");
       setAlerts(alerts.map((a) => (a.id === alertId ? { ...a, is_read: true } : a)));
@@ -144,12 +138,14 @@ export default function AlertsPage() {
   const dismissAlert = async (alertId: string) => {
     setActionLoading(alertId);
     try {
-      const response = await authFetch(`${API_URL}/parental/alerts/${alertId}/dismiss`, {
-        method: "PUT",
+      const response = await authFetch(`/api/parental/alerts/${alertId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isDismissed: true }),
       });
       if (!response.ok) throw new Error("Failed to dismiss");
-      setAlerts(alerts.filter((a) => a.id !== alertId));
       const alert = alerts.find((a) => a.id === alertId);
+      setAlerts(alerts.filter((a) => a.id !== alertId));
       if (alert && !alert.is_read) {
         setUnreadCount(Math.max(0, unreadCount - 1));
       }
@@ -163,10 +159,16 @@ export default function AlertsPage() {
   const markAllAsRead = async () => {
     setActionLoading("all");
     try {
-      const response = await authFetch(`${API_URL}/parental/alerts/mark-all-read`, {
-        method: "POST",
-      });
-      if (!response.ok) throw new Error("Failed to mark all as read");
+      const unreadAlerts = alerts.filter((a) => !a.is_read);
+      await Promise.all(
+        unreadAlerts.map((a) =>
+          authFetch(`/api/parental/alerts/${a.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ isRead: true }),
+          })
+        )
+      );
       setAlerts(alerts.map((a) => ({ ...a, is_read: true })));
       setUnreadCount(0);
     } catch (err) {

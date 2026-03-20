@@ -4,15 +4,8 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
-  Settings,
   Loader2,
-  Save,
   User,
-  Bell,
-  Mail,
-  Clock,
-  ToggleLeft,
-  ToggleRight,
   Key,
   CreditCard,
   ExternalLink,
@@ -22,48 +15,20 @@ import { Button } from "@/components/ui/button";
 import { useCustomerAuth } from "@/hooks/useCustomerAuth";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-
-interface UserSettings {
-  email_alerts: boolean;
-  email_weekly_report: boolean;
-  email_security_alerts: boolean;
-  alert_blocked_sites: boolean;
-  alert_blocked_apps: boolean;
-  alert_screen_time: boolean;
-  alert_tamper_attempts: boolean;
-  timezone: string;
-}
 
 interface UserProfile {
   email: string;
-  first_name: string | null;
-  last_name: string | null;
+  firstName: string | null;
+  lastName: string | null;
 }
 
-const TIMEZONES = [
-  "UTC",
-  "America/New_York",
-  "America/Chicago",
-  "America/Denver",
-  "America/Los_Angeles",
-  "Europe/London",
-  "Europe/Paris",
-  "Europe/Berlin",
-  "Asia/Tokyo",
-  "Asia/Shanghai",
-  "Australia/Sydney",
-];
 
 export default function SettingsPage() {
   const { user, isLoading: authLoading, authFetch } = useCustomerAuth();
-  const [settings, setSettings] = useState<UserSettings | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [hasChanges, setHasChanges] = useState(false);
 
   // Password change state
   const [showPasswordForm, setShowPasswordForm] = useState(false);
@@ -78,47 +43,16 @@ export default function SettingsPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const [settingsRes, profileRes] = await Promise.all([
-        authFetch(`${API_URL}/parental/settings`),
-        authFetch(`${API_URL}/account/profile`),
-      ]);
-
-      if (!settingsRes.ok) throw new Error("Failed to fetch settings");
-      const settingsData = await settingsRes.json();
-      setSettings(settingsData);
+      const profileRes = await authFetch(`/api/account/profile`);
 
       if (profileRes.ok) {
         const profileData = await profileRes.json();
-        setProfile(profileData);
+        setProfile(profileData.data ?? profileData);
       }
-      setHasChanges(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load settings");
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const saveSettings = async () => {
-    if (!settings) return;
-
-    setIsSaving(true);
-    setError(null);
-    setSuccess(null);
-    try {
-      const response = await authFetch(`${API_URL}/parental/settings`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(settings),
-      });
-      if (!response.ok) throw new Error("Failed to save settings");
-      setHasChanges(false);
-      setSuccess("Settings saved successfully!");
-      setTimeout(() => setSuccess(null), 3000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save settings");
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -136,24 +70,17 @@ export default function SettingsPage() {
     setError(null);
     setSuccess(null);
     try {
-      const response = await authFetch(`${API_URL}/account/password`, {
+      const response = await authFetch(`/api/account/profile`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          current_password: passwordData.current_password,
-          new_password: passwordData.new_password,
-          confirm_password: passwordData.confirm_password,
+          currentPassword: passwordData.current_password,
+          newPassword: passwordData.new_password,
         }),
       });
       if (!response.ok) {
-        const data = await response.json();
-        let errorMessage = "Failed to change password";
-        if (typeof data.detail === "string") {
-          errorMessage = data.detail;
-        } else if (Array.isArray(data.detail) && data.detail.length > 0) {
-          errorMessage = data.detail[0]?.msg || errorMessage;
-        }
-        throw new Error(errorMessage);
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || data.message || "Failed to change password");
       }
       setSuccess("Password changed successfully!");
       setShowPasswordForm(false);
@@ -164,12 +91,6 @@ export default function SettingsPage() {
     } finally {
       setIsChangingPassword(false);
     }
-  };
-
-  const updateSetting = (key: keyof UserSettings, value: boolean | string) => {
-    if (!settings) return;
-    setSettings({ ...settings, [key]: value });
-    setHasChanges(true);
   };
 
   useEffect(() => {
@@ -200,15 +121,9 @@ export default function SettingsPage() {
         <p className="text-xs uppercase tracking-widest text-neutral-500 dark:text-neutral-400 mb-2">
           Account
         </p>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <h1 className="text-2xl md:text-3xl font-light text-neutral-900 dark:text-white">
-            Settings
-          </h1>
-          <Button size="sm" onClick={saveSettings} disabled={!hasChanges || isSaving}>
-            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            Save Changes
-          </Button>
-        </div>
+        <h1 className="text-2xl md:text-3xl font-light text-neutral-900 dark:text-white">
+          Settings
+        </h1>
       </motion.div>
 
       {error && (
@@ -235,7 +150,7 @@ export default function SettingsPage() {
         <div className="flex items-center justify-center py-12">
           <Loader2 className="w-6 h-6 text-neutral-900 dark:text-white animate-spin" />
         </div>
-      ) : settings ? (
+      ) : (
         <div className="space-y-4">
           {/* Profile Section */}
           <motion.div
@@ -264,7 +179,7 @@ export default function SettingsPage() {
                   <label className="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2">Name</label>
                   <input
                     type="text"
-                    value={`${profile?.first_name || ""} ${profile?.last_name || ""}`.trim() || "Not set"}
+                    value={`${profile?.firstName || ""} ${profile?.lastName || ""}`.trim() || "Not set"}
                     disabled
                     className="w-full bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 px-4 py-2.5 text-neutral-500 dark:text-neutral-400 cursor-not-allowed"
                   />
@@ -344,116 +259,6 @@ export default function SettingsPage() {
             </div>
           </motion.div>
 
-          {/* Email Notifications */}
-          <motion.div
-            className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-5"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <div className="flex items-center gap-3 mb-6">
-              <Mail className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
-              <h2 className="text-base font-semibold text-neutral-900 dark:text-white">Email Notifications</h2>
-            </div>
-
-            <div className="space-y-1">
-              {[
-                { key: "email_alerts", label: "Alert Emails", description: "Receive emails when alerts are triggered" },
-                { key: "email_weekly_report", label: "Weekly Report", description: "Get a weekly summary of device activity" },
-                { key: "email_security_alerts", label: "Security Alerts", description: "Important security notifications" },
-              ].map((item) => (
-                <div key={item.key} className="flex items-center justify-between py-3 border-b border-neutral-200 dark:border-neutral-800 last:border-0">
-                  <div>
-                    <h4 className="font-medium text-neutral-900 dark:text-white">{item.label}</h4>
-                    <p className="text-sm text-neutral-500">{item.description}</p>
-                  </div>
-                  <button
-                    onClick={() => updateSetting(item.key as keyof UserSettings, !settings[item.key as keyof UserSettings])}
-                    className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
-                  >
-                    {settings[item.key as keyof UserSettings] ? (
-                      <ToggleRight className="w-8 h-8" />
-                    ) : (
-                      <ToggleLeft className="w-8 h-8 text-neutral-500" />
-                    )}
-                  </button>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Alert Preferences */}
-          <motion.div
-            className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-5"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <div className="flex items-center gap-3 mb-6">
-              <Bell className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
-              <h2 className="text-base font-semibold text-neutral-900 dark:text-white">Alert Preferences</h2>
-            </div>
-
-            <div className="space-y-1">
-              {[
-                { key: "alert_blocked_sites", label: "Blocked Sites", description: "Alert when blocked websites are accessed" },
-                { key: "alert_blocked_apps", label: "Blocked Apps", description: "Alert when blocked apps are launched" },
-                { key: "alert_screen_time", label: "Screen Time", description: "Alert when screen time limits are reached" },
-                { key: "alert_tamper_attempts", label: "Tamper Attempts", description: "Alert when someone tries to disable the app" },
-              ].map((item) => (
-                <div key={item.key} className="flex items-center justify-between py-3 border-b border-neutral-200 dark:border-neutral-800 last:border-0">
-                  <div>
-                    <h4 className="font-medium text-neutral-900 dark:text-white">{item.label}</h4>
-                    <p className="text-sm text-neutral-500">{item.description}</p>
-                  </div>
-                  <button
-                    onClick={() => updateSetting(item.key as keyof UserSettings, !settings[item.key as keyof UserSettings])}
-                    className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
-                  >
-                    {settings[item.key as keyof UserSettings] ? (
-                      <ToggleRight className="w-8 h-8" />
-                    ) : (
-                      <ToggleLeft className="w-8 h-8 text-neutral-500" />
-                    )}
-                  </button>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Timezone */}
-          <motion.div
-            className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-5"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <div className="flex items-center gap-3 mb-6">
-              <Clock className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
-              <h2 className="text-base font-semibold text-neutral-900 dark:text-white">Timezone</h2>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2">
-                Your Timezone
-              </label>
-              <select
-                value={settings.timezone}
-                onChange={(e) => updateSetting("timezone", e.target.value)}
-                className="w-full md:w-64 bg-[#FAFAFA] dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 px-4 py-2.5 text-neutral-900 dark:text-white focus:outline-none focus:border-neutral-900 dark:focus:border-white"
-              >
-                {TIMEZONES.map((tz) => (
-                  <option key={tz} value={tz}>
-                    {tz}
-                  </option>
-                ))}
-              </select>
-              <p className="text-sm text-neutral-500 mt-2">
-                Used for scheduling and activity reports.
-              </p>
-            </div>
-          </motion.div>
-
           {/* Quick Links */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Subscription Link */}
@@ -505,7 +310,7 @@ export default function SettingsPage() {
             </motion.div>
           </div>
         </div>
-      ) : null}
+      )}
     </DashboardLayout>
   );
 }

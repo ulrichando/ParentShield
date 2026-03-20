@@ -2,8 +2,10 @@ import { NextRequest } from 'next/server';
 import prisma from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
 import { success, unauthorized, forbidden, serverError } from '@/lib/api-response';
+import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
+  const requestId = request.headers.get('x-request-id') ?? undefined;
   try {
     const user = await getCurrentUser(request);
     if (!user) return unauthorized();
@@ -53,7 +55,7 @@ export async function GET(request: NextRequest) {
 
     return success(chartData);
   } catch (err) {
-    console.error('Get revenue stats error:', err);
-    return serverError();
+    logger.error('Get revenue stats failed', { requestId, route: '/api/admin/stats/revenue' });
+    return serverError(requestId);
   }
 }

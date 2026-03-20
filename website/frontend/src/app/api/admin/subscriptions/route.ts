@@ -2,16 +2,23 @@ import { NextRequest } from 'next/server';
 import prisma from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
 import { success, unauthorized, forbidden, serverError } from '@/lib/api-response';
+import { logger } from '@/lib/logger';
+import { PaginationSchema, parseQuery } from '@/lib/schemas';
 
 export async function GET(request: NextRequest) {
+  const requestId = request.headers.get('x-request-id') ?? undefined;
   try {
     const user = await getCurrentUser(request);
     if (!user) return unauthorized();
     if (user.role !== 'admin') return forbidden();
 
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const perPage = parseInt(searchParams.get('per_page') || '20');
+    const pagination = parseQuery(PaginationSchema, {
+      page: searchParams.get('page') ?? undefined,
+      per_page: searchParams.get('per_page') ?? undefined,
+    });
+    if (pagination.error) return pagination.error;
+    const { page, per_page: perPage } = pagination.data;
     const status = searchParams.get('status') || '';
 
     const where = {
@@ -42,12 +49,12 @@ export async function GET(request: NextRequest) {
       id: sub.id,
       status: sub.status,
       plan: sub.plan,
-      stripe_subscription_id: sub.stripeSubscriptionId,
-      stripe_customer_id: sub.stripeCustomerId,
-      current_period_start: sub.currentPeriodStart?.toISOString() || null,
-      current_period_end: sub.currentPeriodEnd?.toISOString() || null,
-      canceled_at: sub.canceledAt?.toISOString() || null,
-      created_at: sub.createdAt.toISOString(),
+      stripeSubscriptionId: sub.stripeSubscriptionId,
+      stripeCustomerId: sub.stripeCustomerId,
+      currentPeriodStart: sub.currentPeriodStart?.toISOString() || null,
+      currentPeriodEnd: sub.currentPeriodEnd?.toISOString() || null,
+      canceledAt: sub.canceledAt?.toISOString() || null,
+      createdAt: sub.createdAt.toISOString(),
       user: {
         id: sub.user.id,
         email: sub.user.email,
@@ -59,11 +66,11 @@ export async function GET(request: NextRequest) {
       subscriptions: formattedSubscriptions,
       total,
       page,
-      per_page: perPage,
-      total_pages: Math.ceil(total / perPage),
+      perPage,
+      totalPages: Math.ceil(total / perPage),
     });
   } catch (err) {
-    console.error('Get subscriptions error:', err);
-    return serverError();
+    logger.error('Get subscriptions failed', { requestId });
+    return serverError(requestId);
   }
 }

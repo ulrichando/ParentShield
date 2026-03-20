@@ -11,28 +11,28 @@ interface CustomerUser {
   id: string;
   email: string;
   role: string;
-  is_active: boolean;
-  is_verified: boolean;
-  first_name: string | null;
-  last_name: string | null;
-  created_at: string;
+  isActive: boolean;
+  isVerified: boolean;
+  firstName: string | null;
+  lastName: string | null;
+  createdAt: string;
 }
 
 interface CustomerWithSubscription {
   user: CustomerUser;
   subscription: {
-    plan_name: string;
+    plan: string;
     status: string;
   } | null;
-  total_spent: number;
+  totalSpent: number;
 }
 
 interface CustomerListResponse {
   customers: CustomerWithSubscription[];
   total: number;
   page: number;
-  per_page: number;
-  total_pages: number;
+  perPage: number;
+  totalPages: number;
 }
 
 export default function AdminUsersPage() {
@@ -65,7 +65,7 @@ export default function AdminUsersPage() {
         const json = await res.json();
         const data: CustomerListResponse = json.data;
         setCustomers(data.customers);
-        setTotalPages(data.total_pages);
+        setTotalPages(data.totalPages);
         setTotal(data.total);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load customers");
@@ -156,12 +156,12 @@ export default function AdminUsersPage() {
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           <div className="w-8 h-8 bg-neutral-900 dark:bg-white flex items-center justify-center text-white dark:text-neutral-900 font-medium text-xs">
-                            {(customer.user.first_name || customer.user.email).charAt(0).toUpperCase()}
+                            {(customer.user.firstName || customer.user.email).charAt(0).toUpperCase()}
                           </div>
                           <div>
                             <p className="text-xs font-medium text-neutral-900 dark:text-white">
-                              {customer.user.first_name || customer.user.last_name
-                                ? `${customer.user.first_name || ""} ${customer.user.last_name || ""}`.trim()
+                              {customer.user.firstName || customer.user.lastName
+                                ? `${customer.user.firstName || ""} ${customer.user.lastName || ""}`.trim()
                                 : "No name"}
                             </p>
                             <p className="text-caption-2 text-neutral-500">{customer.user.email}</p>
@@ -171,18 +171,18 @@ export default function AdminUsersPage() {
                       <td className="px-4 py-3">
                         <span
                           className={`text-caption-2 font-medium px-1.5 py-0.5 ${
-                            customer.user.is_active
+                            customer.user.isActive
                               ? "bg-green-500/20 text-green-600 dark:text-green-400"
                               : "bg-red-500/20 text-red-600 dark:text-red-400"
                           }`}
                         >
-                          {customer.user.is_active ? "Active" : "Inactive"}
+                          {customer.user.isActive ? "Active" : "Inactive"}
                         </span>
                       </td>
                       <td className="px-4 py-3">
                         {customer.subscription ? (
                           <span className="text-caption-2 font-medium px-1.5 py-0.5 bg-purple-500/20 text-purple-600 dark:text-purple-400">
-                            {customer.subscription.plan_name}
+                            {customer.subscription.plan}
                           </span>
                         ) : (
                           <span className="text-neutral-500 text-xs">None</span>
@@ -190,12 +190,12 @@ export default function AdminUsersPage() {
                       </td>
                       <td className="px-4 py-3">
                         <span className="text-neutral-900 dark:text-white text-xs">
-                          ${customer.total_spent.toFixed(2)}
+                          ${customer.totalSpent.toFixed(2)}
                         </span>
                       </td>
                       <td className="px-4 py-3">
                         <span className="text-neutral-500 dark:text-neutral-400 text-xs">
-                          {new Date(customer.user.created_at).toLocaleDateString()}
+                          {new Date(customer.user.createdAt).toLocaleDateString()}
                         </span>
                       </td>
                     </motion.tr>

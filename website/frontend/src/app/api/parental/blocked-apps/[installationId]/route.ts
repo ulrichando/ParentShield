@@ -1,12 +1,15 @@
 import { NextRequest } from 'next/server';
 import prisma from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
-import { success, unauthorized, notFound, serverError } from '@/lib/api-response';
+import { success, error, unauthorized, notFound, serverError } from '@/lib/api-response';
+import { logger } from '@/lib/logger';
+import { BlockedAppSchema, parseBody } from '@/lib/schemas';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ installationId: string }> }
 ) {
+  const requestId = request.headers.get('x-request-id') ?? undefined;
   try {
     const user = await getCurrentUser(request);
     if (!user) return unauthorized();
@@ -26,8 +29,8 @@ export async function GET(
 
     return success(blockedApps);
   } catch (err) {
-    console.error('Get blocked apps error:', err);
-    return serverError();
+    logger.error('Get blocked apps failed', { requestId });
+    return serverError(requestId);
   }
 }
 
@@ -35,12 +38,16 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ installationId: string }> }
 ) {
+  const requestId = request.headers.get('x-request-id') ?? undefined;
   try {
     const user = await getCurrentUser(request);
     if (!user) return unauthorized();
 
     const { installationId } = await params;
-    const body = await request.json();
+    const body = await request.json().catch(() => null);
+    const parsed = parseBody(BlockedAppSchema, body);
+    if (parsed.error) return parsed.error;
+    const data = parsed.data;
 
     const installation = await prisma.installation.findFirst({
       where: { id: installationId, userId: user.id },
@@ -51,19 +58,19 @@ export async function POST(
     const blockedApp = await prisma.blockedApp.create({
       data: {
         installationId,
-        appName: body.appName,
-        appPath: body.appPath,
-        isGame: body.isGame || false,
-        scheduleOnly: body.scheduleOnly || false,
-        scheduleStart: body.scheduleStart,
-        scheduleEnd: body.scheduleEnd,
+        appName: data.appName,
+        appPath: data.appPath,
+        isGame: data.isGame ?? false,
+        scheduleOnly: data.scheduleOnly ?? false,
+        scheduleStart: data.scheduleStart ?? null,
+        scheduleEnd: data.scheduleEnd ?? null,
       },
     });
 
     return success(blockedApp, 201);
   } catch (err) {
-    console.error('Add blocked app error:', err);
-    return serverError();
+    logger.error('Add blocked app failed', { requestId });
+    return serverError(requestId);
   }
 }
 
@@ -71,6 +78,7 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ installationId: string }> }
 ) {
+  const requestId = request.headers.get('x-request-id') ?? undefined;
   try {
     const user = await getCurrentUser(request);
     if (!user) return unauthorized();
@@ -80,7 +88,7 @@ export async function DELETE(
     const appId = searchParams.get('appId');
 
     if (!appId) {
-      return success({ error: 'App ID required' }, 400);
+      return error('App ID required', 400);
     }
 
     const installation = await prisma.installation.findFirst({
@@ -95,7 +103,7 @@ export async function DELETE(
 
     return success({ message: 'App unblocked' });
   } catch (err) {
-    console.error('Delete blocked app error:', err);
-    return serverError();
+    logger.error('Delete blocked app failed', { requestId });
+    return serverError(requestId);
   }
 }

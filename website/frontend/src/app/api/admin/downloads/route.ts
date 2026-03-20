@@ -2,16 +2,23 @@ import { NextRequest } from 'next/server';
 import prisma from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
 import { success, unauthorized, forbidden, serverError } from '@/lib/api-response';
+import { logger } from '@/lib/logger';
+import { PaginationSchema, parseQuery } from '@/lib/schemas';
 
 export async function GET(request: NextRequest) {
+  const requestId = request.headers.get('x-request-id') ?? undefined;
   try {
     const user = await getCurrentUser(request);
     if (!user) return unauthorized();
     if (user.role !== 'admin') return forbidden();
 
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const perPage = parseInt(searchParams.get('per_page') || '20');
+    const pagination = parseQuery(PaginationSchema, {
+      page: searchParams.get('page') ?? undefined,
+      per_page: searchParams.get('per_page') ?? undefined,
+    });
+    if (pagination.error) return pagination.error;
+    const { page, per_page: perPage } = pagination.data;
     const platform = searchParams.get('platform') || '';
 
     const where = {
@@ -40,15 +47,15 @@ export async function GET(request: NextRequest) {
 
     const formattedDownloads = downloads.map((dl) => ({
       id: dl.id,
-      download_token: dl.downloadToken,
+      downloadToken: dl.downloadToken,
       platform: dl.platform,
       version: dl.version,
       source: dl.source,
-      ip_address: dl.ipAddress,
-      user_agent: dl.userAgent,
+      ipAddress: dl.ipAddress,
+      userAgent: dl.userAgent,
       referrer: dl.referrer,
-      downloaded_at: dl.downloadedAt?.toISOString() || null,
-      created_at: dl.createdAt.toISOString(),
+      downloadedAt: dl.downloadedAt?.toISOString() || null,
+      createdAt: dl.createdAt.toISOString(),
       user: dl.user
         ? {
             id: dl.user.id,
@@ -62,11 +69,11 @@ export async function GET(request: NextRequest) {
       downloads: formattedDownloads,
       total,
       page,
-      per_page: perPage,
-      total_pages: Math.ceil(total / perPage),
+      perPage,
+      totalPages: Math.ceil(total / perPage),
     });
   } catch (err) {
-    console.error('Get downloads error:', err);
-    return serverError();
+    logger.error('Get downloads failed', { requestId });
+    return serverError(requestId);
   }
 }

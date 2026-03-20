@@ -49,11 +49,12 @@ export default function RegisterPage() {
         }),
       });
 
-      const data = await res.json();
-
       if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
         throw new Error(data.error || data.message || "Registration failed");
       }
+
+      const data = await res.json();
 
       const { accessToken, refreshToken, user } = data.data;
       localStorage.setItem("access_token", accessToken);
@@ -206,7 +207,7 @@ export default function RegisterPage() {
                   </button>
                 </div>
                 <p className="text-xs text-neutral-400 dark:text-neutral-500 mt-2">
-                  Minimum 6 characters
+                  Min 8 chars with uppercase, number, and special character
                 </p>
               </div>
 

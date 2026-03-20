@@ -104,8 +104,8 @@ export default function AdminBlogPage() {
       });
 
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.detail || "Failed to save post");
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || data.detail || "Failed to save post");
       }
 
       await fetchPosts();

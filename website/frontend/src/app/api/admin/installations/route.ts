@@ -2,16 +2,23 @@ import { NextRequest } from 'next/server';
 import prisma from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
 import { success, unauthorized, forbidden, serverError } from '@/lib/api-response';
+import { logger } from '@/lib/logger';
+import { PaginationSchema, parseQuery } from '@/lib/schemas';
 
 export async function GET(request: NextRequest) {
+  const requestId = request.headers.get('x-request-id') ?? undefined;
   try {
     const user = await getCurrentUser(request);
     if (!user) return unauthorized();
     if (user.role !== 'admin') return forbidden();
 
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const perPage = parseInt(searchParams.get('per_page') || '20');
+    const pagination = parseQuery(PaginationSchema, {
+      page: searchParams.get('page') ?? undefined,
+      per_page: searchParams.get('per_page') ?? undefined,
+    });
+    if (pagination.error) return pagination.error;
+    const { page, per_page: perPage } = pagination.data;
     const platform = searchParams.get('platform') || '';
     const status = searchParams.get('status') || '';
 
@@ -42,14 +49,14 @@ export async function GET(request: NextRequest) {
 
     const formattedInstallations = installations.map((inst) => ({
       id: inst.id,
-      device_id: inst.deviceId,
-      device_name: inst.deviceName,
+      deviceId: inst.deviceId,
+      deviceName: inst.deviceName,
       platform: inst.platform,
       status: inst.status,
-      app_version: inst.appVersion,
-      os_version: inst.osVersion,
-      last_seen: inst.lastSeen?.toISOString() || null,
-      created_at: inst.createdAt.toISOString(),
+      appVersion: inst.appVersion,
+      osVersion: inst.osVersion,
+      lastSeen: inst.lastSeen?.toISOString() || null,
+      createdAt: inst.createdAt.toISOString(),
       user: {
         id: inst.user.id,
         email: inst.user.email,
@@ -61,11 +68,11 @@ export async function GET(request: NextRequest) {
       installations: formattedInstallations,
       total,
       page,
-      per_page: perPage,
-      total_pages: Math.ceil(total / perPage),
+      perPage,
+      totalPages: Math.ceil(total / perPage),
     });
   } catch (err) {
-    console.error('Get installations error:', err);
-    return serverError();
+    logger.error('Get installations failed', { requestId });
+    return serverError(requestId);
   }
 }

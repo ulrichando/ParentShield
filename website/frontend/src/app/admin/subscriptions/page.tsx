@@ -9,25 +9,27 @@ import { useAdminAuth } from "@/hooks/useAdminAuth";
 
 interface SubscriptionData {
   id: string;
-  user_id: string;
-  user_email: string;
-  user_name: string | null;
   status: string;
-  plan_name: string;
-  amount: number;
-  currency: string;
-  current_period_start: string | null;
-  current_period_end: string | null;
-  canceled_at: string | null;
-  created_at: string;
+  plan: string;
+  stripeSubscriptionId: string | null;
+  stripeCustomerId: string | null;
+  currentPeriodStart: string | null;
+  currentPeriodEnd: string | null;
+  canceledAt: string | null;
+  createdAt: string;
+  user: {
+    id: string;
+    email: string;
+    name: string;
+  };
 }
 
 interface SubscriptionListResponse {
   subscriptions: SubscriptionData[];
   total: number;
   page: number;
-  per_page: number;
-  total_pages: number;
+  perPage: number;
+  totalPages: number;
 }
 
 const statusColors: Record<string, string> = {
@@ -68,7 +70,7 @@ export default function AdminSubscriptionsPage() {
         const json = await res.json();
         const data: SubscriptionListResponse = json.data;
         setSubscriptions(data.subscriptions);
-        setTotalPages(data.total_pages);
+        setTotalPages(data.totalPages);
         setTotal(data.total);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load");
@@ -144,7 +146,6 @@ export default function AdminSubscriptionsPage() {
                     <th className="text-left text-sm font-medium text-neutral-500 dark:text-neutral-400 px-4 py-3">Customer</th>
                     <th className="text-left text-sm font-medium text-neutral-500 dark:text-neutral-400 px-4 py-3">Plan</th>
                     <th className="text-left text-sm font-medium text-neutral-500 dark:text-neutral-400 px-4 py-3">Status</th>
-                    <th className="text-left text-sm font-medium text-neutral-500 dark:text-neutral-400 px-4 py-3">Amount</th>
                     <th className="text-left text-sm font-medium text-neutral-500 dark:text-neutral-400 px-4 py-3">Period End</th>
                     <th className="text-left text-sm font-medium text-neutral-500 dark:text-neutral-400 px-4 py-3">Created</th>
                   </tr>
@@ -159,12 +160,12 @@ export default function AdminSubscriptionsPage() {
                     >
                       <td className="px-4 py-3">
                         <div>
-                          <p className="text-sm font-medium text-neutral-900 dark:text-white">{sub.user_name || "No name"}</p>
-                          <p className="text-xs text-neutral-500">{sub.user_email}</p>
+                          <p className="text-sm font-medium text-neutral-900 dark:text-white">{sub.user.name || "No name"}</p>
+                          <p className="text-xs text-neutral-500">{sub.user.email}</p>
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <span className="text-sm text-neutral-900 dark:text-white">{sub.plan_name}</span>
+                        <span className="text-sm text-neutral-900 dark:text-white">{sub.plan}</span>
                       </td>
                       <td className="px-4 py-3">
                         <span className={`text-xs font-medium px-2 py-1 capitalize ${statusColors[sub.status] || "bg-gray-500/20 text-neutral-500 dark:text-neutral-400"}`}>
@@ -172,20 +173,15 @@ export default function AdminSubscriptionsPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <span className="text-sm text-neutral-900 dark:text-white">
-                          ${sub.amount.toFixed(2)} {sub.currency}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
                         <span className="text-sm text-neutral-500 dark:text-neutral-400">
-                          {sub.current_period_end
-                            ? new Date(sub.current_period_end).toLocaleDateString()
+                          {sub.currentPeriodEnd
+                            ? new Date(sub.currentPeriodEnd).toLocaleDateString()
                             : "-"}
                         </span>
                       </td>
                       <td className="px-4 py-3">
                         <span className="text-sm text-neutral-500 dark:text-neutral-400">
-                          {new Date(sub.created_at).toLocaleDateString()}
+                          {new Date(sub.createdAt).toLocaleDateString()}
                         </span>
                       </td>
                     </motion.tr>

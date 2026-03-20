@@ -32,27 +32,24 @@ import { useTheme } from "@/components/theme-provider";
 
 interface SubscriptionData {
   id: string;
-  plan_name: string;
+  plan: string;
   status: string;
-  current_period_start: string;
-  current_period_end: string;
-  max_devices: number;
-  price_cents: number;
-  billing_interval: string;
+  currentPeriodStart: string;
+  currentPeriodEnd: string;
 }
 
 interface InstallationData {
   id: string;
-  device_id: string;
-  device_name: string | null;
+  deviceId: string;
+  deviceName: string | null;
   platform: string;
-  os_version: string | null;
-  app_version: string;
+  osVersion: string | null;
+  appVersion: string;
   status: string;
-  is_blocked: boolean;
-  blocked_reason: string | null;
-  last_seen: string;
-  created_at: string;
+  isBlocked: boolean;
+  blockedReason: string | null;
+  lastSeen: string;
+  createdAt: string;
 }
 
 interface StatCardProps {
@@ -155,16 +152,16 @@ export default function DashboardPage() {
 
       try {
         // Fetch subscription data
-        const subRes = await authFetch("/api/account/subscription/details");
+        const subRes = await authFetch("/api/account/subscription");
         if (subRes.ok) {
-          const subData = await subRes.json();
+          const { data: subData } = await subRes.json();
           setSubscription(subData);
         }
 
         // Fetch installations
         const instRes = await authFetch("/api/device/installations");
         if (instRes.ok) {
-          const instData = await instRes.json();
+          const { data: instData } = await instRes.json();
           setInstallations(instData);
         }
       } catch (error) {
@@ -187,9 +184,9 @@ export default function DashboardPage() {
     );
   }
 
-  const activeDevices = installations.filter(i => i.status === "active" && !i.is_blocked).length;
+  const activeDevices = installations.filter(i => i.status === "active" && !i.isBlocked).length;
   const totalDevices = installations.length;
-  const maxDevices = subscription?.max_devices || 3;
+  const maxDevices = 3;
 
   const navItems = [
     { icon: BarChart3, label: "Dashboard", active: true, href: "/dashboard" },
@@ -307,7 +304,7 @@ export default function DashboardPage() {
               <User className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-neutral-900 dark:text-white truncate">{user?.first_name || "User"}</p>
+              <p className="text-sm font-medium text-neutral-900 dark:text-white truncate">{user?.firstName || "User"}</p>
               <p className="text-xs text-neutral-500 truncate">{user?.email}</p>
             </div>
           </div>
@@ -329,7 +326,7 @@ export default function DashboardPage() {
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-neutral-400 dark:text-neutral-500 mb-2">Dashboard</p>
             <h1 className="text-2xl md:text-3xl font-light text-neutral-900 dark:text-white">
-              Welcome back, <span className="italic">{user?.first_name || "User"}</span>
+              Welcome back, <span className="italic">{user?.firstName || "User"}</span>
             </h1>
             <p className="text-neutral-500 dark:text-neutral-400 mt-1">Here&apos;s your family protection overview.</p>
           </div>
@@ -350,7 +347,7 @@ export default function DashboardPage() {
               <StatCard
                 title="Subscription Status"
                 value={subscription ? subscription.status.charAt(0).toUpperCase() + subscription.status.slice(1) : "None"}
-                subtitle={subscription ? `${subscription.plan_name} Plan` : "No active subscription"}
+                subtitle={subscription ? `${subscription.plan.charAt(0).toUpperCase() + subscription.plan.slice(1)} Plan` : "No active subscription"}
                 icon={subscription ? getStatusIcon(subscription.status) : CreditCard}
                 color={subscription ? getStatusColor(subscription.status) : "red"}
               />
@@ -363,8 +360,8 @@ export default function DashboardPage() {
               />
               <StatCard
                 title="Next Billing"
-                value={subscription ? formatDate(subscription.current_period_end) : "N/A"}
-                subtitle={subscription ? `$${(subscription.price_cents / 100).toFixed(2)}/${subscription.billing_interval}` : ""}
+                value={subscription?.currentPeriodEnd ? formatDate(subscription.currentPeriodEnd) : "N/A"}
+                subtitle=""
                 icon={CreditCard}
                 color="primary"
               />
@@ -407,14 +404,14 @@ export default function DashboardPage() {
                       >
                         <div className="flex items-center gap-3">
                           <div className={`w-9 h-9 flex items-center justify-center ${
-                            device.is_blocked
+                            device.isBlocked
                               ? "bg-red-50 dark:bg-red-900/20"
                               : device.status === "active"
                               ? "bg-green-50 dark:bg-green-900/20"
                               : "bg-yellow-50 dark:bg-yellow-900/20"
                           }`}>
                             <Laptop className={`w-4 h-4 ${
-                              device.is_blocked
+                              device.isBlocked
                                 ? "text-red-600 dark:text-red-400"
                                 : device.status === "active"
                                 ? "text-green-600 dark:text-green-400"
@@ -423,24 +420,24 @@ export default function DashboardPage() {
                           </div>
                           <div>
                             <p className="text-sm font-medium text-neutral-900 dark:text-white">
-                              {device.device_name || device.platform.charAt(0).toUpperCase() + device.platform.slice(1)}
+                              {device.deviceName || device.platform.charAt(0).toUpperCase() + device.platform.slice(1)}
                             </p>
                             <p className="text-xs text-neutral-500">
-                              {device.platform} • v{device.app_version}
+                              {device.platform} • v{device.appVersion}
                             </p>
                           </div>
                         </div>
                         <div className="text-right">
                           <span className={`text-xs px-2 py-1 ${
-                            device.is_blocked
+                            device.isBlocked
                               ? "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400"
                               : device.status === "active"
                               ? "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400"
                               : "bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400"
                           }`}>
-                            {device.is_blocked ? "Blocked" : device.status}
+                            {device.isBlocked ? "Blocked" : device.status}
                           </span>
-                          <p className="text-xs text-neutral-400 mt-1">{getRelativeTime(device.last_seen)}</p>
+                          <p className="text-xs text-neutral-400 mt-1">{device.lastSeen ? getRelativeTime(device.lastSeen) : "Never"}</p>
                         </div>
                       </div>
                     ))}

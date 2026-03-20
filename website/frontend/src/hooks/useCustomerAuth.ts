@@ -2,14 +2,13 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { getAccessToken, clearTokens, refreshTokens, TOKEN_KEYS } from "@/lib/auth-client";
 
 interface UserData {
   email: string;
   role: string;
-  first_name?: string;
+  firstName?: string;
 }
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export function useCustomerAuth() {
   const router = useRouter();
@@ -18,74 +17,43 @@ export function useCustomerAuth() {
   const [token, setToken] = useState<string | null>(null);
 
   const logout = useCallback(() => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    localStorage.removeItem("user_role");
-    localStorage.removeItem("user_email");
-    localStorage.removeItem("user_name");
+    clearTokens();
     router.push("/login");
   }, [router]);
 
-  const authFetch = useCallback(async (url: string, options: RequestInit = {}): Promise<Response> => {
-    const accessToken = localStorage.getItem("access_token");
-
-    if (!accessToken) {
-      logout();
-      throw new Error("No access token");
-    }
-
-    // Use full API URL for backend requests
-    const fullUrl = url.startsWith("/api") ? `${API_URL}${url.replace("/api", "")}` : url;
-
-    const res = await fetch(fullUrl, {
-      ...options,
-      headers: {
-        ...options.headers,
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-
-    if (res.status === 401) {
-      const refreshToken = localStorage.getItem("refresh_token");
-      if (refreshToken) {
-        try {
-          const refreshRes = await fetch(`${API_URL}/auth/refresh`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ refresh_token: refreshToken }),
-          });
-
-          if (refreshRes.ok) {
-            const data = await refreshRes.json();
-            localStorage.setItem("access_token", data.access_token);
-            if (data.refresh_token) {
-              localStorage.setItem("refresh_token", data.refresh_token);
-            }
-            setToken(data.access_token);
-
-            return fetch(fullUrl, {
-              ...options,
-              headers: {
-                ...options.headers,
-                Authorization: `Bearer ${data.access_token}`,
-              },
-            });
-          }
-        } catch {
-          // Refresh failed
-        }
+  const authFetch = useCallback(
+    async (url: string, options: RequestInit = {}): Promise<Response> => {
+      const accessToken = getAccessToken();
+      if (!accessToken) {
+        logout();
+        throw new Error("No access token");
       }
 
-      logout();
-      throw new Error("Session expired. Please login again.");
-    }
+      const res = await fetch(url, {
+        ...options,
+        headers: { ...options.headers, Authorization: `Bearer ${accessToken}` },
+      });
 
-    return res;
-  }, [logout]);
+      if (res.status === 401) {
+        const newToken = await refreshTokens();
+        if (newToken) {
+          setToken(newToken);
+          return fetch(url, {
+            ...options,
+            headers: { ...options.headers, Authorization: `Bearer ${newToken}` },
+          });
+        }
+        logout();
+        throw new Error("Session expired. Please login again.");
+      }
+
+      return res;
+    },
+    [logout]
+  );
 
   useEffect(() => {
-    const accessToken = localStorage.getItem("access_token");
-
+    const accessToken = getAccessToken();
     if (!accessToken) {
       router.push("/login");
       return;
@@ -93,35 +61,27 @@ export function useCustomerAuth() {
 
     setToken(accessToken);
 
-    // Fetch actual profile from backend to ensure user data is up to date
-    fetch(`${API_URL}/account/profile`, {
+    fetch("/api/account/profile", {
       headers: { Authorization: `Bearer ${accessToken}` },
     })
       .then((res) => {
         if (res.ok) return res.json();
         throw new Error("Profile fetch failed");
       })
-      .then((profile) => {
-        localStorage.setItem("user_email", profile.email);
-        localStorage.setItem("user_role", profile.role);
-        localStorage.setItem("user_name", profile.first_name || "User");
-        setUser({
-          email: profile.email,
-          role: profile.role,
-          first_name: profile.first_name || "User",
-        });
+      .then(({ data: profile }) => {
+        localStorage.setItem(TOKEN_KEYS.email, profile.email);
+        localStorage.setItem(TOKEN_KEYS.role, profile.role);
+        localStorage.setItem(TOKEN_KEYS.name, profile.firstName || "User");
+        setUser({ email: profile.email, role: profile.role, firstName: profile.firstName || "User" });
       })
       .catch(() => {
-        // Fall back to cached localStorage values
         setUser({
-          email: localStorage.getItem("user_email") || "",
-          role: localStorage.getItem("user_role") || "customer",
-          first_name: localStorage.getItem("user_name") || "User",
+          email: localStorage.getItem(TOKEN_KEYS.email) || "",
+          role: localStorage.getItem(TOKEN_KEYS.role) || "customer",
+          firstName: localStorage.getItem(TOKEN_KEYS.name) || "User",
         });
       })
-      .finally(() => {
-        setIsLoading(false);
-      });
+      .finally(() => setIsLoading(false));
   }, [router]);
 
   return { user, isLoading, token, router, authFetch, logout };

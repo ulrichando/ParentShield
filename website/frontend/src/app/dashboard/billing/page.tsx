@@ -21,18 +21,13 @@ import { Button } from "@/components/ui/button";
 import { useCustomerAuth } from "@/hooks/useCustomerAuth";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-
 interface SubscriptionData {
   id: string;
   status: string;
-  plan_name: string;
-  amount: number;
-  currency: string;
-  current_period_start: string | null;
-  current_period_end: string | null;
-  canceled_at: string | null;
-  created_at: string;
+  plan: string;
+  currentPeriodStart: string | null;
+  currentPeriodEnd: string | null;
+  canceledAt: string | null;
 }
 
 interface TransactionData {
@@ -41,7 +36,7 @@ interface TransactionData {
   currency: string;
   status: string;
   description: string | null;
-  created_at: string;
+  createdAt: string;
 }
 
 interface PlanData {
@@ -146,7 +141,7 @@ function getStatusConfig(status: string) {
 }
 
 export default function BillingPage() {
-  const { isLoading: authLoading, logout } = useCustomerAuth();
+  const { isLoading: authLoading, authFetch, logout } = useCustomerAuth();
   const [subscription, setSubscription] = useState<SubscriptionData | null>(null);
   const [transactions, setTransactions] = useState<TransactionData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -158,26 +153,21 @@ export default function BillingPage() {
   const [countdown, setCountdown] = useState<CountdownTime>({ days: 7, hours: 0, minutes: 0, seconds: 0 });
 
   const fetchData = async () => {
-    const token = localStorage.getItem("access_token");
-    if (!token) return;
-
     setIsLoading(true);
     setError(null);
     try {
-      const headers = { Authorization: `Bearer ${token}` };
-
       const [subRes, txRes] = await Promise.allSettled([
-        fetch(`${API_URL}/account/subscription/details`, { headers }),
-        fetch(`${API_URL}/account/transactions/list?limit=10`, { headers }),
+        authFetch("/api/account/subscription"),
+        authFetch("/api/account/transactions?limit=10"),
       ]);
 
       if (subRes.status === "fulfilled" && subRes.value.ok) {
-        const data = await subRes.value.json();
+        const { data } = await subRes.value.json();
         if (data) setSubscription(data);
       }
 
       if (txRes.status === "fulfilled" && txRes.value.ok) {
-        const data = await txRes.value.json();
+        const { data } = await txRes.value.json();
         if (Array.isArray(data)) setTransactions(data);
       }
     } catch (err) {
@@ -188,15 +178,9 @@ export default function BillingPage() {
   };
 
   const handleCancelSubscription = async () => {
-    const token = localStorage.getItem("access_token");
-    if (!token) return;
-
     setActionLoading(true);
     try {
-      const res = await fetch(`${API_URL}/account/subscription/cancel`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await authFetch("/api/account/subscription", { method: "DELETE" });
 
       if (res.ok) {
         setShowCancelModal(false);
@@ -204,7 +188,7 @@ export default function BillingPage() {
         fetchData();
       } else {
         const data = await res.json();
-        setError(data.detail || "Failed to cancel subscription");
+        setError(data.error || "Failed to cancel subscription");
       }
     } catch (err) {
       setError("Failed to cancel subscription");
@@ -214,22 +198,16 @@ export default function BillingPage() {
   };
 
   const handleCloseAccount = async () => {
-    const token = localStorage.getItem("access_token");
-    if (!token) return;
-
     setActionLoading(true);
     try {
-      const res = await fetch(`${API_URL}/account/close`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await authFetch("/api/account/close", { method: "DELETE" });
 
       if (res.ok) {
         setShowCloseAccountModal(false);
         logout();
       } else {
         const data = await res.json();
-        setError(data.detail || "Failed to close account");
+        setError(data.error || "Failed to close account");
       }
     } catch (err) {
       setError("Failed to close account");
@@ -247,17 +225,17 @@ export default function BillingPage() {
 
   // Countdown timer effect
   useEffect(() => {
-    if (!subscription?.current_period_end) return;
+    if (!subscription?.currentPeriodEnd) return;
 
     const updateCountdown = () => {
-      setCountdown(getTimeRemaining(subscription.current_period_end!));
+      setCountdown(getTimeRemaining(subscription.currentPeriodEnd!));
     };
 
     updateCountdown();
     const interval = setInterval(updateCountdown, 1000);
 
     return () => clearInterval(interval);
-  }, [subscription?.current_period_end]);
+  }, [subscription?.currentPeriodEnd]);
 
   if (authLoading) {
     return (
@@ -270,8 +248,8 @@ export default function BillingPage() {
   }
 
   const statusConfig = subscription ? getStatusConfig(subscription.status) : null;
-  const daysRemaining = subscription?.current_period_end
-    ? getDaysRemaining(subscription.current_period_end)
+  const daysRemaining = subscription?.currentPeriodEnd
+    ? getDaysRemaining(subscription.currentPeriodEnd)
     : null;
 
   return (
@@ -348,7 +326,7 @@ export default function BillingPage() {
                     {statusConfig ? <statusConfig.icon className={`w-5 h-5 ${statusConfig.color}`} /> : <Clock className="w-5 h-5 text-blue-400" />}
                   </div>
                   <div>
-                    <p className="font-medium text-neutral-900 dark:text-white">{subscription?.plan_name || "Free Trial"}</p>
+                    <p className="font-medium text-neutral-900 dark:text-white">{subscription?.plan ? subscription.plan.charAt(0).toUpperCase() + subscription.plan.slice(1) : "Free Trial"}</p>
                     <div className="flex items-center gap-2">
                       <span className={`text-xs px-2 py-0.5 ${statusConfig?.bg || "bg-blue-500/10"} ${statusConfig?.color || "text-blue-400"}`}>
                         {statusConfig?.label || "Free Trial"}
@@ -358,13 +336,8 @@ export default function BillingPage() {
                 </div>
                 <div className="text-right">
                   <p className="text-lg font-bold text-neutral-900 dark:text-white">
-                    {subscription && subscription.amount > 0
-                      ? `$${subscription.amount.toFixed(2)}`
-                      : "Free"}
+                    {subscription?.status === "active" ? "Paid" : "Free"}
                   </p>
-                  {subscription && subscription.amount > 0 && (
-                    <p className="text-xs text-neutral-500">per month</p>
-                  )}
                 </div>
               </div>
 
@@ -453,12 +426,12 @@ export default function BillingPage() {
                       <p className="text-sm text-neutral-900 dark:text-white">{formatDate(subscription.current_period_start)}</p>
                     </div>
                   )}
-                  {subscription.current_period_end && (
+                  {subscription.currentPeriodEnd && (
                     <div>
                       <p className="text-xs text-neutral-500 mb-1">
                         {subscription.status?.toLowerCase() === "trialing" ? "Trial Ends" : "Next Billing"}
                       </p>
-                      <p className="text-sm text-neutral-900 dark:text-white">{formatDate(subscription.current_period_end)}</p>
+                      <p className="text-sm text-neutral-900 dark:text-white">{formatDate(subscription.currentPeriodEnd)}</p>
                     </div>
                   )}
                   {daysRemaining !== null && subscription.status?.toLowerCase() !== "trialing" && (
@@ -472,7 +445,7 @@ export default function BillingPage() {
                 </div>
               )}
 
-              {subscription?.canceled_at && (
+              {subscription?.canceledAt && (
                 <div className="pt-3 border-t border-neutral-200 dark:border-neutral-800">
                   <p className="text-xs text-neutral-500">Canceled on {formatDate(subscription.canceled_at)}</p>
                 </div>
@@ -498,14 +471,13 @@ export default function BillingPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
                 {PLANS.map((plan) => {
                   // Determine if this plan matches the user's current subscription
-                  // Default to Free Trial if no subscription exists (all users start with trial)
-                  const planName = subscription?.plan_name?.toLowerCase() || "free trial";
+                  const planKey = subscription?.plan?.toLowerCase() || "free";
                   const status = subscription?.status?.toLowerCase() || "trialing";
                   const isCurrentPlan = plan.isFree
-                    ? planName === "free trial" || status === "trialing"
+                    ? planKey === "free" || status === "trialing"
                     : plan.name === "Basic"
-                    ? planName === "basic"
-                    : planName === "pro" || planName === "premium monthly" || planName === "premium yearly";
+                    ? planKey === "basic"
+                    : planKey === "pro";
                   const isLimitedFeature = (feature: string) => feature.startsWith("No ");
                   return (
                     <div
@@ -623,10 +595,10 @@ export default function BillingPage() {
                     </div>
                     <div>
                       <p className="text-sm text-neutral-900 dark:text-white">
-                        {subscription?.current_period_start ? "Free Trial Activated" : "Free Trial"}
+                        {subscription?.currentPeriodStart ? "Free Trial Activated" : "Free Trial"}
                       </p>
                       <p className="text-xs text-neutral-500">
-                        {subscription?.current_period_start
+                        {subscription?.currentPeriodStart
                           ? formatDate(subscription.current_period_start)
                           : "Starts when you install the app"}
                       </p>
@@ -634,8 +606,8 @@ export default function BillingPage() {
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-medium text-neutral-900 dark:text-white">$0.00 USD</p>
-                    <span className={`text-xs ${subscription?.current_period_start ? "text-blue-400" : "text-yellow-400"}`}>
-                      {subscription?.current_period_start ? "Active" : "Pending"}
+                    <span className={`text-xs ${subscription?.currentPeriodStart ? "text-blue-400" : "text-yellow-400"}`}>
+                      {subscription?.currentPeriodStart ? "Active" : "Pending"}
                     </span>
                   </div>
                 </div>
@@ -657,7 +629,7 @@ export default function BillingPage() {
                     </div>
                     <div>
                       <p className="text-sm text-neutral-900 dark:text-white">{tx.description || "Subscription payment"}</p>
-                      <p className="text-xs text-neutral-500">{formatDate(tx.created_at)}</p>
+                      <p className="text-xs text-neutral-500">{formatDate(tx.createdAt)}</p>
                     </div>
                   </div>
                   <div className="text-right">

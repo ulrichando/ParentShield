@@ -83,8 +83,8 @@ export default function AdminCareersPage() {
       });
 
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.detail || "Failed to save job posting");
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || data.detail || "Failed to save job posting");
       }
 
       await fetchJobs();

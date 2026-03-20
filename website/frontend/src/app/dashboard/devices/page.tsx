@@ -26,7 +26,6 @@ import { Button } from "@/components/ui/button";
 import { useCustomerAuth } from "@/hooks/useCustomerAuth";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 interface Installation {
   id: string;
@@ -99,7 +98,7 @@ export default function DevicesPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await authFetch(`${API_URL}/device/installations`);
+      const response = await authFetch(`/api/device/installations`);
       if (!response.ok) throw new Error("Failed to fetch devices");
       const data = await response.json();
       setDevices(data);
@@ -117,7 +116,7 @@ export default function DevicesPage() {
 
     setDeletingId(deviceId);
     try {
-      const response = await authFetch(`${API_URL}/device/installation/${deviceId}`, {
+      const response = await authFetch(`/api/device/installation/${deviceId}`, {
         method: "DELETE",
       });
       if (!response.ok) {
@@ -134,7 +133,7 @@ export default function DevicesPage() {
 
   const fetchActivationCodes = async () => {
     try {
-      const response = await authFetch(`${API_URL}/device/activation-codes`);
+      const response = await authFetch(`/api/device/activation-codes`);
       if (response.ok) {
         const data = await response.json();
         setActivationCodes(data);
@@ -147,7 +146,7 @@ export default function DevicesPage() {
   const generateActivationCode = async () => {
     setIsGeneratingCode(true);
     try {
-      const response = await authFetch(`${API_URL}/device/activation-codes`, {
+      const response = await authFetch(`/api/device/activation-codes`, {
         method: "POST",
       });
       if (!response.ok) {
@@ -165,7 +164,7 @@ export default function DevicesPage() {
 
   const deleteActivationCode = async (codeId: string) => {
     try {
-      const response = await authFetch(`${API_URL}/device/activation-codes/${codeId}`, {
+      const response = await authFetch(`/api/device/activation-codes/${codeId}`, {
         method: "DELETE",
       });
       if (response.ok) {
@@ -187,7 +186,7 @@ export default function DevicesPage() {
 
     setIsLinking(true);
     try {
-      const response = await authFetch(`${API_URL}/device/link-device`, {
+      const response = await authFetch(`/api/device/link-device`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code: linkCode }),

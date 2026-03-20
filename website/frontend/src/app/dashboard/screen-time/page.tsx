@@ -17,7 +17,6 @@ import { Button } from "@/components/ui/button";
 import { useCustomerAuth } from "@/hooks/useCustomerAuth";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 interface Installation {
   id: string;
@@ -72,7 +71,7 @@ export default function ScreenTimePage() {
 
   const fetchDevices = async () => {
     try {
-      const response = await authFetch(`${API_URL}/device/installations`);
+      const response = await authFetch(`/api/device/installations`);
       if (!response.ok) throw new Error("Failed to fetch devices");
       const data = await response.json();
       setDevices(data.filter((d: Installation & { status: string }) => d.status === "active"));
@@ -88,7 +87,7 @@ export default function ScreenTimePage() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await authFetch(`${API_URL}/parental/screen-time/${deviceId}`);
+      const response = await authFetch(`/api/parental/screen-time/${deviceId}`);
       if (!response.ok) throw new Error("Failed to fetch configuration");
       const data = await response.json();
       setConfig(data);
@@ -106,7 +105,7 @@ export default function ScreenTimePage() {
     setIsSaving(true);
     setError(null);
     try {
-      const response = await authFetch(`${API_URL}/parental/screen-time/${selectedDevice}`, {
+      const response = await authFetch(`/api/parental/screen-time/${selectedDevice}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(config),

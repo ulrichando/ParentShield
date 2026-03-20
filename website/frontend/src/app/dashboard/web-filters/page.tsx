@@ -22,7 +22,6 @@ import { Button } from "@/components/ui/button";
 import { useCustomerAuth } from "@/hooks/useCustomerAuth";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 interface Installation {
   id: string;
@@ -81,7 +80,7 @@ export default function WebFiltersPage() {
 
   const fetchDevices = async () => {
     try {
-      const response = await authFetch(`${API_URL}/device/installations`);
+      const response = await authFetch(`/api/device/installations`);
       if (!response.ok) throw new Error("Failed to fetch devices");
       const data = await response.json();
       const activeDevices = data.filter((d: Installation & { status: string }) => d.status === "active");
@@ -99,8 +98,8 @@ export default function WebFiltersPage() {
     setError(null);
     try {
       const [configRes, rulesRes] = await Promise.all([
-        authFetch(`${API_URL}/parental/web-filters/${deviceId}`),
-        authFetch(`${API_URL}/parental/web-filters/${deviceId}/rules`),
+        authFetch(`/api/parental/web-filters/${deviceId}`),
+        authFetch(`/api/parental/web-filters/${deviceId}/rules`),
       ]);
 
       if (!configRes.ok) throw new Error("Failed to fetch configuration");
@@ -125,7 +124,7 @@ export default function WebFiltersPage() {
     setIsSaving(true);
     setError(null);
     try {
-      const response = await authFetch(`${API_URL}/parental/web-filters/${selectedDevice}`, {
+      const response = await authFetch(`/api/parental/web-filters/${selectedDevice}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(config),
@@ -154,7 +153,7 @@ export default function WebFiltersPage() {
     setIsAddingRule(true);
     setError(null);
     try {
-      const response = await authFetch(`${API_URL}/parental/web-filters/${selectedDevice}/rules`, {
+      const response = await authFetch(`/api/parental/web-filters/${selectedDevice}/rules`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -182,7 +181,7 @@ export default function WebFiltersPage() {
     setDeletingId(ruleId);
     try {
       const response = await authFetch(
-        `${API_URL}/parental/web-filters/${selectedDevice}/rules/${ruleId}`,
+        `/api/parental/web-filters/${selectedDevice}/rules/${ruleId}`,
         { method: "DELETE" }
       );
       if (!response.ok) throw new Error("Failed to delete rule");

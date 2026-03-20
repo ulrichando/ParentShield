@@ -2,13 +2,14 @@ import { NextRequest } from 'next/server';
 import prisma from '@/lib/db';
 import { getCurrentUser, hashPassword, verifyPassword } from '@/lib/auth';
 import { success, error, unauthorized, serverError } from '@/lib/api-response';
+import { logger } from '@/lib/logger';
+import { ProfileUpdateSchema, parseBody } from '@/lib/schemas';
 
 export async function GET(request: NextRequest) {
+  const requestId = request.headers.get('x-request-id') ?? undefined;
   try {
     const user = await getCurrentUser(request);
-    if (!user) {
-      return unauthorized();
-    }
+    if (!user) return unauthorized();
 
     return success({
       id: user.id,
@@ -20,20 +21,21 @@ export async function GET(request: NextRequest) {
       createdAt: user.createdAt,
     });
   } catch (err) {
-    console.error('Get profile error:', err);
-    return serverError();
+    logger.error('Get profile failed', { requestId, route: '/api/account/profile' });
+    return serverError(requestId);
   }
 }
 
 export async function PUT(request: NextRequest) {
+  const requestId = request.headers.get('x-request-id') ?? undefined;
   try {
     const user = await getCurrentUser(request);
-    if (!user) {
-      return unauthorized();
-    }
+    if (!user) return unauthorized();
 
-    const body = await request.json();
-    const { firstName, lastName, currentPassword, newPassword } = body;
+    const body = await request.json().catch(() => null);
+    const parsed = parseBody(ProfileUpdateSchema, body);
+    if (parsed.error) return parsed.error;
+    const { firstName, lastName, currentPassword, newPassword } = parsed.data;
 
     const updateData: Record<string, unknown> = {};
 
@@ -41,15 +43,10 @@ export async function PUT(request: NextRequest) {
     if (lastName !== undefined) updateData.lastName = lastName;
 
     if (newPassword) {
-      if (!currentPassword) {
-        return error('Current password is required');
-      }
-
-      const isValid = await verifyPassword(currentPassword, user.passwordHash);
+      const isValid = await verifyPassword(currentPassword!, user.passwordHash);
       if (!isValid) {
         return error('Current password is incorrect');
       }
-
       updateData.passwordHash = await hashPassword(newPassword);
     }
 
@@ -65,7 +62,7 @@ export async function PUT(request: NextRequest) {
       lastName: updated.lastName,
     });
   } catch (err) {
-    console.error('Update profile error:', err);
-    return serverError();
+    logger.error('Update profile failed', { requestId, route: '/api/account/profile' });
+    return serverError(requestId);
   }
 }

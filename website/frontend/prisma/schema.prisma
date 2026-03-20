@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("PRISMA_DATABASE_URL")
+  directUrl = env("DATABASE_URL")
 }
 
 enum UserRole {
@@ -107,6 +108,7 @@ model Subscription {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
   @@map("subscriptions")
 }
 
@@ -123,19 +125,22 @@ model Transaction {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
   @@map("transactions")
 }
 
 model RefreshToken {
-  id        String   @id @default(uuid())
-  userId    String   @map("user_id")
-  tokenHash String   @map("token_hash")
-  expiresAt DateTime @map("expires_at")
-  createdAt DateTime @default(now()) @map("created_at")
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  tokenHash String    @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  createdAt DateTime  @default(now()) @map("created_at")
   revokedAt DateTime? @map("revoked_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
+  @@index([tokenHash])
   @@map("refresh_tokens")
 }
 
@@ -185,20 +190,21 @@ model Download {
 }
 
 model Installation {
-  id           String             @id @default(uuid())
-  userId       String             @map("user_id")
-  downloadId   String?            @map("download_id")
-  deviceId     String             @unique @map("device_id")
-  deviceName   String             @map("device_name")
-  platform     Platform
-  status       InstallationStatus @default(pending)
-  isBlocked    Boolean            @default(false) @map("is_blocked")
-  blockedReason String?           @map("blocked_reason")
-  appVersion   String?            @map("app_version")
-  osVersion    String?            @map("os_version")
-  lastSeen     DateTime?          @map("last_seen")
-  createdAt    DateTime           @default(now()) @map("created_at")
-  updatedAt    DateTime           @updatedAt @map("updated_at")
+  id                String             @id @default(uuid())
+  userId            String             @map("user_id")
+  downloadId        String?            @map("download_id")
+  deviceId          String             @unique @map("device_id")
+  deviceSecretHash  String?            @map("device_secret_hash")
+  deviceName        String             @map("device_name")
+  platform          Platform
+  status            InstallationStatus @default(pending)
+  isBlocked         Boolean            @default(false) @map("is_blocked")
+  blockedReason     String?            @map("blocked_reason")
+  appVersion        String?            @map("app_version")
+  osVersion         String?            @map("os_version")
+  lastSeen          DateTime?          @map("last_seen")
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
 
   user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   download         Download?         @relation(fields: [downloadId], references: [id], onDelete: SetNull)
@@ -208,6 +214,8 @@ model Installation {
   alerts           Alert[]
   syncMetadata     SyncMetadata?
 
+  @@index([userId])
+  @@index([createdAt])
   @@map("installations")
 }
 
@@ -243,6 +251,7 @@ model BlockedApp {
 
   installation Installation @relation(fields: [installationId], references: [id], onDelete: Cascade)
 
+  @@index([installationId])
   @@map("blocked_apps")
 }
 
@@ -291,6 +300,9 @@ model Alert {
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   installation Installation? @relation(fields: [installationId], references: [id], onDelete: SetNull)
 
+  @@index([userId])
+  @@index([createdAt])
+  @@index([userId, isDismissed])
   @@map("alerts")
 }
 

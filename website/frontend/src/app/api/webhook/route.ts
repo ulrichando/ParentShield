@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import prisma from '@/lib/db';
+import { logger } from '@/lib/logger';
 
 function getStripe() {
   if (!process.env.STRIPE_SECRET_KEY) {
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest) {
       process.env.STRIPE_WEBHOOK_SECRET
     );
   } catch (err) {
-    console.error('Webhook signature verification failed:', err);
+    logger.error('Webhook signature verification failed', { route: '/api/webhook' });
     return NextResponse.json(
       { error: 'Webhook signature verification failed' },
       { status: 400 }
@@ -67,22 +68,24 @@ export async function POST(request: NextRequest) {
             const priceId = subData.items.data[0]?.price.id;
             const plan = getPlanFromPriceId(priceId);
 
-            await prisma.subscription.updateMany({
-              where: { userId: user.id },
-              data: { status: 'canceled' },
-            });
-
-            await prisma.subscription.create({
-              data: {
-                userId: user.id,
-                status: 'active',
-                plan,
-                stripeSubscriptionId: subscriptionId,
-                stripeCustomerId: customerId,
-                currentPeriodStart: new Date(subData.current_period_start * 1000),
-                currentPeriodEnd: new Date(subData.current_period_end * 1000),
-              },
-            });
+            // Atomic: cancel old subscriptions and create new one in a single transaction
+            await prisma.$transaction([
+              prisma.subscription.updateMany({
+                where: { userId: user.id },
+                data: { status: 'canceled' },
+              }),
+              prisma.subscription.create({
+                data: {
+                  userId: user.id,
+                  status: 'active',
+                  plan,
+                  stripeSubscriptionId: subscriptionId,
+                  stripeCustomerId: customerId,
+                  currentPeriodStart: new Date(subData.current_period_start * 1000),
+                  currentPeriodEnd: new Date(subData.current_period_end * 1000),
+                },
+              }),
+            ]);
           }
         }
         break;
@@ -174,7 +177,7 @@ export async function POST(request: NextRequest) {
       }
     }
   } catch (err) {
-    console.error('Webhook handler error:', err);
+    logger.error('Webhook handler error', { route: '/api/webhook' });
   }
 
   return NextResponse.json({ received: true });

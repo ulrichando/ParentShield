@@ -29,7 +29,6 @@ import { Button } from "@/components/ui/button";
 import { useCustomerAuth } from "@/hooks/useCustomerAuth";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 interface APIKey {
   id: string;
@@ -109,7 +108,7 @@ export default function APIPage() {
   const fetchApiKeys = async () => {
     setIsLoadingApiKeys(true);
     try {
-      const response = await authFetch(`${API_URL}/api/v1/api-keys`);
+      const response = await authFetch(`/api/v1/api-keys`);
       if (response.ok) {
         const data = await response.json();
         setApiKeys(data);
@@ -135,7 +134,7 @@ export default function APIPage() {
         body.expires_at = new Date(newKeyExpiry).toISOString();
       }
 
-      const response = await authFetch(`${API_URL}/api/v1/api-keys`, {
+      const response = await authFetch(`/api/v1/api-keys`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -163,7 +162,7 @@ export default function APIPage() {
     if (!confirm("Are you sure you want to revoke this API key? This cannot be undone.")) return;
 
     try {
-      const response = await authFetch(`${API_URL}/api/v1/api-keys/${keyId}`, {
+      const response = await authFetch(`/api/v1/api-keys/${keyId}`, {
         method: "DELETE",
       });
 
@@ -192,8 +191,8 @@ export default function APIPage() {
     setIsLoadingWebhooks(true);
     try {
       const [webhooksRes, eventsRes] = await Promise.all([
-        authFetch(`${API_URL}/api/v1/webhooks`),
-        authFetch(`${API_URL}/api/v1/webhooks/events`),
+        authFetch(`/api/v1/webhooks`),
+        authFetch(`/api/v1/webhooks/events`),
       ]);
 
       if (webhooksRes.ok) {
@@ -218,7 +217,7 @@ export default function APIPage() {
     setIsCreatingWebhook(true);
     setError(null);
     try {
-      const response = await authFetch(`${API_URL}/api/v1/webhooks`, {
+      const response = await authFetch(`/api/v1/webhooks`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -253,7 +252,7 @@ export default function APIPage() {
     if (!confirm("Are you sure you want to delete this webhook? This cannot be undone.")) return;
 
     try {
-      const response = await authFetch(`${API_URL}/api/v1/webhooks/${webhookId}`, {
+      const response = await authFetch(`/api/v1/webhooks/${webhookId}`, {
         method: "DELETE",
       });
 
@@ -269,7 +268,7 @@ export default function APIPage() {
 
   const toggleWebhook = async (webhookId: string, isActive: boolean) => {
     try {
-      const response = await authFetch(`${API_URL}/api/v1/webhooks/${webhookId}`, {
+      const response = await authFetch(`/api/v1/webhooks/${webhookId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ is_active: !isActive }),
@@ -288,7 +287,7 @@ export default function APIPage() {
   const testWebhook = async (webhookId: string) => {
     setTestingWebhookId(webhookId);
     try {
-      const response = await authFetch(`${API_URL}/api/v1/webhooks/${webhookId}/test`, {
+      const response = await authFetch(`/api/v1/webhooks/${webhookId}/test`, {
         method: "POST",
       });
 

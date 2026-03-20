@@ -166,7 +166,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-medium text-neutral-900 dark:text-white truncate">
-                {user?.first_name || "User"}
+                {user?.firstName || "User"}
               </p>
               <p className="text-xs text-neutral-500 dark:text-neutral-500 truncate">{user?.email}</p>
             </div>

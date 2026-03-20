@@ -152,8 +152,7 @@ export type Platform = "windows" | "macos" | "linux-appimage" | "linux-deb";
  */
 export function getDownloadUrl(platform: Platform): string {
   const token = localStorage.getItem("access_token");
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-  return `${API_URL}/account/download/${platform}?token=${token}`;
+  return `/api/account/download/${platform}?token=${token}`;
 }
 
 // ============================================================================

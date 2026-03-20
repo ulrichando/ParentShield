@@ -28,12 +28,12 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await res.json();
-
       if (!res.ok) {
-        const errorMsg = data.error || data.message || "Login failed";
-        throw new Error(errorMsg);
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || data.message || "Login failed");
       }
+
+      const data = await res.json();
 
       const { accessToken, refreshToken, user } = data.data;
       localStorage.setItem("access_token", accessToken);

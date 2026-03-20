@@ -27,7 +27,7 @@ interface AdminSidebarProps {
   activePage: "dashboard" | "users" | "subscriptions" | "transactions" | "analytics" | "devices" | "settings" | "careers" | "blog" | "api-keys";
   user: {
     email: string;
-    first_name?: string;
+    firstName?: string;
   };
 }
 
@@ -169,7 +169,7 @@ export function AdminSidebar({ activePage, user }: AdminSidebarProps) {
               <User className="w-4 h-4 text-red-600 dark:text-red-400" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-neutral-900 dark:text-white truncate">{user?.first_name || "Admin"}</p>
+              <p className="text-sm font-medium text-neutral-900 dark:text-white truncate">{user?.firstName || "Admin"}</p>
               <p className="text-xs text-neutral-500 truncate">{user?.email}</p>
             </div>
           </div>

@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import prisma from '@/lib/db';
 import { getCurrentUser, getSubscriptionFeatures } from '@/lib/auth';
 import { success, unauthorized, serverError } from '@/lib/api-response';
+import { logger } from '@/lib/logger';
 import Stripe from 'stripe';
 
 function getStripe() {
@@ -12,6 +13,7 @@ function getStripe() {
 }
 
 export async function GET(request: NextRequest) {
+  const requestId = request.headers.get('x-request-id') ?? undefined;
   try {
     const user = await getCurrentUser(request);
     if (!user) {
@@ -47,12 +49,13 @@ export async function GET(request: NextRequest) {
       features: getSubscriptionFeatures(subscription.plan),
     });
   } catch (err) {
-    console.error('Get subscription error:', err);
-    return serverError();
+    logger.error('Get subscription failed', { requestId, route: '/api/account/subscription' });
+    return serverError(requestId);
   }
 }
 
 export async function DELETE(request: NextRequest) {
+  const requestId = request.headers.get('x-request-id') ?? undefined;
   try {
     const user = await getCurrentUser(request);
     if (!user) {
@@ -83,7 +86,7 @@ export async function DELETE(request: NextRequest) {
 
     return success({ message: 'Subscription will be canceled at period end' });
   } catch (err) {
-    console.error('Cancel subscription error:', err);
-    return serverError();
+    logger.error('Cancel subscription failed', { requestId, route: '/api/account/subscription' });
+    return serverError(requestId);
   }
 }

@@ -16,7 +16,6 @@ import { Button } from "@/components/ui/button";
 import { useCustomerAuth } from "@/hooks/useCustomerAuth";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 interface DownloadFormat {
   id: string;
@@ -98,7 +97,7 @@ export default function DownloadPage() {
   useEffect(() => {
     const fetchAvailable = async () => {
       try {
-        const response = await fetch(`${API_URL}/device/downloads/available`);
+        const response = await fetch(`/api/device/downloads/available`);
         if (response.ok) {
           const data = await response.json();
           setAvailableDownloads(data);
@@ -146,7 +145,7 @@ export default function DownloadPage() {
 
     try {
       // Track download via API
-      const response = await authFetch(`${API_URL}/device/download`, {
+      const response = await authFetch(`/api/device/download`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -169,7 +168,7 @@ export default function DownloadPage() {
       setDownloaded((prev) => [...prev, downloadKey]);
 
       // Construct the direct download URL based on format
-      const downloadUrl = `${API_URL}/downloads/${platformId}/${format.fileName}`;
+      const downloadUrl = `/api/downloads/${platformId}/${format.fileName}`;
 
       // Create a temporary anchor element to trigger download
       const link = document.createElement("a");

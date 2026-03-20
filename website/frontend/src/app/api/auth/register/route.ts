@@ -1,25 +1,26 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import prisma from '@/lib/db';
 import { hashPassword, createAccessToken, createRefreshToken, hashToken } from '@/lib/auth';
-import { success, error } from '@/lib/api-response';
-import { isValidEmail, isValidPassword, sanitizeEmail, sanitizeString } from '@/lib/validation';
+import { success, error, serverError, tooManyRequests } from '@/lib/api-response';
+import { sanitizeEmail, sanitizeString } from '@/lib/validation';
+import { rateLimit } from '@/lib/rate-limit';
+import { logger } from '@/lib/logger';
+import { RegisterSchema, parseBody } from '@/lib/schemas';
 
 export async function POST(request: NextRequest) {
+  const requestId = request.headers.get('x-request-id') ?? undefined;
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'unknown';
+
+  const limit = rateLimit(`register:${ip}`, 5, 60_000);
+  if (!limit.allowed) {
+    return tooManyRequests(limit.retryAfter ?? 60);
+  }
+
   try {
-    const body = await request.json();
-    const { email, password, firstName, lastName } = body;
-
-    if (!email || !password) {
-      return error('Email and password are required');
-    }
-
-    if (!isValidEmail(email)) {
-      return error('Invalid email format');
-    }
-
-    if (!isValidPassword(password)) {
-      return error('Password must be at least 6 characters');
-    }
+    const body = await request.json().catch(() => null);
+    const parsed = parseBody(RegisterSchema, body);
+    if (parsed.error) return parsed.error;
+    const { email, password, firstName, lastName } = parsed.data;
 
     const sanitizedEmail = sanitizeEmail(email);
     const sanitizedFirstName = sanitizeString(firstName);
@@ -67,21 +68,23 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return success({
-      user: {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: user.role,
+    return success(
+      {
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role,
+        },
+        accessToken,
+        refreshToken,
+        tokenType: 'bearer',
       },
-      accessToken,
-      refreshToken,
-      tokenType: 'bearer',
-    }, 201);
+      201
+    );
   } catch (err) {
-    console.error('Registration error:', err);
-    const message = err instanceof Error ? err.message : 'Unknown error';
-    return NextResponse.json({ error: 'Registration failed', details: message }, { status: 500 });
+    logger.error('Registration failed', { requestId, route: '/api/auth/register' });
+    return serverError(requestId);
   }
 }

@@ -1,16 +1,17 @@
 import { NextRequest } from 'next/server';
 import prisma from '@/lib/db';
 import { verifyToken, createAccessToken, createRefreshToken, hashToken } from '@/lib/auth';
-import { success, error, unauthorized, serverError } from '@/lib/api-response';
+import { success, unauthorized, serverError } from '@/lib/api-response';
+import { logger } from '@/lib/logger';
+import { RefreshTokenSchema, parseBody } from '@/lib/schemas';
 
 export async function POST(request: NextRequest) {
+  const requestId = request.headers.get('x-request-id') ?? undefined;
   try {
-    const body = await request.json();
-    const { refreshToken } = body;
-
-    if (!refreshToken) {
-      return error('Refresh token is required');
-    }
+    const body = await request.json().catch(() => null);
+    const parsed = parseBody(RefreshTokenSchema, body);
+    if (parsed.error) return parsed.error;
+    const { refreshToken } = parsed.data;
 
     const payload = verifyToken(refreshToken);
     if (!payload || payload.type !== 'refresh') {
@@ -58,7 +59,7 @@ export async function POST(request: NextRequest) {
       tokenType: 'bearer',
     });
   } catch (err) {
-    console.error('Refresh error:', err);
-    return serverError();
+    logger.error('Token refresh failed', { requestId, route: '/api/auth/refresh' });
+    return serverError(requestId);
   }
 }

@@ -20,6 +20,19 @@ export function notFound(message: string = 'Not found') {
   return NextResponse.json({ error: message }, { status: 404 });
 }
 
-export function serverError(message: string = 'Internal server error') {
-  return NextResponse.json({ error: message }, { status: 500 });
+export function serverError(requestId?: string) {
+  return NextResponse.json(
+    { error: 'Internal server error', ...(requestId && { requestId }) },
+    { status: 500 }
+  );
+}
+
+export function tooManyRequests(retryAfter: number) {
+  return NextResponse.json(
+    { error: 'Too many requests' },
+    {
+      status: 429,
+      headers: { 'Retry-After': String(retryAfter) },
+    }
+  );
 }
