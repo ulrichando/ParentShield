@@ -9,7 +9,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'change-this-secret';
 async function testLogin() {
   try {
     const email = 'admin@parentshield.com';
-    const password = 'Demo123!';
+    const password = 'Demo1234';
 
     console.log('1. Finding user...');
     const user = await prisma.user.findUnique({

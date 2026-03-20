@@ -17,7 +17,7 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json().catch(() => null);
     const parsed = parseBody(AlertUpdateSchema, body);
-    if (parsed.error) return parsed.error;
+    if (!parsed.ok) return parsed.error;
     const data = parsed.data;
 
     const alert = await prisma.alert.findFirst({

@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json().catch(() => null);
     const parsed = parseBody(CheckoutSchema, body);
-    if (parsed.error) return parsed.error;
+    if (!parsed.ok) return parsed.error;
     const { priceId, customerEmail, plan } = parsed.data;
 
     const selectedPriceId =

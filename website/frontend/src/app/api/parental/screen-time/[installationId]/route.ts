@@ -55,7 +55,7 @@ export async function PUT(
     const { installationId } = await params;
     const body = await request.json().catch(() => null);
     const parsed = parseBody(ScreenTimeConfigSchema, body);
-    if (parsed.error) return parsed.error;
+    if (!parsed.ok) return parsed.error;
     const data = parsed.data;
 
     const installation = await prisma.installation.findFirst({

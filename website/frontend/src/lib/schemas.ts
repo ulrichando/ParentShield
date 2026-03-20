@@ -86,7 +86,7 @@ export const AlertCreateSchema = z.object({
   severity: z.enum(['low', 'medium', 'high', 'critical']).default('medium'),
   title: z.string().min(1).max(255),
   message: z.string().min(1).max(2000),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.union([z.string(), z.number(), z.boolean(), z.null()])).optional(),
 });
 
 const timePattern = z.string().regex(/^\d{2}:\d{2}$/, 'Time must be HH:MM format').nullable().optional();
@@ -117,38 +117,41 @@ export const BlockedAppSchema = z.object({
 // ─── Helper ───────────────────────────────────────────────────────────────────
 
 import { NextResponse } from 'next/server';
-import type { ZodSchema } from 'zod';
+import type { ZodType } from 'zod';
 
-export function parseBody<T>(
-  schema: ZodSchema<T>,
-  body: unknown
-): { data: T; error?: never } | { data?: never; error: NextResponse } {
+export type ParseOk<T> = { ok: true; data: T; error?: never };
+export type ParseErr = { ok: false; data?: never; error: NextResponse };
+export type ParseResult<T> = ParseOk<T> | ParseErr;
+
+export function parseBody<S extends ZodType>(schema: S, body: unknown): ParseResult<S['_output']> {
   const result = schema.safeParse(body);
   if (!result.success) {
     const flat = result.error.flatten();
     return {
+      ok: false,
       error: NextResponse.json(
         { error: 'Validation failed', fields: flat.fieldErrors },
         { status: 400 }
       ),
     };
   }
-  return { data: result.data };
+  return { ok: true, data: result.data };
 }
 
-export function parseQuery<T>(
-  schema: ZodSchema<T>,
+export function parseQuery<S extends ZodType>(
+  schema: S,
   params: Record<string, string | undefined>
-): { data: T; error?: never } | { data?: never; error: NextResponse } {
+): ParseResult<S['_output']> {
   const result = schema.safeParse(params);
   if (!result.success) {
     const flat = result.error.flatten();
     return {
+      ok: false,
       error: NextResponse.json(
         { error: 'Invalid query parameters', fields: flat.fieldErrors },
         { status: 400 }
       ),
     };
   }
-  return { data: result.data };
+  return { ok: true, data: result.data };
 }

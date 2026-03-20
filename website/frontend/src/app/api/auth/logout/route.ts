@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json().catch(() => null);
     const parsed = parseBody(LogoutSchema, body);
-    if (parsed.error) return parsed.error;
+    if (!parsed.ok) return parsed.error;
     const { refreshToken } = parsed.data;
 
     const payload = verifyToken(refreshToken);

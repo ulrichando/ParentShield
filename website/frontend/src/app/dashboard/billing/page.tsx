@@ -345,7 +345,7 @@ export default function BillingPage() {
               {(!subscription || subscription.status?.toLowerCase() === "trialing") && (
                 <div className="bg-blue-500/5 border border-blue-500/20 p-4">
                   {/* Trial not started yet - show install message */}
-                  {subscription && !subscription.current_period_start ? (
+                  {subscription && !subscription.currentPeriodStart ? (
                     <>
                       <p className="text-sm text-blue-300 mb-3 text-center">
                         Your 7-day free trial will start when you install the app.
@@ -420,10 +420,10 @@ export default function BillingPage() {
 
               {subscription && (
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-neutral-200 dark:border-neutral-800">
-                  {subscription.current_period_start && (
+                  {subscription.currentPeriodStart && (
                     <div>
                       <p className="text-xs text-neutral-500 mb-1">Period Start</p>
-                      <p className="text-sm text-neutral-900 dark:text-white">{formatDate(subscription.current_period_start)}</p>
+                      <p className="text-sm text-neutral-900 dark:text-white">{formatDate(subscription.currentPeriodStart)}</p>
                     </div>
                   )}
                   {subscription.currentPeriodEnd && (
@@ -447,7 +447,7 @@ export default function BillingPage() {
 
               {subscription?.canceledAt && (
                 <div className="pt-3 border-t border-neutral-200 dark:border-neutral-800">
-                  <p className="text-xs text-neutral-500">Canceled on {formatDate(subscription.canceled_at)}</p>
+                  <p className="text-xs text-neutral-500">Canceled on {formatDate(subscription.canceledAt)}</p>
                 </div>
               )}
             </div>
@@ -599,7 +599,7 @@ export default function BillingPage() {
                       </p>
                       <p className="text-xs text-neutral-500">
                         {subscription?.currentPeriodStart
-                          ? formatDate(subscription.current_period_start)
+                          ? formatDate(subscription.currentPeriodStart)
                           : "Starts when you install the app"}
                       </p>
                     </div>

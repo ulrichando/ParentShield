@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json().catch(() => null);
     const parsed = parseBody(HeartbeatSchema, body);
-    if (parsed.error) return parsed.error;
+    if (!parsed.ok) return parsed.error;
     const { deviceId, deviceSecret } = parsed.data;
 
     const installation = await prisma.installation.findUnique({

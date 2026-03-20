@@ -34,7 +34,7 @@ export async function PUT(request: NextRequest) {
 
     const body = await request.json().catch(() => null);
     const parsed = parseBody(ProfileUpdateSchema, body);
-    if (parsed.error) return parsed.error;
+    if (!parsed.ok) return parsed.error;
     const { firstName, lastName, currentPassword, newPassword } = parsed.data;
 
     const updateData: Record<string, unknown> = {};

@@ -46,7 +46,7 @@ export async function POST(
     const { installationId } = await params;
     const body = await request.json().catch(() => null);
     const parsed = parseBody(BlockedAppSchema, body);
-    if (parsed.error) return parsed.error;
+    if (!parsed.ok) return parsed.error;
     const data = parsed.data;
 
     const installation = await prisma.installation.findFirst({

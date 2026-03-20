@@ -11,7 +11,7 @@ const ALLOWED_ORIGIN =
   process.env.ALLOWED_ORIGIN ??
   (process.env.NODE_ENV === 'production' ? 'https://parentshield.app' : 'http://localhost:3000');
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const requestId = crypto.randomUUID();
   const origin = request.headers.get('origin') ?? '';
 

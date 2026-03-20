@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
       page: searchParams.get('page') ?? undefined,
       per_page: searchParams.get('per_page') ?? undefined,
     });
-    if (pagination.error) return pagination.error;
+    if (!pagination.ok) return pagination.error;
     const { page, per_page: perPage } = pagination.data;
     const status = searchParams.get('status') || '';
 

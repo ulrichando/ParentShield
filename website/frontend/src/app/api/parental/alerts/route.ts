@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json().catch(() => null);
     const parsed = parseBody(AlertCreateSchema, body);
-    if (parsed.error) return parsed.error;
+    if (!parsed.ok) return parsed.error;
     const data = parsed.data;
 
     // Verify installationId belongs to the current user

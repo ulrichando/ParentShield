@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json().catch(() => null);
     const parsed = parseBody(InstallationSchema, body);
-    if (parsed.error) return parsed.error;
+    if (!parsed.ok) return parsed.error;
     const { deviceId, deviceName, platform, appVersion, osVersion } = parsed.data;
 
     const existing = await prisma.installation.findUnique({
