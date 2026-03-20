@@ -93,7 +93,7 @@ export default function AdminDevicesPage() {
       try {
         const res = await authFetch("/api/admin/stats/downloads");
         if (res.ok) {
-          const data = await res.json();
+          const { data } = await res.json();
           setStats(data);
         }
       } catch (err) {
@@ -135,7 +135,7 @@ export default function AdminDevicesPage() {
         } else {
           setDownloads(data.downloads);
         }
-        setTotalPages(data.total_pages);
+        setTotalPages(data.totalPages);
         setTotal(data.total);
       } catch (err) {
         setError(err instanceof Error ? err.message : `Failed to load ${activeTab}`);
